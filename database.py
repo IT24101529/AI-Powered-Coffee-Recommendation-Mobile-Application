@@ -89,7 +89,6 @@ def get_db():
     finally:
         db.close()
 
-
 # ── Test this file directly ─────────────────────────────────────
 if __name__ == '__main__':
     create_tables()
