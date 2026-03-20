@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>☕ Coffee AI — Recommendation Chatbot</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --brown:   #5D3A1A;
+      --brown2:  #7B4F2E;
+      --accent:  #922B21;
+      --cream:   #FFF8F0;
+      --cream2:  #F5ECD9;
+      --gold:    #D4A017;
+      --green:   #1E7A34;
+      --red:     #C0392B;
+      --grey:    #555;
+      --lgrey:   #EEE;
+      --white:   #FFFFFF;
+      --shadow:  0 4px 20px rgba(0,0,0,0.12);
+    }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--cream2);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Top Nav ──────────────────────────────────────────── */
+    nav {
+      background: var(--brown);
+      color: var(--white);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-brand { font-size: 20px; font-weight: 700; letter-spacing: 0.5px; }
+    .nav-brand span { color: var(--gold); }
+    .nav-tabs { display: flex; gap: 6px; }
+    .nav-tab {
+      background: transparent; border: 2px solid rgba(255,255,255,0.3);
+      color: rgba(255,255,255,0.8); padding: 6px 16px; border-radius: 20px;
+      cursor: pointer; font-size: 13px; transition: all 0.2s;
+    }
+    .nav-tab:hover, .nav-tab.active {
+      background: var(--gold); border-color: var(--gold); color: var(--brown); font-weight: 700;
+    }
+
+    /* ── Page System ──────────────────────────────────────── */
+    .page { display: none; flex: 1; padding: 24px; max-width: 960px; margin: 0 auto; width: 100%; }
+    .page.active { display: block; }
+
+    /* ── Cards ────────────────────────────────────────────── */
+    .card {
+      background: var(--white); border-radius: 16px; padding: 24px;
+      box-shadow: var(--shadow); margin-bottom: 20px;
+    }
+    .card-title {
+      font-size: 18px; font-weight: 700; color: var(--brown);
+      margin-bottom: 16px; padding-bottom: 10px;
+      border-bottom: 2px solid var(--cream2);
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* ── Chat Page ────────────────────────────────────────── */
+    #page-chat { display: none; flex-direction: column; padding: 0; max-width: 100%; }
+    #page-chat.active { display: flex; }
+    .chat-wrapper {
+      display: flex; height: calc(100vh - 60px);
+      max-width: 1100px; margin: 0 auto; width: 100%; gap: 0;
+    }
+    /* Sidebar */
+    .chat-sidebar {
+      width: 260px; background: var(--brown); color: var(--white);
+      padding: 20px 16px; display: flex; flex-direction: column; gap: 16px;
+      flex-shrink: 0;
+    }
+    .sidebar-title { font-size: 15px; font-weight: 700; color: var(--gold); margin-bottom: 4px; }
+    .sidebar-info { font-size: 12px; color: rgba(255,255,255,0.7); line-height: 1.6; }
+    .sidebar-stat {
+      background: rgba(255,255,255,0.1); border-radius: 10px; padding: 10px 12px;
+    }
+    .sidebar-stat-label { font-size: 11px; color: rgba(255,255,255,0.6); }
+    .sidebar-stat-value { font-size: 16px; font-weight: 700; color: var(--gold); }
+    /* Main chat area */
+    .chat-main { flex: 1; display: flex; flex-direction: column; background: var(--cream); }
+    .chat-header {
+      background: var(--white); padding: 14px 20px;
+      border-bottom: 1px solid var(--lgrey);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .bot-avatar {
+      width: 42px; height: 42px; background: var(--brown);
+      border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-size: 20px; flex-shrink: 0;
+    }
+    .bot-name { font-weight: 700; color: var(--brown); font-size: 15px; }
+    .bot-status { font-size: 12px; color: var(--green); }
+    .chat-messages {
+      flex: 1; overflow-y: auto; padding: 20px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .msg { display: flex; gap: 10px; max-width: 78%; }
+    .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+    .msg.bot  { align-self: flex-start; }
+    .msg-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0; align-self: flex-end;
+    }
+    .msg.bot  .msg-avatar { background: var(--brown); }
+    .msg.user .msg-avatar { background: var(--accent); }
+    .msg-bubble {
+      padding: 11px 15px; border-radius: 18px; font-size: 14px;
+      line-height: 1.55; max-width: 100%;
+    }
+    .msg.bot  .msg-bubble {
+      background: var(--white); color: #333;
+      border-bottom-left-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .msg.user .msg-bubble {
+      background: var(--brown); color: var(--white);
+      border-bottom-right-radius: 4px;
+    }
+    .msg-time { font-size: 10px; color: #AAA; margin-top: 4px; }
+    /* Quick replies */
+    .quick-replies { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .qr-btn {
+      background: var(--cream2); border: 1.5px solid var(--brown2);
+      color: var(--brown); padding: 6px 14px; border-radius: 20px;
+      font-size: 13px; cursor: pointer; transition: all 0.2s;
+    }
+    .qr-btn:hover { background: var(--brown); color: var(--white); }
+    /* Recommendation card in chat */
+    .rec-card {
+      background: linear-gradient(135deg, var(--cream2), var(--white));
+      border: 2px solid var(--gold); border-radius: 14px;
+      padding: 14px; margin-top: 8px;
+    }
+    .rec-name { font-size: 17px; font-weight: 700; color: var(--brown); }
+    .rec-price { font-size: 13px; color: var(--grey); margin: 2px 0 6px; }
+    .rec-score {
+      display: inline-block; background: var(--green); color: var(--white);
+      font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-bottom: 6px;
+    }
+    .rec-reason { font-size: 13px; color: #555; line-height: 1.5; }
+    /* Rating stars in chat */
+    .rating-row { display: flex; gap: 6px; margin-top: 10px; }
+    .star-btn {
+      background: none; border: none; font-size: 26px; cursor: pointer;
+      color: #CCC; transition: color 0.15s;
+    }
+    .star-btn.lit { color: var(--gold); }
+    /* Input area */
+    .chat-input-area {
+      padding: 14px 16px; background: var(--white);
+      border-top: 1px solid var(--lgrey); display: flex; gap: 10px; align-items: flex-end;
+    }
+    .chat-input {
+      flex: 1; border: 1.5px solid #DDD; border-radius: 22px;
+      padding: 10px 16px; font-size: 14px; resize: none;
+      font-family: inherit; max-height: 100px; outline: none;
+      transition: border-color 0.2s;
+    }
+    .chat-input:focus { border-color: var(--brown); }
+    .send-btn {
+      background: var(--brown); color: var(--white); border: none;
+      width: 42px; height: 42px; border-radius: 50%; font-size: 18px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s; flex-shrink: 0;
+    }
+    .send-btn:hover { background: var(--brown2); }
+    /* Typing indicator */
+    .typing { display: flex; gap: 4px; padding: 10px 14px; }
+    .typing span {
+      width: 8px; height: 8px; background: #BBB; border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%,60%,100% { transform: translateY(0); }
+      30%          { transform: translateY(-8px); }
+    }
+
+    /* ── Reviews Page ─────────────────────────────────────── */
+    .form-group { margin-bottom: 18px; }
+    .form-label {
+      display: block; font-size: 13px; font-weight: 600;
+      color: var(--brown); margin-bottom: 6px;
+    }
+    .form-input, .form-select, .form-textarea {
+      width: 100%; padding: 10px 14px; border: 1.5px solid #DDD;
+      border-radius: 10px; font-size: 14px; font-family: inherit;
+      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+      background: var(--white);
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--brown); box-shadow: 0 0 0 3px rgba(93,58,26,0.1);
+    }
+    .form-input.error, .form-textarea.error { border-color: var(--red); }
+    .form-textarea { min-height: 90px; resize: vertical; }
+    .error-msg {
+      color: var(--red); font-size: 12px; margin-top: 4px;
+      display: none; align-items: center; gap: 4px;
+    }
+    .error-msg.show { display: flex; }
+    /* Star selector */
+    .star-selector { display: flex; gap: 6px; }
+    .star-sel {
+      background: none; border: none; font-size: 32px;
+      color: #DDD; cursor: pointer; transition: color 0.15s;
+    }
+    .star-sel.selected { color: var(--gold); }
+    .rating-error { color: var(--red); font-size: 12px; display: none; margin-top: 4px; }
+    .rating-error.show { display: block; }
+    /* Submit btn */
+    .submit-btn {
+      background: var(--accent); color: var(--white); border: none;
+      padding: 12px 28px; border-radius: 10px; font-size: 15px;
+      font-weight: 600; cursor: pointer; transition: background 0.2s;
+      width: 100%;
+    }
+    .submit-btn:hover { background: #7B241C; }
+    .submit-btn:disabled { background: #CCC; cursor: not-allowed; }
+    /* Review card */
+    .review-card {
+      background: var(--white); border-radius: 14px; padding: 16px;
+      margin-bottom: 14px; border-left: 4px solid var(--brown);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .reviewer-name { font-weight: 700; color: var(--brown); font-size: 14px; }
+    .review-stars { color: var(--gold); font-size: 16px; }
+    .review-comment { font-size: 14px; color: #555; line-height: 1.55; }
+    .review-date { font-size: 11px; color: #AAA; margin-top: 6px; }
+    .badge {
+      display: inline-block; padding: 2px 10px; border-radius: 10px;
+      font-size: 11px; font-weight: 700;
+    }
+    .badge-pos { background: #E8F5E9; color: #2E7D32; }
+    .badge-neg { background: #FFEBEE; color: #C62828; }
+    .badge-neu { background: #F5F5F5; color: #555; }
+    /* Avg rating display */
+    .avg-box {
+      display: flex; align-items: center; gap: 20px;
+      background: var(--cream2); border-radius: 12px; padding: 16px;
+      margin-bottom: 20px;
+    }
+    .avg-number { font-size: 52px; font-weight: 700; color: var(--brown); line-height: 1; }
+    .avg-stars  { color: var(--gold); font-size: 22px; }
+    .avg-total  { font-size: 13px; color: var(--grey); }
+    /* Distribution bar */
+    .dist-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+    .dist-label { width: 28px; font-size: 13px; color: var(--grey); }
+    .dist-bar-bg { flex: 1; height: 10px; background: var(--lgrey); border-radius: 5px; overflow: hidden; }
+    .dist-bar-fill { height: 100%; background: var(--gold); border-radius: 5px; transition: width 0.6s; }
+    .dist-count { width: 24px; font-size: 12px; color: var(--grey); text-align: right; }
+    /* Alert */
+    .alert {
+      padding: 12px 16px; border-radius: 10px; font-size: 14px;
+      margin-bottom: 16px; display: none;
+    }
+    .alert.show { display: block; }
+    .alert-success { background: #E8F5E9; color: #2E7D32; border: 1px solid #A5D6A7; }
+    .alert-error   { background: #FFEBEE; color: #C62828; border: 1px solid #FFCDD2; }
+    .alert-info    { background: #E3F2FD; color: #1565C0; border: 1px solid #90CAF9; }
+
+    /* ── Products Page ────────────────────────────────────── */
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+    .product-card {
+      background: var(--white); border-radius: 14px; padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07); cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s; border: 2px solid transparent;
+    }
+    .product-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); border-color: var(--gold); }
+    .product-emoji { font-size: 32px; margin-bottom: 8px; }
+    .product-name  { font-size: 14px; font-weight: 700; color: var(--brown); margin-bottom: 4px; }
+    .product-cat   { font-size: 11px; color: var(--grey); margin-bottom: 6px; }
+    .product-price { font-size: 15px; font-weight: 700; color: var(--accent); }
+    .product-temp  {
+      font-size: 10px; padding: 2px 8px; border-radius: 10px; margin-top: 6px;
+      display: inline-block; font-weight: 600;
+    }
+    .temp-hot     { background: #FFF3E0; color: #E65100; }
+    .temp-iced    { background: #E3F2FD; color: #1565C0; }
+    .temp-blended { background: #F3E5F5; color: #6A1B9A; }
+    /* Search bar */
+    .search-bar {
+      display: flex; gap: 10px; margin-bottom: 20px; align-items: center;
+    }
+    .search-input {
+      flex: 1; padding: 10px 16px; border: 1.5px solid #DDD;
+      border-radius: 22px; font-size: 14px; outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-input:focus { border-color: var(--brown); }
+    .filter-btn {
+      padding: 8px 16px; border-radius: 20px; border: 1.5px solid #DDD;
+      background: var(--white); font-size: 13px; cursor: pointer;
+      transition: all 0.2s; color: var(--grey);
+    }
+    .filter-btn.active { background: var(--brown); color: var(--white); border-color: var(--brown); }
+
+    /* ── Toast ────────────────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--brown); color: var(--white);
+      padding: 12px 20px; border-radius: 10px; font-size: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      transform: translateY(80px); opacity: 0;
+      transition: all 0.3s; z-index: 999;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ── Responsive ───────────────────────────────────────── */
+    @media (max-width: 700px) {
+      .chat-sidebar { display: none; }
+      .product-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ─────────────────────────────────────────── -->
+<nav>
+  <div class="nav-brand">☕ <span>CoffeeAI</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('chat')">💬 Chat</button>
+    <button class="nav-tab" onclick="showPage('products')">☕ Menu</button>
+    <button class="nav-tab" onclick="showPage('reviews')">⭐ Reviews</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════
+     PAGE 1 — CHAT
+═══════════════════════════════════════════════════════════ -->
+<div id="page-chat" class="page active">
+  <div class="chat-wrapper">
+
+    <!-- Sidebar -->
+    <div class="chat-sidebar">
+      <div>
+        <div class="sidebar-title">☕ Session Info</div>
+        <div class="sidebar-info">Feature 4 — Cosine Similarity Product Matcher</div>
+      </div>
+      <div class="sidebar-stat">
+        <div class="sidebar-stat-label">Algorithm</div>
+        <div class="sidebar-stat-value" style="font-size:13px;">Cosine Similarity</div>
+      </div>
+      <div class="sidebar-stat">
+        <div class="sidebar-stat-label">Products in DB</div>
+        <div class="sidebar-stat-value" id="stat-products">50+</div>
+      </div>
+      <div class="sidebar-stat">
+        <div class="sidebar-stat-label">Detected Mood</div>
+        <div class="sidebar-stat-value" id="stat-mood">—</div>
+      </div>
+      <div class="sidebar-stat">
+        <div class="sidebar-stat-label">Match Score</div>
+        <div class="sidebar-stat-value" id="stat-score">—</div>
+      </div>
+      <div class="sidebar-stat">
+        <div class="sidebar-stat-label">Budget</div>
+        <div class="sidebar-stat-value" id="stat-budget">—</div>
+      </div>
+      <div class="sidebar-stat">
+        <div class="sidebar-stat-label">Strategy</div>
+        <div class="sidebar-stat-value" id="stat-strategy">Content-Based</div>
+      </div>
+      <div style="margin-top:auto;">
+        <button onclick="resetChat()" style="width:100%;padding:10px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:white;border-radius:10px;cursor:pointer;font-size:13px;">
+          🔄 New Session
+        </button>
+      </div>
+    </div>
+
+    <!-- Main chat -->
+    <div class="chat-main">
+      <div class="chat-header">
+        <div class="bot-avatar">🤖</div>
+        <div>
+          <div class="bot-name">CoffeeBot AI</div>
+          <div class="bot-status">● Online — Powered by Cosine Similarity</div>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chat-messages"></div>
+
+      <div class="chat-input-area">
+        <textarea
+          id="chat-input"
+          class="chat-input"
+          placeholder="Type a message..."
+          rows="1"
+          onkeydown="handleKey(event)"
+          oninput="autoResize(this)"
+        ></textarea>
+        <button class="send-btn" onclick="sendMessage()" title="Send">➤</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     PAGE 2 — PRODUCTS MENU
+═══════════════════════════════════════════════════════════ -->
+<div id="page-products" class="page">
+  <div class="card">
+    <div class="card-title">☕ Our Coffee Menu</div>
+    <div class="search-bar">
+      <input type="text" class="search-input" id="search-input" placeholder="🔍 Search products..." oninput="filterProducts()" />
+      <button class="filter-btn active" onclick="setFilter('All',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('Hot',this)">🔥 Hot</button>
+      <button class="filter-btn" onclick="setFilter('Iced',this)">🧊 Iced</button>
+      <button class="filter-btn" onclick="setFilter('Blended',this)">🥤 Blended</button>
+    </div>
+    <div class="product-grid" id="product-grid"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     PAGE 3 — REVIEWS
+═══════════════════════════════════════════════════════════ -->
+<div id="page-reviews" class="page">
+
+  <!-- Submit form -->
+  <div class="card">
+    <div class="card-title">✍️ Write a Review</div>
+
+    <div id="alert-box" class="alert"></div>
+
+    <div class="form-group">
+      <label class="form-label">Product *</label>
+      <select id="review-product" class="form-select" onchange="clearFieldError('review-product')">
+        <option value="">— Select a product —</option>
+      </select>
+      <div class="error-msg" id="err-product">⚠ Please select a product.</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Your Name *</label>
+      <input type="text" id="review-name" class="form-input"
+             placeholder="Enter your name"
+             oninput="clearFieldError('review-name')"
+             maxlength="50" />
+      <div class="error-msg" id="err-name">⚠ Name is required (2–50 characters).</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Star Rating *</label>
+      <div class="star-selector" id="star-selector">
+        <button class="star-sel" onclick="setRating(1)" title="1 star">★</button>
+        <button class="star-sel" onclick="setRating(2)" title="2 stars">★</button>
+        <button class="star-sel" onclick="setRating(3)" title="3 stars">★</button>
+        <button class="star-sel" onclick="setRating(4)" title="4 stars">★</button>
+        <button class="star-sel" onclick="setRating(5)" title="5 stars">★</button>
+      </div>
+      <div class="rating-error" id="err-rating">⚠ Please select a star rating.</div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Your Comment * <span style="color:#AAA;font-weight:400;">(10–500 characters)</span></label>
+      <textarea id="review-comment" class="form-textarea"
+                placeholder="Share your experience with this coffee..."
+                oninput="updateCharCount()"
+                maxlength="500"></textarea>
+      <div style="display:flex;justify-content:space-between;margin-top:4px;">
+        <div class="error-msg show" id="err-comment" style="display:none;">⚠ Comment must be at least 10 characters.</div>
+        <div style="font-size:12px;color:#AAA;margin-left:auto;"><span id="char-count">0</span>/500</div>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="submit-btn" onclick="submitReview()">Submit Review</button>
+  </div>
+
+  <!-- Reviews list -->
+  <div class="card">
+    <div class="card-title">⭐ Customer Reviews</div>
+
+    <div class="avg-box" id="avg-box" style="display:none;">
+      <div>
+        <div class="avg-number" id="avg-number">0</div>
+        <div class="avg-stars" id="avg-stars"></div>
+        <div class="avg-total" id="avg-total"></div>
+      </div>
+      <div style="flex:1;" id="dist-bars"></div>
+    </div>
+
+    <div id="reviews-list"></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ══════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════ -->
+<script>
+// ── Config ──────────────────────────────────────────────────
+// Change these to your actual running server ports
+const AIML_API = 'http://127.0.0.1:8003';
+const WMT_API  = 'http://localhost:5000/api';
+
+// ── Product catalogue (mirrors the seeder) ──────────────────
+const PRODUCTS = [
+  { name:'Espresso',          category:'Espresso',  price:200, temperature:'Hot',     emoji:'☕' },
+  { name:'Double Espresso',   category:'Espresso',  price:280, temperature:'Hot',     emoji:'☕' },
+  { name:'Americano',         category:'Espresso',  price:250, temperature:'Hot',     emoji:'☕' },
+  { name:'Cappuccino',        category:'Latte',     price:380, temperature:'Hot',     emoji:'🍵' },
+  { name:'Latte',             category:'Latte',     price:400, temperature:'Hot',     emoji:'🍵' },
+  { name:'Flat White',        category:'Latte',     price:380, temperature:'Hot',     emoji:'🍵' },
+  { name:'Caramel Macchiato', category:'Specialty', price:480, temperature:'Hot',     emoji:'🍮' },
+  { name:'Mocha',             category:'Specialty', price:450, temperature:'Hot',     emoji:'🍫' },
+  { name:'Vanilla Latte',     category:'Specialty', price:440, temperature:'Hot',     emoji:'🌿' },
+  { name:'Lavender Latte',    category:'Specialty', price:480, temperature:'Hot',     emoji:'💜' },
+  { name:'Chai Latte',        category:'Tea',       price:380, temperature:'Hot',     emoji:'🍵' },
+  { name:'Matcha Latte',      category:'Tea',       price:420, temperature:'Hot',     emoji:'🍵' },
+  { name:'Hot Chocolate',     category:'Other',     price:350, temperature:'Hot',     emoji:'🍫' },
+  { name:'Decaf Latte',       category:'Decaf',     price:400, temperature:'Hot',     emoji:'☕' },
+  { name:'Iced Americano',    category:'Iced',      price:300, temperature:'Iced',    emoji:'🧊' },
+  { name:'Iced Latte',        category:'Iced',      price:420, temperature:'Iced',    emoji:'🧊' },
+  { name:'Cold Brew',         category:'Iced',      price:380, temperature:'Iced',    emoji:'🧊' },
+  { name:'Iced Mocha',        category:'Iced',      price:480, temperature:'Iced',    emoji:'🧊' },
+  { name:'Iced Caramel Latte',category:'Iced',      price:460, temperature:'Iced',    emoji:'🧊' },
+  { name:'Caramel Frappe',    category:'Blended',   price:520, temperature:'Blended', emoji:'🥤' },
+  { name:'Mocha Frappe',      category:'Blended',   price:500, temperature:'Blended', emoji:'🥤' },
+  { name:'Vanilla Frappe',    category:'Blended',   price:480, temperature:'Blended', emoji:'🥤' },
+  { name:'Honey Oat Latte',   category:'Specialty', price:480, temperature:'Hot',     emoji:'🍯' },
+  { name:'Brown Sugar Latte', category:'Specialty', price:490, temperature:'Hot',     emoji:'🍮' },
+  { name:'Iced Matcha Latte', category:'Tea',       price:440, temperature:'Iced',    emoji:'🍵' },
+];
+
+// ── Offline cosine similarity (mirrors the Python logic) ────
+const MOOD_VECTORS = {
+  Tired:    { caffeine:9, warmth:7, sweetness:4, bitterness:5, richness:7, acidity:4 },
+  Stressed: { caffeine:2, warmth:8, sweetness:6, bitterness:2, richness:5, acidity:3 },
+  Happy:    { caffeine:5, warmth:6, sweetness:8, bitterness:3, richness:6, acidity:4 },
+  Sad:      { caffeine:4, warmth:9, sweetness:8, bitterness:2, richness:7, acidity:3 },
+  Excited:  { caffeine:8, warmth:4, sweetness:7, bitterness:3, richness:6, acidity:5 },
+  Calm:     { caffeine:5, warmth:7, sweetness:5, bitterness:5, richness:6, acidity:5 },
+  Anxious:  { caffeine:1, warmth:7, sweetness:5, bitterness:2, richness:5, acidity:3 },
+  Normal:   { caffeine:5, warmth:6, sweetness:5, bitterness:5, richness:5, acidity:5 },
+};
+const PRODUCT_VECTORS = {
+  'Espresso':          { caffeine:10, warmth:9, sweetness:1, bitterness:9, richness:9,  acidity:8 },
+  'Double Espresso':   { caffeine:10, warmth:9, sweetness:1, bitterness:9, richness:9,  acidity:8 },
+  'Americano':         { caffeine:8,  warmth:8, sweetness:1, bitterness:7, richness:7,  acidity:6 },
+  'Cappuccino':        { caffeine:7,  warmth:9, sweetness:4, bitterness:6, richness:7,  acidity:4 },
+  'Latte':             { caffeine:6,  warmth:8, sweetness:5, bitterness:4, richness:6,  acidity:3 },
+  'Flat White':        { caffeine:8,  warmth:9, sweetness:3, bitterness:6, richness:8,  acidity:5 },
+  'Caramel Macchiato': { caffeine:6,  warmth:8, sweetness:8, bitterness:3, richness:7,  acidity:2 },
+  'Mocha':             { caffeine:6,  warmth:8, sweetness:8, bitterness:5, richness:8,  acidity:2 },
+  'Vanilla Latte':     { caffeine:6,  warmth:8, sweetness:7, bitterness:2, richness:6,  acidity:2 },
+  'Lavender Latte':    { caffeine:3,  warmth:8, sweetness:6, bitterness:2, richness:5,  acidity:2 },
+  'Chai Latte':        { caffeine:2,  warmth:8, sweetness:7, bitterness:1, richness:6,  acidity:2 },
+  'Matcha Latte':      { caffeine:4,  warmth:8, sweetness:5, bitterness:3, richness:5,  acidity:3 },
+  'Hot Chocolate':     { caffeine:0,  warmth:9, sweetness:9, bitterness:3, richness:8,  acidity:1 },
+  'Decaf Latte':       { caffeine:0,  warmth:8, sweetness:5, bitterness:3, richness:5,  acidity:3 },
+  'Iced Americano':    { caffeine:8,  warmth:1, sweetness:1, bitterness:7, richness:6,  acidity:6 },
+  'Iced Latte':        { caffeine:6,  warmth:1, sweetness:4, bitterness:4, richness:5,  acidity:3 },
+  'Cold Brew':         { caffeine:9,  warmth:1, sweetness:2, bitterness:5, richness:7,  acidity:3 },
+  'Iced Mocha':        { caffeine:6,  warmth:1, sweetness:8, bitterness:4, richness:6,  acidity:2 },
+  'Iced Caramel Latte':{ caffeine:6,  warmth:1, sweetness:8, bitterness:2, richness:5,  acidity:2 },
+  'Caramel Frappe':    { caffeine:5,  warmth:1, sweetness:9, bitterness:2, richness:6,  acidity:1 },
+  'Mocha Frappe':      { caffeine:5,  warmth:1, sweetness:9, bitterness:3, richness:7,  acidity:1 },
+  'Vanilla Frappe':    { caffeine:4,  warmth:1, sweetness:9, bitterness:1, richness:5,  acidity:1 },
+  'Honey Oat Latte':   { caffeine:6,  warmth:8, sweetness:7, bitterness:3, richness:6,  acidity:2 },
+  'Brown Sugar Latte': { caffeine:6,  warmth:8, sweetness:8, bitterness:3, richness:6,  acidity:2 },
+  'Iced Matcha Latte': { caffeine:3,  warmth:1, sweetness:5, bitterness:2, richness:4,  acidity:2 },
+};
+
+function dotProduct(a,b){ return Object.keys(a).reduce((s,k)=>s+a[k]*b[k],0); }
+function magnitude(a){ return Math.sqrt(Object.keys(a).reduce((s,k)=>s+a[k]*a[k],0)); }
+function cosineSim(a,b){ const d=dotProduct(a,b); return d/(magnitude(a)*magnitude(b)||1); }
+
+function recommend(mood, weather, tempPref, time, budget){
+  let vec = {...(MOOD_VECTORS[mood]||MOOD_VECTORS.Normal)};
+  if(['Cold','Rainy'].includes(weather)){ vec.warmth=Math.min(vec.warmth+2,10); vec.richness=Math.min(vec.richness+1,10); }
+  if(weather==='Hot') vec.warmth=Math.max(vec.warmth-4,0);
+  if(time==='Morning') vec.caffeine=Math.min(vec.caffeine+1,10);
+  if(['Evening','Night'].includes(time)) vec.caffeine=Math.max(vec.caffeine-2,0);
+  if(tempPref==='Hot')  vec.warmth=Math.max(vec.warmth,7);
+  if(tempPref==='Iced') vec.warmth=Math.min(vec.warmth,2);
+
+  return PRODUCTS
+    .filter(p=> {
+      const matchTemp   = tempPref==='Hot'?p.temperature==='Hot':tempPref==='Iced'?p.temperature==='Iced':tempPref==='Blended'?p.temperature==='Blended':true;
+      const matchBudget = budget ? p.price <= budget : true;
+      return matchTemp && matchBudget;
+    })
+    .map(p=>{
+      const pv = PRODUCT_VECTORS[p.name]||{caffeine:5,warmth:5,sweetness:5,bitterness:5,richness:5,acidity:5};
+      return { ...p, score: cosineSim(vec,pv) };
+    })
+    .sort((a,b)=>b.score-a.score)
+    .slice(0,3);
+}
+
+// ── Chat State ───────────────────────────────────────────────
+let state = { step:'greeting', mood:null, weather:null, tempPref:null, time:null, recs:null, rating:0 };
+
+const QUICK = {
+  greeting:  ['😄 Happy','😴 Tired','😰 Stressed','😊 Calm','😟 Sad','😬 Anxious'],
+  weather:   ['☀️ Hot','🌤 Warm','🌧 Rainy','❄️ Cold'],
+  tempPref:  ['🔥 Hot','🧊 Iced','🥤 Blended','No preference'],
+  time:      ['🌅 Morning','☀️ Afternoon','🌆 Evening','🌙 Night'],
+  after_rec: ['✅ Order it!','🔁 Show more','⭐ Rate this','👎 Not for me'],
+};
+
+function now(){ return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}); }
+
+function addMsg(text, who, extras={}){
+  const wrap = document.getElementById('chat-messages');
+  const div  = document.createElement('div');
+  div.className = `msg ${who}`;
+  const avatar = who==='bot'?'🤖':'👤';
+  let inner = `<div class="msg-avatar">${avatar}</div><div>`;
+  inner += `<div class="msg-bubble">${text}</div>`;
+  if(extras.rec){
+    const r = extras.rec;
+    const pct = Math.round(r.score*100);
+    inner += `<div class="rec-card">
+      <div class="rec-name">${r.emoji} ${r.name}</div>
+      <div class="rec-price">Rs. ${r.price}</div>
+      <span class="rec-score">${pct}% match</span>
+      <div class="rec-reason">${buildReason(r,state)}</div>
+    </div>`;
+    document.getElementById('stat-score').textContent = pct+'%';
+  }
+  if(extras.qr){
+    inner += `<div class="quick-replies">${extras.qr.map(q=>`<button class="qr-btn" onclick="handleQR('${q}')">${q}</button>`).join('')}</div>`;
+  }
+  if(extras.stars){
+    inner += `<div class="rating-row" id="star-row">
+      ${[1,2,3,4,5].map(s=>`<button class="star-btn" id="s${s}" onclick="submitRating(${s})">☆</button>`).join('')}
+    </div>`;
+  }
+  inner += `<div class="msg-time">${now()}</div></div>`;
+  div.innerHTML = inner;
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+function buildReason(p, s){
+  const parts=[];
+  if(s.mood==='Tired'&&p.name.includes('Espresso')) parts.push('high caffeine to boost your energy');
+  if(['Stressed','Anxious'].includes(s.mood)&&p.caffeine<=3) parts.push('low caffeine to keep you calm');
+  if(['Cold','Rainy'].includes(s.weather)&&p.warmth>=7) parts.push('warm and comforting for the weather');
+  if(s.weather==='Hot'&&p.warmth<=2) parts.push('refreshingly cold for hot weather');
+  if(['Happy','Excited'].includes(s.mood)&&p.sweetness>=7) parts.push('sweet and indulgent to match your mood');
+  if(parts.length===0) parts.push('a well-balanced choice for your current mood and context');
+  return 'Recommended because it offers ' + parts.join(', and ') + '.';
+}
+
+function showTyping(){ addMsg('<div class="typing"><span></span><span></span><span></span></div>','bot'); }
+
+function botSay(text, extras={}, delay=600){
+  setTimeout(()=>{
+    const msgs = document.getElementById('chat-messages');
+    const last = msgs.lastElementChild;
+    if(last && last.querySelector('.typing')) last.remove();
+    addMsg(text,'bot',extras);
+  }, delay);
+}
+
+// ── Processing lock — prevents double firing ─────────────────
+let _processing = false;
+
+function handleQR(val){
+  if(_processing) return;
+  _processing = true;
+  document.querySelectorAll('.qr-btn').forEach(b => b.disabled = true);
+  _runStep(val);
+}
+
+function sendMessage(){
+  if(_processing) return;
+  const el = document.getElementById('chat-input');
+  const txt = el.value.trim();
+  if(!txt) return;
+  _processing = true;
+  el.value=''; el.style.height='auto';
+  _runStep(txt);
+}
+
+function handleKey(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMessage(); } }
+function autoResize(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
+
+async function _runStep(input){
+  // Remove all existing quick reply rows immediately
+  document.querySelectorAll('.quick-replies').forEach(el => el.remove());
+
+  switch(state.step){
+
+    // ── Step 1: Mood ───────────────────────────────────────
+    case 'ask_mood':
+      addMsg(input,'user');
+      const moodMap={'happy':'Happy','tired':'Tired','stressed':'Stressed','calm':'Calm','sad':'Sad','anxious':'Anxious','excited':'Excited'};
+      const low = input.toLowerCase().replace(/[^a-z]/g,'');
+      state.mood = moodMap[Object.keys(moodMap).find(k=>low.includes(k))] || 'Calm';
+      document.getElementById('stat-mood').textContent = state.mood;
+      state.step = 'ask_weather';
+      showTyping();
+      botSay(`Got it — you are feeling <b>${state.mood}</b>. What is the weather like outside right now?`, {qr:QUICK.weather});
+      break;
+
+    // ── Step 2: Weather ────────────────────────────────────
+    case 'ask_weather':
+      addMsg(input,'user');
+      const wMap={hot:'Hot',warm:'Warm',rain:'Rainy',cold:'Cold'};
+      const wk = Object.keys(wMap).find(k=>input.toLowerCase().includes(k));
+      state.weather = wMap[wk] || 'Warm';
+      state.step = 'ask_temp';
+      showTyping();
+      botSay(`${state.weather} weather — noted! Do you prefer a hot or iced drink today?`, {qr:QUICK.tempPref});
+      break;
+
+    // ── Step 3: Temperature preference ────────────────────
+    case 'ask_temp':
+      addMsg(input,'user');
+      const tl = input.toLowerCase();
+      state.tempPref = tl.includes('iced')||tl.includes('cold')||tl.includes('🧊') ? 'Iced'
+                     : tl.includes('blend')||tl.includes('🥤')                     ? 'Blended'
+                     : tl.includes('hot')||tl.includes('🔥')                       ? 'Hot'
+                     : 'No preference';
+      state.step = 'ask_time';
+      showTyping();
+      botSay('What time of day is it for you?', {qr:QUICK.time});
+      break;
+
+    // ── Step 4: Time of day ────────────────────────────────
+    case 'ask_time':
+      addMsg(input,'user');
+      const tmMap={morning:'Morning',afternoon:'Afternoon',evening:'Evening',night:'Night'};
+      const tmk = Object.keys(tmMap).find(k=>input.toLowerCase().includes(k));
+      state.time = tmMap[tmk] || 'Afternoon';
+      state.step = 'ask_budget';
+      showTyping();
+      botSay('Do you have a budget in mind? This helps me filter by price.', {qr:['Under Rs. 300','Under Rs. 400','Under Rs. 500','No limit']});
+      break;
+
+    // ── Step 5: Budget ─────────────────────────────────────
+    case 'ask_budget':
+      addMsg(input,'user');
+      const bl = input.toLowerCase();
+      state.budget = bl.includes('300') ? 300
+                   : bl.includes('400') ? 400
+                   : bl.includes('500') ? 500
+                   : null;
+      const budgetTxt = state.budget ? `Rs. ${state.budget}` : 'No limit';
+      document.getElementById('stat-budget').textContent = budgetTxt;
+      state.step = 'show_rec';
+      showTyping();
+
+      // ── Call live AIML API, fallback to offline ──────────
+      try {
+        const body = {
+          mood:      state.mood,
+          weather:   state.weather,
+          temp_pref: state.tempPref,
+          time:      state.time,
+          top_n:     3,
+        };
+        if(state.budget) body.budget = state.budget;
+        const res = await fetch(`${AIML_API}/products/recommend`, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(body),
+        });
+        if(!res.ok) throw new Error();
+        const data = await res.json();
+        state.recs = data.recommendations.map(r=>({
+          name: r.product_name, price: r.price,
+          score: r.similarity_score, emoji:'☕',
+          reason: r.reason, temperature: r.temperature,
+        }));
+      } catch {
+        state.recs = recommend(state.mood, state.weather, state.tempPref, state.time, state.budget)
+          .map(r=>({...r, reason: buildReason(r, state)}));
+      }
+
+      if(!state.recs || state.recs.length === 0){
+        botSay('Sorry, no products matched your budget. Let me show options with no budget limit.',{qr:QUICK.after_rec});
+        state.recs = recommend(state.mood, state.weather, state.tempPref, state.time, null)
+          .map(r=>({...r, reason: buildReason(r, state)}));
+      }
+
+      const top = state.recs[0];
+      document.getElementById('stat-score').textContent = Math.round(top.score*100)+'%';
+      botSay(
+        `Based on your profile — <b>${state.mood}</b> mood, <b>${state.weather}</b> weather, <b>${state.tempPref}</b> preference, budget <b>${budgetTxt}</b> — here is my top recommendation:`,
+        {rec: top, qr: QUICK.after_rec}
+      );
+      break;
+
+    // ── Step 6: After recommendation ──────────────────────
+    case 'after_rec':
+      addMsg(input,'user');
+      const inp = input.toLowerCase();
+      if(inp.includes('order')||inp.includes('yes')||inp.includes('✅')){
+        state.step = 'rating';
+        showTyping();
+        botSay(`🎉 Great choice! Your <b>${state.recs[0].name}</b> is being prepared. It will be ready in about 5 minutes! How would you rate this recommendation?`, {stars:true});
+      } else if(inp.includes('more')||inp.includes('🔁')){
+        state.step = 'after_rec';
+        showTyping();
+        const r2 = state.recs[1] || state.recs[0];
+        document.getElementById('stat-score').textContent = Math.round(r2.score*100)+'%';
+        botSay('Here is another option for you:', {rec:r2, qr:QUICK.after_rec});
+      } else if(inp.includes('rate')||inp.includes('⭐')){
+        state.step = 'rating';
+        showTyping();
+        botSay('How would you rate this recommendation?', {stars:true});
+      } else {
+        state.step = 'ask_mood';
+        showTyping();
+        botSay('No problem! Let me find something else. How are you feeling?', {qr:QUICK.greeting});
+      }
+      break;
+
+    // ── Step 7: Rating ─────────────────────────────────────
+    case 'rating':
+      addMsg(input,'user');
+      showTyping();
+      botSay('Thank you for your feedback! 🙏 It helps me improve recommendations over time. Would you like to try again?', {qr:['🔄 Start over','☕ Browse menu']});
+      state.step = 'done';
+      break;
+
+    // ── Done ───────────────────────────────────────────────
+    case 'done':
+      addMsg(input,'user');
+      if(input.toLowerCase().includes('start')||input.toLowerCase().includes('over')){
+        _processing = false;
+        resetChat();
+        return;
+      }
+      showTyping();
+      botSay("Feel free to explore our menu or write a review! Click <b>New Session</b> anytime to start again. 😊");
+      break;
+
+    default:
+      addMsg(input,'user');
+      state.step = 'ask_mood';
+      showTyping();
+      botSay('How are you feeling right now?', {qr:QUICK.greeting});
+  }
+
+  setTimeout(() => { _processing = false; }, 900);
+}
+
+function submitRating(n){
+  if(_processing) return;
+  for(let i=1;i<=5;i++){
+    const b=document.getElementById('s'+i);
+    if(b){ b.textContent = i<=n?'★':'☆'; b.className='star-btn'+(i<=n?' lit':''); }
+  }
+  setTimeout(()=>{ _processing=false; _runStep(`I give it ${n} star${n>1?'s':''}`); },400);
+}
+
+function resetChat(){
+  _processing = false;
+  state = {step:'ask_mood', mood:null, weather:null, tempPref:null, time:null, budget:null, recs:null};
+  document.getElementById('chat-messages').innerHTML='';
+  document.getElementById('stat-mood').textContent   = '—';
+  document.getElementById('stat-score').textContent  = '—';
+  document.getElementById('stat-budget').textContent = '—';
+  // Show the ONE greeting message directly — no processStep call
+  botSay("Hello! 👋 Welcome to CoffeeBot AI! I will find your perfect coffee match. How are you feeling today?", {qr:QUICK.greeting});
+}
+
+// ── Products page ────────────────────────────────────────────
+let currentFilter = 'All';
+
+function renderProducts(){
+  const search = (document.getElementById('search-input')||{}).value?.toLowerCase()||'';
+  const grid = document.getElementById('product-grid');
+  const filtered = PRODUCTS.filter(p=>{
+    const matchFilter = currentFilter==='All'||p.temperature===currentFilter;
+    const matchSearch = p.name.toLowerCase().includes(search)||p.category.toLowerCase().includes(search);
+    return matchFilter && matchSearch;
+  });
+  if(filtered.length===0){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#AAA;padding:40px;">No products found.</div>';
+    return;
+  }
+  grid.innerHTML = filtered.map(p=>`
+    <div class="product-card" onclick="selectProduct('${p.name}')">
+      <div class="product-emoji">${p.emoji}</div>
+      <div class="product-name">${p.name}</div>
+      <div class="product-cat">${p.category}</div>
+      <div class="product-price">Rs. ${p.price}</div>
+      <div class="product-temp temp-${p.temperature.toLowerCase()}">${p.temperature}</div>
+    </div>
+  `).join('');
+}
+
+function filterProducts(){ renderProducts(); }
+
+function setFilter(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderProducts();
+}
+
+function selectProduct(name){
+  const sel = document.getElementById('review-product');
+  if(sel){
+    sel.value=name;
+    showPage('reviews');
+    showToast(`${name} selected for review!`);
+  }
+}
+
+// ── Reviews page ─────────────────────────────────────────────
+let selectedRating = 0;
+const sampleReviews = [
+  { name:'Kasun P.',    product:'Double Espresso',   rating:5, comment:'Absolutely perfect for Monday mornings! Strong, bold and exactly what I needed.', date:'2026-03-18', sentiment:'Positive' },
+  { name:'Nimasha R.', product:'Lavender Latte',     rating:4, comment:'Really calming after a stressful day. The lavender is subtle but very soothing.',  date:'2026-03-17', sentiment:'Positive' },
+  { name:'Dinesh K.',  product:'Caramel Macchiato',  rating:5, comment:'My absolute favourite! Sweet, creamy and the caramel drizzle is amazing.',         date:'2026-03-16', sentiment:'Positive' },
+  { name:'Sachini M.', product:'Iced Americano',     rating:4, comment:'Great for hot days. Bold flavour without being too bitter.',                        date:'2026-03-15', sentiment:'Positive' },
+  { name:'Hasitha W.', product:'Latte',              rating:3, comment:'Decent latte, nothing special but consistent and comfortable.',                     date:'2026-03-14', sentiment:'Neutral' },
+];
+
+function populateProductDropdown(){
+  const sel = document.getElementById('review-product');
+  sel.innerHTML='<option value="">— Select a product —</option>';
+  PRODUCTS.forEach(p=>{
+    const opt=document.createElement('option');
+    opt.value=p.name; opt.textContent=`${p.emoji} ${p.name}`;
+    sel.appendChild(opt);
+  });
+}
+
+function setRating(n){
+  selectedRating=n;
+  document.querySelectorAll('.star-sel').forEach((b,i)=>{
+    b.classList.toggle('selected',i<n);
+  });
+  document.getElementById('err-rating').classList.remove('show');
+}
+
+function updateCharCount(){
+  const v=document.getElementById('review-comment').value.length;
+  document.getElementById('char-count').textContent=v;
+  if(v>=10) clearFieldError('review-comment');
+}
+
+function clearFieldError(id){
+  const el=document.getElementById(id);
+  if(el) el.classList.remove('error');
+  const err=document.getElementById('err-'+id.replace('review-',''));
+  if(err) err.classList.remove('show');
+}
+
+function showFieldError(fieldId, errId){
+  const el=document.getElementById(fieldId);
+  if(el) el.classList.add('error');
+  const err=document.getElementById(errId);
+  if(err) err.classList.add('show');
+}
+
+function submitReview(){
+  // ── Validation ──────────────────────────────────────────
+  let valid=true;
+
+  const product = document.getElementById('review-product').value;
+  if(!product){ showFieldError('review-product','err-product'); valid=false; }
+
+  const name = document.getElementById('review-name').value.trim();
+  if(name.length<2||name.length>50){ showFieldError('review-name','err-name'); valid=false; }
+
+  if(selectedRating===0){ document.getElementById('err-rating').classList.add('show'); valid=false; }
+
+  const comment = document.getElementById('review-comment').value.trim();
+  if(comment.length<10){ showFieldError('review-comment','err-comment'); valid=false; }
+
+  if(!valid){
+    showAlert('⚠️ Please fix the errors above before submitting.','error');
+    return;
+  }
+
+  // ── Try live API, fallback to local ─────────────────────
+  const btn = document.getElementById('submit-btn');
+  btn.disabled=true; btn.textContent='Submitting...';
+
+  const newReview = {
+    name, product, rating:selectedRating,
+    comment, date:new Date().toISOString().split('T')[0],
+    sentiment: selectedRating>=4?'Positive':selectedRating===3?'Neutral':'Negative'
+  };
+
+  // Attempt live API call
+  fetch(`${WMT_API}/reviews`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer demo-token'},
+    body:JSON.stringify({productId:'demo',rating:selectedRating,comment})
+  }).catch(()=>{});  // Silently ignore if server not running — we show local result
+
+  setTimeout(()=>{
+    sampleReviews.unshift(newReview);
+    renderReviews();
+    document.getElementById('review-product').value='';
+    document.getElementById('review-name').value='';
+    document.getElementById('review-comment').value='';
+    document.getElementById('char-count').textContent='0';
+    setRating(0);
+    btn.disabled=false; btn.textContent='Submit Review';
+    showAlert('✅ Your review has been submitted successfully! Thank you.','success');
+    showToast('Review submitted!');
+  },800);
+}
+
+function showAlert(msg,type){
+  const box=document.getElementById('alert-box');
+  box.className=`alert alert-${type} show`;
+  box.textContent=msg;
+  setTimeout(()=>box.classList.remove('show'),4000);
+}
+
+function renderReviews(){
+  const total = sampleReviews.length;
+  const avg   = sampleReviews.reduce((s,r)=>s+r.rating,0)/total;
+  const dist  = {1:0,2:0,3:0,4:0,5:0};
+  sampleReviews.forEach(r=>dist[r.rating]++);
+
+  // Average box
+  const avgBox=document.getElementById('avg-box');
+  avgBox.style.display='flex';
+  document.getElementById('avg-number').textContent=avg.toFixed(1);
+  document.getElementById('avg-stars').textContent='★'.repeat(Math.round(avg))+'☆'.repeat(5-Math.round(avg));
+  document.getElementById('avg-total').textContent=`${total} review${total!==1?'s':''}`;
+  document.getElementById('dist-bars').innerHTML=[5,4,3,2,1].map(s=>`
+    <div class="dist-row">
+      <div class="dist-label">${s}★</div>
+      <div class="dist-bar-bg"><div class="dist-bar-fill" style="width:${total?dist[s]/total*100:0}%"></div></div>
+      <div class="dist-count">${dist[s]}</div>
+    </div>
+  `).join('');
+
+  // Review cards
+  document.getElementById('reviews-list').innerHTML = sampleReviews.map(r=>`
+    <div class="review-card">
+      <div class="review-header">
+        <div class="reviewer-name">${r.name}</div>
+        <div class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div>
+      </div>
+      <div style="font-size:12px;color:#999;margin-bottom:6px;">${r.product}</div>
+      <div class="review-comment">${r.comment}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+        <span class="badge badge-${r.sentiment==='Positive'?'pos':r.sentiment==='Negative'?'neg':'neu'}">${r.sentiment||'Neutral'}</span>
+        <div class="review-date">${r.date}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Toast ────────────────────────────────────────────────────
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ── Page routing ─────────────────────────────────────────────
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  const tabs={'chat':0,'products':1,'reviews':2};
+  document.querySelectorAll('.nav-tab')[tabs[id]]?.classList.add('active');
+}
+
+// ── Init ─────────────────────────────────────────────────────
+window.onload = ()=>{
+  populateProductDropdown();
+  renderProducts();
+  renderReviews();
+  resetChat();   // shows exactly ONE greeting message and sets step to ask_mood
+};
+</script>
+</body>
+</html>
