@@ -3,20 +3,21 @@ import express from 'express';
 import cors from 'cors';
 import connectDB from './config/db.js';
 import { errorMiddleware } from './middleware/errorMiddleware.js';
+import promoRoutes from './routes/promoRoutes.js';
 
 const app = express();
-
-// Connect MongoDB
-connectDB();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
 // Health check
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
+
+// Routes
+app.use('/api/promotions', promoRoutes);
 
 // Global error handler (must be last)
 app.use(errorMiddleware);
