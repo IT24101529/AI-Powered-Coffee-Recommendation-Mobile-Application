@@ -196,7 +196,7 @@ export default function OrderTrackingScreen({ navigation, route }) {
   const handleDirections = () => Linking.openURL(STORE_MAPS_URL).catch(() => Alert.alert('Error', 'Unable to open maps.'));
 
   const handleTabPress = (tab) => {
-    const map = { Home: 'HomeScreen', Menu: 'MenuScreen', Rewards: 'RewardsScreen', Orders: 'OrdersScreen', Profile: 'ProfileScreen' };
+    const map = { Home: 'Home', Menu: 'Menu', Rewards: 'Rewards', Orders: 'Orders', Profile: 'Profile' };
     if (map[tab]) navigation.navigate(map[tab]);
   };
 
@@ -310,9 +310,16 @@ export default function OrderTrackingScreen({ navigation, route }) {
       <SafeAreaView style={styles.safeArea}>
         <TopAppBar title="Order Tracking" onBack={() => navigation.goBack()} />
         <View style={styles.centered}>
-          <Text style={styles.emptyIcon}>�</Text>
+          <Text style={styles.emptyIcon}>☕</Text>
           <Text style={styles.emptyHeading}>No orders yet</Text>
           <Text style={styles.emptySubtext}>Place your first order to track it here.</Text>
+          <TouchableOpacity
+            style={styles.startOrderingBtn}
+            onPress={() => navigation.navigate('Menu')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.startOrderingBtnText}>Start Ordering</Text>
+          </TouchableOpacity>
         </View>
         <BottomNavBar activeTab="Orders" onTabPress={handleTabPress} />
       </SafeAreaView>
@@ -758,6 +765,18 @@ const styles = StyleSheet.create({
     color: colors.dark,
     opacity: 0.6,
     textAlign: 'center',
+  },
+  startOrderingBtn: {
+    marginTop: spacing.lg,
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    borderRadius: borderRadius.pill,
+  },
+  startOrderingBtnText: {
+    fontFamily: fonts.bold,
+    fontSize: fontSizes.base,
+    color: '#fff',
   },
 
   // ── Admin view ──

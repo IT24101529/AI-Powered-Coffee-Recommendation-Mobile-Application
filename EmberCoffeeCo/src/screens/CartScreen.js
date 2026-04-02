@@ -169,7 +169,7 @@ export default function CartScreen({ navigation }) {
           rightElement={cartIcon}
         />
         <View style={styles.emptyState}>
-          <Text style={styles.emptyIcon}>🛒</Text>
+          <Text style={styles.emptyIcon}>☕</Text>
           <Text style={styles.emptyTitle}>Your cart is empty</Text>
           <Text style={styles.emptySubtitle}>
             Browse the menu and add something delicious.
