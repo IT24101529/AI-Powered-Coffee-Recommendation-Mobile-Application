@@ -7,16 +7,18 @@ import {
   StyleSheet,
   Dimensions,
   ActivityIndicator,
-  SafeAreaView,
   StatusBar,
   TextInput,
   RefreshControl,
 } from 'react-native';
 import axios from 'axios';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BASE_URL } from '../config/api';
+import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 
+import TopAppBar from '../components/ui/TopAppBar';
 import BottomNavBar from '../components/ui/BottomNavBar';
 import Badge from '../components/ui/Badge';
 

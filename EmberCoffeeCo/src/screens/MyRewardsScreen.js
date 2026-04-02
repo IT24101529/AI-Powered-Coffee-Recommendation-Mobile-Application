@@ -8,10 +8,10 @@ import {
   Alert,
   ActivityIndicator,
   Image,
-  SafeAreaView,
   RefreshControl,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { BASE_URL } from '../config/api';

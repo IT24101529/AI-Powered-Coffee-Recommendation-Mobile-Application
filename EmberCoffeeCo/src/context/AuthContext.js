@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { reset } from '../navigation/navigationRef';
 
-const AuthContext = createContext(null);
+const AuthContext = createContext({});
 
 const TOKEN_KEY = '@ember_token';
 const USER_KEY = '@ember_user';
