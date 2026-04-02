@@ -4,6 +4,11 @@ import cors from 'cors';
 import connectDB from './config/db.js';
 import { errorMiddleware } from './middleware/errorMiddleware.js';
 import promoRoutes from './routes/promoRoutes.js';
+import authRoutes from './routes/authRoutes.js';
+import productRoutes from './routes/productRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
+import rewardRoutes from './routes/rewardRoutes.js';
+import reviewRoutes from './routes/reviewRoutes.js';
 
 const app = express();
 
@@ -17,7 +22,12 @@ app.get('/api/health', (_req, res) => {
 });
 
 // Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/orders', orderRoutes);
 app.use('/api/promotions', promoRoutes);
+app.use('/api/rewards', rewardRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // Global error handler (must be last)
 app.use(errorMiddleware);
