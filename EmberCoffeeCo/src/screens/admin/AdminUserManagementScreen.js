@@ -8,11 +8,11 @@ import {
   StyleSheet,
   Alert,
   ActivityIndicator,
-  SafeAreaView,
   StatusBar,
   RefreshControl,
 } from 'react-native';
 import axios from 'axios';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../context/AuthContext';
 import { BASE_URL } from '../../config/api';
 import colors from '../../theme/colors';

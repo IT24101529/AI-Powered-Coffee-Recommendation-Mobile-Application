@@ -8,9 +8,9 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-  SafeAreaView,
 } from 'react-native';
 import axios from 'axios';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
 import { BASE_URL } from '../config/api';
 import TopAppBar from '../components/ui/TopAppBar';
@@ -110,7 +110,7 @@ export default function ProfileScreen({ navigation }) {
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.MediaType.images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.8,

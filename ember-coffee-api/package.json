@@ -8,7 +8,9 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --forceExit",
-    "test:run": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --forceExit --passWithNoTests"
+    "test:run": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --forceExit --passWithNoTests",
+    "seed": "node seed.mjs",
+    "seed:local": "node seed.mjs --local"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -30,6 +32,7 @@
   "jest": {
     "testEnvironment": "node",
     "transform": {},
+    "globalSetup": "./src/test/globalSetup.mjs",
     "setupFilesAfterEnv": ["./src/test/setup.js"]
   }
 }

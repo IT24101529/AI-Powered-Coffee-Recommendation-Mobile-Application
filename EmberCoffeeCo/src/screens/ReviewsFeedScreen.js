@@ -9,11 +9,12 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
-  SafeAreaView,
+
   RefreshControl,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { BASE_URL } from '../config/api';
 import { useAuth } from '../context/AuthContext';
 import TopAppBar from '../components/ui/TopAppBar';
@@ -149,7 +150,7 @@ export default function ReviewsFeedScreen({ navigation, route }) {
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.MediaType.images,
       quality: 0.8,
     });
     if (!result.canceled && result.assets?.length > 0) {
