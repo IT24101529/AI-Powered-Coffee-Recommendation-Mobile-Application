@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   Alert,
   SafeAreaView,
+  RefreshControl,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
@@ -89,6 +90,7 @@ export default function ReviewsFeedScreen({ navigation, route }) {
 
   const [allReviews, setAllReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [activeFilter, setActiveFilter] = useState('All');
   const [page, setPage] = useState(1);
 
@@ -116,6 +118,11 @@ export default function ReviewsFeedScreen({ navigation, route }) {
 
   useEffect(() => {
     fetchReviews();
+  }, [fetchReviews]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchReviews().finally(() => setRefreshing(false));
   }, [fetchReviews]);
 
   // ── Derived data ───────────────────────────────────────────────────────────
@@ -205,6 +212,14 @@ export default function ReviewsFeedScreen({ navigation, route }) {
         style={styles.scroll}
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }
       >
         {/* Heading */}
         <Text style={styles.heading}>Community Notes</Text>
@@ -276,7 +291,13 @@ export default function ReviewsFeedScreen({ navigation, route }) {
         {loading ? (
           <ActivityIndicator color={colors.primary} style={{ marginTop: spacing.xl }} />
         ) : displayed.length === 0 ? (
-          <Text style={styles.emptyText}>No reviews yet.</Text>
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyStateIcon}>☕</Text>
+            <Text style={styles.emptyStateTitle}>Be the first to review</Text>
+            <Text style={styles.emptyStateMessage}>
+              Share your experience and help others discover great coffee.
+            </Text>
+          </View>
         ) : (
           displayed.map((review) => (
             <ReviewArticle key={review._id} review={review} />
@@ -546,12 +567,29 @@ const styles = StyleSheet.create({
     color: colors.primary,
   },
 
-  emptyText: {
+  // Empty state
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: spacing['2xl'],
+    paddingHorizontal: spacing.lg,
+  },
+  emptyStateIcon: {
+    fontSize: 56,
+    marginBottom: spacing.md,
+  },
+  emptyStateTitle: {
+    fontFamily: fonts.bold,
+    fontSize: fontSizes.xl,
+    color: colors.dark,
+    marginBottom: spacing.sm,
     textAlign: 'center',
+  },
+  emptyStateMessage: {
     fontFamily: fonts.regular,
     fontSize: fontSizes.md,
     color: colors.dark,
-    opacity: 0.45,
-    marginTop: spacing.xl,
+    opacity: 0.6,
+    textAlign: 'center',
+    lineHeight: 22,
   },
 });

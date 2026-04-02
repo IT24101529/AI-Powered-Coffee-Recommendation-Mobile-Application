@@ -10,6 +10,7 @@ import {
   Alert,
   StatusBar,
   Platform,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
@@ -274,6 +275,7 @@ export default function RewardsScreen({ navigation }) {
   const [rewards, setRewards]         = useState([]);
   const [totalPoints, setTotalPoints] = useState(0);
   const [loading, setLoading]         = useState(true);
+  const [refreshing, setRefreshing]   = useState(false);
   const [redeeming, setRedeeming]     = useState(null);
 
   const fetchData = useCallback(async () => {
@@ -305,6 +307,11 @@ export default function RewardsScreen({ navigation }) {
       fetchData();
     }, [fetchData])
   );
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchData().finally(() => setRefreshing(false));
+  }, [fetchData]);
 
   const handleRedeem = async (reward) => {
     Alert.alert(
@@ -378,6 +385,14 @@ export default function RewardsScreen({ navigation }) {
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+            />
+          }
         >
           {/* ── Hero: Circular Progress ── */}
           <View style={styles.heroSection}>
@@ -400,7 +415,10 @@ export default function RewardsScreen({ navigation }) {
           {rewards.length === 0 ? (
             <View style={styles.emptyState}>
               <Text style={styles.emptyIcon}>🎁</Text>
-              <Text style={styles.emptyText}>No rewards available right now.</Text>
+              <Text style={styles.emptyTitle}>No rewards available yet</Text>
+              <Text style={styles.emptyText}>
+                Check back soon — new rewards are on their way.
+              </Text>
             </View>
           ) : (
             <View style={styles.bentoGrid}>
@@ -561,6 +579,13 @@ const styles = StyleSheet.create({
   emptyIcon: {
     fontSize: 40,
     marginBottom: spacing.sm,
+  },
+  emptyTitle: {
+    fontFamily: fonts.bold,
+    fontSize: fontSizes.xl,
+    color: colors.dark,
+    marginBottom: spacing.sm,
+    textAlign: 'center',
   },
   emptyText: {
     fontFamily: fonts.regular,

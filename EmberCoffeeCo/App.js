@@ -12,6 +12,7 @@ import {
 import { AuthProvider } from './src/context/AuthContext';
 import { CartProvider } from './src/context/CartContext';
 import RootNavigator from './src/navigation/RootNavigator';
+import { navigationRef } from './src/navigation/navigationRef';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -33,7 +34,7 @@ export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <NavigationContainer>
+        <NavigationContainer ref={navigationRef}>
           <RootNavigator />
         </NavigationContainer>
       </CartProvider>

@@ -10,6 +10,7 @@ import {
   SafeAreaView,
   StatusBar,
   TextInput,
+  RefreshControl,
 } from 'react-native';
 import axios from 'axios';
 
@@ -34,6 +35,7 @@ export default function MenuScreen({ navigation }) {
 
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All Drinks');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -54,6 +56,11 @@ export default function MenuScreen({ navigation }) {
 
   useEffect(() => {
     fetchProducts();
+  }, [fetchProducts]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchProducts().finally(() => setRefreshing(false));
   }, [fetchProducts]);
 
   // Apply search + category filters
@@ -160,6 +167,14 @@ export default function MenuScreen({ navigation }) {
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+            />
+          }
         >
           {Object.keys(grouped).length === 0 ? (
             <EmptyState searchQuery={searchQuery} selectedCategory={selectedCategory} />

@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { reset } from '../navigation/navigationRef';
 
 const AuthContext = createContext(null);
 
@@ -10,6 +12,7 @@ const USER_KEY = '@ember_user';
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(null);
   const [user, setUser] = useState(null);
+  const interceptorRef = useRef(null);
 
   // Restore session on app start
   useEffect(() => {
@@ -24,6 +27,42 @@ export function AuthProvider({ children }) {
         setUser(JSON.parse(storedUser));
       }
     })();
+  }, []);
+
+  // Set up Axios response interceptor
+  useEffect(() => {
+    interceptorRef.current = axios.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        if (!error.response) {
+          // Network error (no response from server)
+          Alert.alert('No internet connection');
+          return Promise.reject(error);
+        }
+
+        const { status, data } = error.response;
+
+        if (status === 401) {
+          // Unauthorized — log out and redirect to login
+          await logout();
+          reset({ index: 0, routes: [{ name: 'Login' }] });
+        } else if (status === 403) {
+          Alert.alert('Access denied');
+        } else if (status === 400 || status === 404 || status === 409) {
+          const message = data?.message || 'Something went wrong';
+          Alert.alert(message);
+        }
+
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      if (interceptorRef.current !== null) {
+        axios.interceptors.response.eject(interceptorRef.current);
+      }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const login = async (newToken, newUser) => {

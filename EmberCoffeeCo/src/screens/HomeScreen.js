@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   SafeAreaView,
   StatusBar,
+  RefreshControl,
 } from 'react-native';
 import axios from 'axios';
 
@@ -51,6 +52,7 @@ export default function HomeScreen({ navigation }) {
   const [profile, setProfile] = useState(null);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const cartCount = cartItems.reduce((sum, i) => sum + i.quantity, 0);
 
@@ -99,6 +101,11 @@ export default function HomeScreen({ navigation }) {
     fetchData();
   }, [fetchData]);
 
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchData().finally(() => setRefreshing(false));
+  }, [fetchData]);
+
   const navigateTo = (screen, params) => {
     navigation?.navigate(screen, params);
   };
@@ -143,6 +150,14 @@ export default function HomeScreen({ navigation }) {
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+          />
+        }
       >
         {loading ? (
           <View style={styles.loadingContainer}>

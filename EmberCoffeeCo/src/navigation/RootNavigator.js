@@ -26,10 +26,15 @@ import CartScreen from '../screens/CartScreen';
 // Admin screens
 import ReviewsFeedScreen from '../screens/ReviewsFeedScreen';
 import AdminDashboardScreen from '../screens/AdminDashboardScreen';
-import AdminProductsScreen from '../screens/AdminProductsScreen';
-import AdminOrdersScreen from '../screens/AdminOrdersScreen';
-import AdminRewardsScreen from '../screens/AdminRewardsScreen';
-import AdminPromotionsScreen from '../screens/AdminPromotionsScreen';
+import AdminProductsScreen from '../screens/admin/AdminProductManagementScreen';
+import AdminOrdersScreen from '../screens/admin/AdminOrdersScreen';
+import AdminRewardsScreen from '../screens/admin/AdminRewardsScreen';
+import AdminPromotionsScreen from '../screens/admin/AdminPromotionsScreen';
+import AdminAddProductScreen from '../screens/admin/AdminAddProductScreen';
+import AdminAddRewardScreen from '../screens/admin/AdminAddRewardScreen';
+import AdminAddPromoScreen from '../screens/admin/AdminAddPromoScreen';
+import AdminUserManagementScreen from '../screens/admin/AdminUserManagementScreen';
+import AdminAddUserScreen from '../screens/admin/AdminAddUserScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -51,6 +56,9 @@ function HomeStack() {
     <Stack.Navigator screenOptions={stackOptions}>
       <Stack.Screen name="HomeScreen" component={HomeScreen} />
       <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
+      <Stack.Screen name="Cart" component={CartScreen} />
+      <Stack.Screen name="Checkout" component={CheckoutScreen} />
+      <Stack.Screen name="OrderTracking" component={OrderTrackingScreen} />
     </Stack.Navigator>
   );
 }
@@ -61,6 +69,9 @@ function MenuStack() {
       <Stack.Screen name="MenuScreen" component={MenuScreen} />
       <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
       <Stack.Screen name="ReviewsFeed" component={ReviewsFeedScreen} />
+      <Stack.Screen name="Cart" component={CartScreen} />
+      <Stack.Screen name="Checkout" component={CheckoutScreen} />
+      <Stack.Screen name="OrderTracking" component={OrderTrackingScreen} />
     </Stack.Navigator>
   );
 }
@@ -98,9 +109,14 @@ function AdminStack() {
     <Stack.Navigator screenOptions={stackOptions}>
       <Stack.Screen name="AdminDashboard" component={AdminDashboardScreen} />
       <Stack.Screen name="AdminProducts" component={AdminProductsScreen} />
+      <Stack.Screen name="AdminAddProduct" component={AdminAddProductScreen} />
       <Stack.Screen name="AdminOrders" component={AdminOrdersScreen} />
       <Stack.Screen name="AdminRewards" component={AdminRewardsScreen} />
+      <Stack.Screen name="AdminAddReward" component={AdminAddRewardScreen} />
       <Stack.Screen name="AdminPromotions" component={AdminPromotionsScreen} />
+      <Stack.Screen name="AdminAddPromo" component={AdminAddPromoScreen} />
+      <Stack.Screen name="AdminUserManagement" component={AdminUserManagementScreen} />
+      <Stack.Screen name="AdminAddUser" component={AdminAddUserScreen} />
     </Stack.Navigator>
   );
 }
