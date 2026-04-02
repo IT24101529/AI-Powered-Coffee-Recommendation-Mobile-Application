@@ -52,7 +52,8 @@ function buildApp() {
       if (err) {
         return res.status(400).json({ message: err.message });
       }
-      res.status(200).json({ message: 'ok' });
+      // Return the uploaded file URL so Property 28 can assert it is a valid URL
+      res.status(200).json({ message: 'ok', url: req.file?.path ?? null });
     });
   });
 
@@ -177,6 +178,38 @@ describe('Property 29: File size limit enforcement', () => {
         },
       ),
       { numRuns: 20 },
+    );
+  }, 60000);
+});
+
+// ---------------------------------------------------------------------------
+// Property 28: Valid image upload returns an accessible URL
+// Validates: Requirements 12.3, 3.2, 5.4, 6.3, 8.12, 9.2, 10.2
+// ---------------------------------------------------------------------------
+describe('Property 28: Valid image upload returns an accessible URL', () => {
+  test('uploading a valid JPEG or PNG returns HTTP 200 with a non-empty URL string', async () => {
+    await fc.assert(
+      fc.asyncProperty(
+        fc.constantFrom('image/jpeg', 'image/png'),
+        fc.integer({ min: 1, max: 512 * 1024 }), // up to 512 KB
+        async (mimeType, fileSize) => {
+          const res = await request(app)
+            .post('/upload')
+            .attach('image', makeBuffer(fileSize), {
+              filename: 'test.jpg',
+              contentType: mimeType,
+            });
+
+          expect(res.status).toBe(200);
+          // The mock CloudinaryStorage returns a URL in req.file.path.
+          // Assert the response contains a non-empty URL string.
+          expect(typeof res.body.url).toBe('string');
+          expect(res.body.url.length).toBeGreaterThan(0);
+          // URL should be a valid HTTPS URL (Cloudinary always returns https://)
+          expect(res.body.url).toMatch(/^https?:\/\/.+/);
+        },
+      ),
+      { numRuns: 50 },
     );
   }, 60000);
 });

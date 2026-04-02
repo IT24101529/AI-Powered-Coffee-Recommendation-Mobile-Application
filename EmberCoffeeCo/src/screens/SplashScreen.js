@@ -1,10 +1,178 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import {
+  View,
+  Text,
+  ImageBackground,
+  StyleSheet,
+  TouchableOpacity,
+  StatusBar,
+  Dimensions,
+} from 'react-native';
+import colors from '../theme/colors';
+import { fonts, fontSizes } from '../theme/typography';
+import { borderRadius } from '../theme/spacing';
 
-export default function SplashScreen() {
+const { height } = Dimensions.get('window');
+
+// Placeholder coffee background — replace with actual asset when available
+const COFFEE_BG = {
+  uri: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800',
+};
+
+export default function SplashScreen({ navigation }) {
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Splash</Text>
+    <View style={styles.container}>
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+
+      <ImageBackground source={COFFEE_BG} style={styles.bg} resizeMode="cover">
+        {/* Dark gradient overlay — top (20% opacity) fading to bottom (85% opacity) */}
+        <View style={styles.gradientTop} />
+        <View style={styles.gradientBottom} />
+
+        <View style={styles.content}>
+          {/* Logo area */}
+          <View style={styles.logoContainer}>
+            {/* SVG logo placeholder — replace with actual SVG/Image asset */}
+            <Text style={styles.logoText}>☕</Text>
+            <Text style={styles.logoTitle}>EMBER COFFEE CO.</Text>
+          </View>
+
+          {/* "Since 2024" peach pill badge */}
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>SINCE 2024</Text>
+          </View>
+
+          {/* Tagline */}
+          <Text style={styles.tagline}>
+            Crafted with passion, served with warmth.{'\n'}Every cup tells a story.
+          </Text>
+
+          {/* Buttons */}
+          <View style={styles.buttons}>
+            {/* "Get Started" primary brown pill button */}
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={() => navigation.navigate('Register')}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.primaryButtonText}>Get Started</Text>
+            </TouchableOpacity>
+
+            {/* "Our Story" ghost glass button */}
+            <TouchableOpacity
+              style={styles.ghostButton}
+              onPress={() => {}}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.ghostButtonText}>Our Story</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ImageBackground>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  bg: {
+    flex: 1,
+  },
+  // Top gradient layer — dark at 20% opacity
+  gradientTop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: height * 0.45,
+    backgroundColor: 'rgba(0,0,0,0.20)',
+  },
+  // Bottom gradient layer — dark at 85% opacity
+  gradientBottom: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: height * 0.55,
+    backgroundColor: 'rgba(0,0,0,0.85)',
+  },
+  content: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingHorizontal: 24,
+    paddingBottom: 56,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 16,
+    // Figma: logo centered at y=230
+    position: 'absolute',
+    top: 200,
+  },
+  logoText: {
+    fontSize: 48,
+    marginBottom: 8,
+  },
+  logoTitle: {
+    fontFamily: fonts.extraBold,
+    fontSize: fontSizes['2xl'],
+    color: '#FFFFFF',
+    letterSpacing: 4,
+  },
+  badge: {
+    backgroundColor: colors.accent,
+    borderRadius: borderRadius.pill,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    marginBottom: 20,
+  },
+  badgeText: {
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.xs,
+    color: colors.dark,
+    letterSpacing: 2,
+  },
+  tagline: {
+    fontFamily: fonts.light,
+    fontSize: fontSizes.lg,
+    color: 'rgba(255,255,255,0.90)',
+    textAlign: 'center',
+    lineHeight: 28,
+    marginBottom: 40,
+  },
+  buttons: {
+    width: '100%',
+    gap: 12,
+  },
+  primaryButton: {
+    height: 52,
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  primaryButtonText: {
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.base,
+    color: '#FFFFFF',
+    letterSpacing: 0.3,
+  },
+  ghostButton: {
+    height: 52,
+    backgroundColor: colors.glass,
+    borderRadius: borderRadius.pill,
+    borderWidth: 1,
+    borderColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ghostButtonText: {
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.base,
+    color: '#FFFFFF',
+    letterSpacing: 0.3,
+  },
+});

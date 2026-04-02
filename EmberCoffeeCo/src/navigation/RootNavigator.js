@@ -24,6 +24,7 @@ import CheckoutScreen from '../screens/CheckoutScreen';
 import CartScreen from '../screens/CartScreen';
 
 // Admin screens
+import ReviewsFeedScreen from '../screens/ReviewsFeedScreen';
 import AdminDashboardScreen from '../screens/AdminDashboardScreen';
 import AdminProductsScreen from '../screens/AdminProductsScreen';
 import AdminOrdersScreen from '../screens/AdminOrdersScreen';
@@ -59,6 +60,7 @@ function MenuStack() {
     <Stack.Navigator screenOptions={stackOptions}>
       <Stack.Screen name="MenuScreen" component={MenuScreen} />
       <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
+      <Stack.Screen name="ReviewsFeed" component={ReviewsFeedScreen} />
     </Stack.Navigator>
   );
 }
