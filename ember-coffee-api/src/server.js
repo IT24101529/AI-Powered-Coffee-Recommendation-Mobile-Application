@@ -32,13 +32,13 @@ app.use('/api/reviews', reviewRoutes);
 // Global error handler (must be last)
 app.use(errorMiddleware);
 
-// Start server
+// Start server — bind immediately so Railway's health check doesn't time out
+// while waiting for the DB connection to resolve.
 const PORT = process.env.PORT || 5000;
 
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  connectDB();
 });
 
 export default app;
