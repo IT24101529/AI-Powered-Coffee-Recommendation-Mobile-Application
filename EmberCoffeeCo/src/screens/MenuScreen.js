@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   StatusBar,
   TextInput,
+  Image,
   RefreshControl,
 } from 'react-native';
 import axios from 'axios';
@@ -29,7 +30,7 @@ import spacing, { borderRadius } from '../theme/spacing';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const HORIZONTAL_MARGIN = spacing.lg; // 24
 
-const CATEGORIES = ['All Drinks', 'Signature Brews', 'Espresso', 'Tea', 'Pastries'];
+const CATEGORIES = ['All', 'Signature Brews', 'Espresso', 'Tea', 'Iced Drinks', 'Pastries'];
 
 // ─── Main Screen ─────────────────────────────────────────────────────────────
 export default function MenuScreen({ navigation }) {
@@ -38,7 +39,7 @@ export default function MenuScreen({ navigation }) {
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('All Drinks');
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
 
   const cartCount = cartItems.reduce((sum, i) => sum + i.quantity, 0);
@@ -71,7 +72,7 @@ export default function MenuScreen({ navigation }) {
       ? (p.productName || p.name || '').toLowerCase().includes(searchQuery.toLowerCase())
       : true;
     const matchesCategory =
-      selectedCategory === 'All Drinks'
+      selectedCategory === 'All'
         ? true
         : (p.category || '').toLowerCase() === selectedCategory.toLowerCase();
     return matchesSearch && matchesCategory;
@@ -91,7 +92,7 @@ export default function MenuScreen({ navigation }) {
   };
 
   const handleProductPress = (product) => {
-    navigation?.navigate('ProductDetail', { productId: product._id });
+    navigation?.navigate('ProductDetail', { product });
   };
 
   return (
@@ -222,7 +223,7 @@ function CategorySection({ category, products, onProductPress, onAddToCart }) {
       />
     );
   }
-  // Espresso, Tea, and unknown categories → 2-column grid
+  // Espresso, Tea, Iced Drinks, and unknown categories → 2-column grid
   return (
     <GridSection
       category={category}
@@ -277,7 +278,7 @@ function LargeFeatureCard({ product, isEditorsPick, onPress, onAddToCart }) {
   const [added, setAdded] = useState(false);
   const name = product?.productName || product?.name || 'Signature Brew';
   const description = product?.description || 'A carefully crafted signature blend.';
-  const price = product?.price != null ? `$${Number(product.price).toFixed(2)}` : '';
+  const price = product?.price != null ? `Rs. ${Number(product.price).toFixed(2)}` : '';
 
   const handleAdd = () => {
     onAddToCart(product);
@@ -292,7 +293,10 @@ function LargeFeatureCard({ product, isEditorsPick, onPress, onAddToCart }) {
       activeOpacity={0.9}
     >
       {/* Image placeholder */}
-      <View style={largeFeatureStyles.image} />
+      {product?.productImageUrl
+        ? <Image source={{ uri: product.productImageUrl }} style={largeFeatureStyles.image} resizeMode="cover" />
+        : <View style={largeFeatureStyles.image} />
+      }
       <View style={largeFeatureStyles.overlay} />
 
       {/* Content */}
@@ -389,7 +393,7 @@ const largeFeatureStyles = StyleSheet.create({
 function SmallFeatureCard({ product, onPress, onAddToCart }) {
   const [added, setAdded] = useState(false);
   const name = product?.productName || product?.name || 'Winter Roast';
-  const price = product?.price != null ? `$${Number(product.price).toFixed(2)}` : '';
+  const price = product?.price != null ? `Rs. ${Number(product.price).toFixed(2)}` : '';
 
   const handleAdd = () => {
     onAddToCart(product);
@@ -408,7 +412,10 @@ function SmallFeatureCard({ product, onPress, onAddToCart }) {
       <View style={smallFeatureStyles.decorCircleInner} />
 
       {/* Image placeholder */}
-      <View style={smallFeatureStyles.image} />
+      {product?.productImageUrl
+        ? <Image source={{ uri: product.productImageUrl }} style={smallFeatureStyles.image} resizeMode="cover" />
+        : <View style={smallFeatureStyles.image} />
+      }
 
       {/* Info */}
       <View style={smallFeatureStyles.info}>
@@ -554,7 +561,7 @@ function TwoColumnGrid({ products, onProductPress, onAddToCart }) {
 function GridCard({ product, onPress, onAddToCart }) {
   const [added, setAdded] = useState(false);
   const name = product?.productName || product?.name || 'Coffee';
-  const price = product?.price != null ? `$${Number(product.price).toFixed(2)}` : '';
+  const price = product?.price != null ? `Rs. ${Number(product.price).toFixed(2)}` : '';
 
   const handleAdd = () => {
     onAddToCart(product);
@@ -564,7 +571,10 @@ function GridCard({ product, onPress, onAddToCart }) {
 
   return (
     <TouchableOpacity style={gridCardStyles.card} onPress={onPress} activeOpacity={0.85}>
-      <View style={gridCardStyles.image} />
+      {product?.productImageUrl
+        ? <Image source={{ uri: product.productImageUrl }} style={gridCardStyles.image} resizeMode="cover" />
+        : <View style={gridCardStyles.image} />
+      }
       <View style={gridCardStyles.info}>
         <Text style={gridCardStyles.name} numberOfLines={2}>{name}</Text>
         <View style={gridCardStyles.footer}>
@@ -681,7 +691,7 @@ function PastryListItem({ product, onPress, onAddToCart }) {
   const [qty, setQty] = useState(0);
   const name = product?.productName || product?.name || 'Pastry';
   const description = product?.description || 'Freshly baked daily.';
-  const price = product?.price != null ? `$${Number(product.price).toFixed(2)}` : '';
+  const price = product?.price != null ? `Rs. ${Number(product.price).toFixed(2)}` : '';
 
   const handleAdd = () => {
     onAddToCart(product);
@@ -691,7 +701,10 @@ function PastryListItem({ product, onPress, onAddToCart }) {
   return (
     <TouchableOpacity style={pastryItemStyles.item} onPress={onPress} activeOpacity={0.85}>
       {/* Thumbnail */}
-      <View style={pastryItemStyles.thumbnail} />
+      {product?.productImageUrl
+        ? <Image source={{ uri: product.productImageUrl }} style={pastryItemStyles.thumbnail} resizeMode="cover" />
+        : <View style={pastryItemStyles.thumbnail} />
+      }
 
       {/* Info */}
       <View style={pastryItemStyles.info}>

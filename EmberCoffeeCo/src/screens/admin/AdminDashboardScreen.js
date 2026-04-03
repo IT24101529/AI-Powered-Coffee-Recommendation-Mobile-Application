@@ -260,6 +260,17 @@ export default function AdminDashboardScreen({ navigation }) {
     navigation.navigate('AdminUserManagement');
   };
 
+  const handleSwitchToCustomer = () => {
+    Alert.alert(
+      'Switch to Customer Side',
+      'Go back to the customer view of the app?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Switch', onPress: () => navigation.navigate('Home') },
+      ],
+    );
+  };
+
   const handleAdminTabPress = (tab) => {
     const routeMap = {
       Dashboard:  'AdminDashboard',
@@ -285,15 +296,9 @@ export default function AdminDashboardScreen({ navigation }) {
           <Text style={styles.hamburgerIcon}>☰</Text>
         </TouchableOpacity>
         <Text style={styles.topBarTitle}>EMBER COFFEE CO.</Text>
-        <View style={styles.avatarCircle}>
-          {user?.profileImageUrl ? (
-            <Image source={{ uri: user.profileImageUrl }} style={styles.avatarImage} />
-          ) : (
-            <Text style={styles.avatarInitial}>
-              {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
-            </Text>
-          )}
-        </View>
+        <TouchableOpacity style={styles.customerToggleBtn} onPress={handleSwitchToCustomer} activeOpacity={0.8}>
+          <Text style={styles.customerToggleText}>☕ Customer</Text>
+        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -487,7 +492,17 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.base,
     color: '#fff',
   },
-
+  customerToggleBtn: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6,
+    backgroundColor: colors.accent,
+    borderRadius: borderRadius.pill,
+  },
+  customerToggleText: {
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.xs,
+    color: colors.primary,
+  },
   // ── Scroll ──
   scroll: { flex: 1 },
   scrollContent: {

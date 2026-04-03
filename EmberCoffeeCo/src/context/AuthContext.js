@@ -48,7 +48,7 @@ export function AuthProvider({ children }) {
           reset({ index: 0, routes: [{ name: 'Login' }] });
         } else if (status === 403) {
           Alert.alert('Access denied');
-        } else if (status === 400 || status === 404 || status === 409) {
+        } else if (status === 400 || status === 409) {
           const message = data?.message || 'Something went wrong';
           Alert.alert(message);
         }

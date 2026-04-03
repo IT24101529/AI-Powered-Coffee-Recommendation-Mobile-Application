@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   StatusBar,
+  Modal,
+  Alert,
 } from 'react-native';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
@@ -24,9 +26,15 @@ import { fonts, fontSizes } from '../theme/typography';
 export function validateRegisterForm({ name, email, password }) {
   const errors = {};
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   if (!name || !name.trim()) {
     errors.name = 'Name is required';
+  } else if (/[^a-zA-Z\s]/.test(name)) {
+    errors.name = 'Name can only contain letters';
+  } else if (/\s{2,}/.test(name)) {
+    errors.name = 'Name cannot have consecutive spaces';
   }
+
   if (!email || !email.trim()) {
     errors.email = 'Email is required';
   } else if (!emailRegex.test(email.trim())) {
@@ -57,12 +65,17 @@ export default function RegisterScreen({ navigation }) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [termsVisible, setTermsVisible] = useState(false);
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     setApiError('');
+    if (!termsAccepted) {
+      setErrors((e) => ({ ...e, terms: 'You must agree to the Terms & Conditions' }));
+      return;
+    }
     const validationErrors = validateRegisterForm({ name, email, password });
     if (validationErrors) {
       setErrors(validationErrors);
@@ -176,7 +189,7 @@ export default function RegisterScreen({ navigation }) {
             {/* Terms checkbox */}
             <TouchableOpacity
               style={styles.termsRow}
-              onPress={() => setTermsAccepted((v) => !v)}
+              onPress={() => { setTermsAccepted((v) => !v); setErrors((e) => ({ ...e, terms: null })); }}
               activeOpacity={0.7}
             >
               <View style={[styles.checkbox, termsAccepted && styles.checkboxChecked]}>
@@ -184,9 +197,15 @@ export default function RegisterScreen({ navigation }) {
               </View>
               <Text style={styles.termsText}>
                 I agree to the{' '}
-                <Text style={styles.termsLink}>Terms & Conditions</Text>
+                <Text
+                  style={styles.termsLink}
+                  onPress={() => setTermsVisible(true)}
+                >
+                  Terms & Conditions
+                </Text>
               </Text>
             </TouchableOpacity>
+            {errors.terms ? <Text style={styles.termsError}>{errors.terms}</Text> : null}
 
             {/* API error */}
             {apiError ? <Text style={styles.apiError}>{apiError}</Text> : null}
@@ -215,10 +234,10 @@ export default function RegisterScreen({ navigation }) {
 
             {/* Social buttons */}
             <View style={styles.socialRow}>
-              <TouchableOpacity style={styles.socialButton} activeOpacity={0.7}>
+              <TouchableOpacity style={styles.socialButton} activeOpacity={0.7} onPress={() => Alert.alert('Coming Soon', 'Google Sign-In will be available in a future update.')}>
                 <Text style={styles.socialText}>🇬 Google</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.socialButton} activeOpacity={0.7}>
+              <TouchableOpacity style={styles.socialButton} activeOpacity={0.7} onPress={() => Alert.alert('Coming Soon', 'Apple Sign-In will be available in a future update.')}>
                 <Text style={styles.socialText}> Apple</Text>
               </TouchableOpacity>
             </View>
@@ -236,6 +255,67 @@ export default function RegisterScreen({ navigation }) {
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Terms & Conditions Modal */}
+      <Modal visible={termsVisible} animationType="slide" transparent onRequestClose={() => setTermsVisible(false)}>
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalSheet}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Terms & Conditions</Text>
+              <TouchableOpacity onPress={() => setTermsVisible(false)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+                <Text style={styles.modalClose}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.modalContent}>
+              <Text style={styles.tcMeta}>Last Updated: 2026.04.03</Text>
+              <Text style={styles.tcBody}>
+                Welcome to Ember Coffee Co. These Terms and Conditions ("Terms") govern your access to and use of the Ember Coffee Co. mobile application (the "App"). By registering for an account, you agree to be bound by these Terms.
+              </Text>
+
+              <Text style={styles.tcHeading}>1. User Accounts and Registration</Text>
+              <Text style={styles.tcBody}><Text style={styles.tcBold}>Eligibility:</Text> You must be at least 14 years old, or the age of legal majority in your jurisdiction, to create an account.</Text>
+              <Text style={styles.tcBody}><Text style={styles.tcBold}>Account Security:</Text> You are responsible for maintaining the confidentiality of your login credentials. You agree to accept responsibility for all activities that occur under your account.</Text>
+              <Text style={styles.tcBody}><Text style={styles.tcBold}>Accuracy of Information:</Text> You agree to provide current, complete, and accurate information during registration and to update your profile as necessary.</Text>
+
+              <Text style={styles.tcHeading}>2. Mobile Ordering and Payments</Text>
+              <Text style={styles.tcBody}><Text style={styles.tcBold}>Product Availability:</Text> All items are subject to availability. Ember Coffee Co. reserves the right to modify or discontinue any product without notice.</Text>
+              <Text style={styles.tcBody}><Text style={styles.tcBold}>Pricing:</Text> Prices are subject to change. The total amount will be displayed at checkout before you finalize your order.</Text>
+              <Text style={styles.tcBody}><Text style={styles.tcBold}>Order Processing:</Text> Once an order is placed and payment is verified, the status transitions from "Pending" to "Brewing." Orders cannot be canceled once brewing has commenced.</Text>
+
+              <Text style={styles.tcHeading}>3. Loyalty and Rewards Program</Text>
+              <Text style={styles.tcBody}><Text style={styles.tcBold}>Earning Points:</Text> Customers earn loyalty points based on qualifying purchases. Points hold no cash value.</Text>
+              <Text style={styles.tcBody}><Text style={styles.tcBold}>Redemption:</Text> Points can be redeemed for specific rewards listed in the "My Rewards" section.</Text>
+              <Text style={styles.tcBody}><Text style={styles.tcBold}>Modifications:</Text> Ember Coffee Co. reserves the right to alter points, change rewards, or terminate the loyalty program at any time without prior notice.</Text>
+
+              <Text style={styles.tcHeading}>4. Promotional Codes</Text>
+              <Text style={styles.tcBody}><Text style={styles.tcBold}>Usage:</Text> Promo Codes must be entered at checkout.</Text>
+              <Text style={styles.tcBody}><Text style={styles.tcBold}>Restrictions:</Text> Promo Codes are valid for a limited time, may be single-use per customer, and cannot be combined with other offers unless explicitly stated.</Text>
+
+              <Text style={styles.tcHeading}>5. User-Generated Content</Text>
+              <Text style={styles.tcBody}><Text style={styles.tcBold}>Submissions:</Text> The App allows you to post reviews, ratings, and images.</Text>
+              <Text style={styles.tcBody}><Text style={styles.tcBold}>Content Guidelines:</Text> You agree not to upload content that is offensive, defamatory, obscene, or violates intellectual property rights.</Text>
+              <Text style={styles.tcBody}><Text style={styles.tcBold}>Rights Granted:</Text> By submitting content, you grant Ember Coffee Co. a non-exclusive, royalty-free right to use, display, and reproduce such content within the App and for promotional purposes.</Text>
+
+              <Text style={styles.tcHeading}>6. Prohibited Conduct</Text>
+              <Text style={styles.tcBody}>You agree not to:{'\n'}• Use the App for any illegal or unauthorized purpose.{'\n'}• Attempt to hack, destabilize, or adapt the App's backend infrastructure or API.{'\n'}• Upload files containing viruses, malware, or exceeding the 5MB file size limit.</Text>
+
+              <Text style={styles.tcHeading}>7. Termination</Text>
+              <Text style={styles.tcBody}>Ember Coffee Co. reserves the right to suspend or terminate your account at our sole discretion, without notice, for conduct that violates these Terms or is harmful to other users.</Text>
+
+              <Text style={styles.tcHeading}>8. Changes to These Terms</Text>
+              <Text style={styles.tcBody}>We may update these Terms from time to time. We will notify you of changes by posting the new Terms on this page and updating the "Last Updated" date.</Text>
+            </ScrollView>
+
+            <TouchableOpacity
+              style={styles.tcAgreeBtn}
+              onPress={() => { setTermsAccepted(true); setTermsVisible(false); setErrors((e) => ({ ...e, terms: null })); }}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.tcAgreeBtnText}>I Agree</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -423,5 +503,86 @@ const styles = StyleSheet.create({
   footerLink: {
     fontFamily: fonts.semiBold,
     color: colors.primary,
+  },
+
+  // Terms error
+  termsError: {
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.sm,
+    color: '#E53E3E',
+    marginTop: -4,
+    marginBottom: spacing.sm,
+  },
+
+  // T&C Modal
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalSheet: {
+    backgroundColor: colors.cream,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xl,
+    maxHeight: '88%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.md,
+  },
+  modalTitle: {
+    fontFamily: fonts.bold,
+    fontSize: fontSizes.xl,
+    color: colors.dark,
+  },
+  modalClose: {
+    fontSize: 18,
+    color: 'rgba(46,21,0,0.5)',
+    padding: 4,
+  },
+  modalContent: {
+    paddingBottom: spacing.lg,
+  },
+  tcMeta: {
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.sm,
+    color: 'rgba(46,21,0,0.5)',
+    marginBottom: spacing.md,
+  },
+  tcHeading: {
+    fontFamily: fonts.bold,
+    fontSize: fontSizes.md,
+    color: colors.dark,
+    marginTop: spacing.lg,
+    marginBottom: spacing.xs,
+  },
+  tcBody: {
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.sm,
+    color: colors.dark,
+    lineHeight: 20,
+    marginBottom: spacing.sm,
+  },
+  tcBold: {
+    fontFamily: fonts.semiBold,
+    color: colors.dark,
+  },
+  tcAgreeBtn: {
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.pill,
+    height: 52,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: spacing.md,
+  },
+  tcAgreeBtnText: {
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.base,
+    color: '#fff',
   },
 });

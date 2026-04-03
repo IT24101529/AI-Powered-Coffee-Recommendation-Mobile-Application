@@ -83,16 +83,18 @@ export default function ProductDetailScreen({ route, navigation }) {
   }, [initialProduct._id]);
 
   const handleAddToCart = () => {
-    addItem({
-      ...product,
-      size: selectedSize,
-      milkType: selectedMilk,
-      sweetness,
-      // unique cart key per customisation combo
-      _id: `${product._id}_${selectedSize}_${selectedMilk}_${sweetness}`,
-      _productId: product._id,
-    });
-    Alert.alert('Added to cart', `${product.productName} (${selectedSize}) added.`);
+    const cartItem = isPastry
+      ? { ...product, _id: product._id, _productId: product._id }
+      : {
+          ...product,
+          size: selectedSize,
+          milkType: selectedMilk,
+          sweetness,
+          _id: `${product._id}_${selectedSize}_${selectedMilk}_${sweetness}`,
+          _productId: product._id,
+        };
+    addItem(cartItem);
+    Alert.alert('Added to cart', `${product.productName} added.`);
   };
 
   const handleReviewSuccess = () => {
@@ -101,6 +103,8 @@ export default function ProductDetailScreen({ route, navigation }) {
   };
 
   const sweetnesLabel = ['None', 'Low', 'Medium', 'High', 'Extra'][sweetness] ?? 'Medium';
+
+  const isPastry = (product?.category || '').toLowerCase() === 'pastries';
 
   return (
     <View style={styles.root}>
@@ -159,7 +163,7 @@ export default function ProductDetailScreen({ route, navigation }) {
               <Text style={styles.categoryText}>{product.category}</Text>
             </View>
             <View style={styles.priceBadge}>
-              <Text style={styles.priceText}>RM {Number(product.price).toFixed(2)}</Text>
+              <Text style={styles.priceText}>Rs. {Number(product.price).toFixed(2)}</Text>
             </View>
           </View>
 
@@ -185,6 +189,7 @@ export default function ProductDetailScreen({ route, navigation }) {
         </View>
 
         {/* ── Customisation ── */}
+        {!isPastry && (
         <View style={styles.customSection}>
           {/* Choose Size */}
           <Text style={styles.customLabel}>Choose Size</Text>
@@ -242,6 +247,7 @@ export default function ProductDetailScreen({ route, navigation }) {
             </TouchableOpacity>
           </View>
         </View>
+        )}
 
         {/* ── Review Feed Section ── */}
         <View style={styles.reviewSection}>
@@ -266,7 +272,7 @@ export default function ProductDetailScreen({ route, navigation }) {
       <View style={[styles.actionBar, { paddingBottom: insets.bottom + spacing.sm }]}>
         <View style={styles.actionPrice}>
           <Text style={styles.actionPriceLabel}>Total</Text>
-          <Text style={styles.actionPriceValue}>RM {Number(product.price).toFixed(2)}</Text>
+          <Text style={styles.actionPriceValue}>Rs. {Number(product.price).toFixed(2)}</Text>
         </View>
         <TouchableOpacity
           style={styles.addToCartBtn}
@@ -319,10 +325,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 160,
-    // Simulated gradient: semi-transparent cream fade
+    height: 80,
     backgroundColor: colors.cream,
-    opacity: 0.85,
+    opacity: 0.45,
   },
 
   // ── Floating TopAppBar ──
