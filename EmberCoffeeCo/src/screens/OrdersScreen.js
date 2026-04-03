@@ -10,6 +10,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../context/AuthContext';
 import { BASE_URL } from '../config/api';

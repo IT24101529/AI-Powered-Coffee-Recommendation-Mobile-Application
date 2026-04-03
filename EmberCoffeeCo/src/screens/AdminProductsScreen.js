@@ -169,7 +169,7 @@ export default function AdminProductsScreen() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaType.images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       quality: 0.8,
     });

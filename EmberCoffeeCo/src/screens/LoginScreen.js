@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   ImageBackground,
   StatusBar,
+  Alert,
 } from 'react-native';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
@@ -43,6 +44,7 @@ export default function LoginScreen({ navigation }) {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -84,7 +86,7 @@ export default function LoginScreen({ navigation }) {
 
         <KeyboardAvoidingView
           style={styles.flex}
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <ScrollView
             contentContainerStyle={styles.scrollContent}
@@ -106,14 +108,13 @@ export default function LoginScreen({ navigation }) {
               {/* Email field */}
               <View style={styles.fieldGap}>
                 <Input
-                  placeholder="hello@embercoffee.com"
+                  placeholder="Email address"
                   value={email}
                   onChangeText={(v) => { setEmail(v); setErrors((e) => ({ ...e, email: null })); }}
                   error={errors.email}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
-                  placeholderTextColor="rgba(255,255,255,0.6)"
                 />
               </View>
 
@@ -124,14 +125,19 @@ export default function LoginScreen({ navigation }) {
                   value={password}
                   onChangeText={(v) => { setPassword(v); setErrors((e) => ({ ...e, password: null })); }}
                   error={errors.password}
-                  secureTextEntry
-                  placeholderTextColor="rgba(255,255,255,0.6)"
+                  secureTextEntry={!showPassword}
                   rightElement={
-                    <TouchableOpacity onPress={() => {}}>
-                      <Text style={styles.forgotText}>Forgot?</Text>
+                    <TouchableOpacity
+                      onPress={() => setShowPassword((v) => !v)}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
+                      <Text style={styles.eyeToggle}>{showPassword ? '🙈' : '👁️'}</Text>
                     </TouchableOpacity>
                   }
                 />
+                <TouchableOpacity style={styles.forgotRow} onPress={() => navigation.navigate('ForgotPassword')}>
+                  <Text style={styles.forgotText}>Forgot password?</Text>
+                </TouchableOpacity>
               </View>
 
               {/* API error */}
@@ -164,10 +170,10 @@ export default function LoginScreen({ navigation }) {
 
               {/* Social buttons */}
               <View style={styles.socialRow}>
-                <TouchableOpacity style={styles.socialButton} onPress={() => {}} activeOpacity={0.7}>
+                <TouchableOpacity style={styles.socialButton} onPress={() => Alert.alert('Coming Soon', 'Google Sign-In will be available in a future update.')} activeOpacity={0.7}>
                   <Text style={styles.socialButtonText}>🇬 Google</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.socialButton} onPress={() => {}} activeOpacity={0.7}>
+                <TouchableOpacity style={styles.socialButton} onPress={() => Alert.alert('Coming Soon', 'Apple Sign-In will be available in a future update.')} activeOpacity={0.7}>
                   <Text style={styles.socialButtonText}> Apple</Text>
                 </TouchableOpacity>
               </View>
@@ -256,10 +262,17 @@ const styles = StyleSheet.create({
   fieldGap: {
     marginBottom: 12,
   },
+  forgotRow: {
+    alignItems: 'flex-end',
+    marginTop: 6,
+  },
   forgotText: {
     fontFamily: fonts.semiBold,
     fontSize: fontSizes.sm,
     color: colors.accent,
+  },
+  eyeToggle: {
+    fontSize: 16,
   },
   apiError: {
     marginBottom: 8,

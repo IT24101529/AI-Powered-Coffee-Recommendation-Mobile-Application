@@ -125,7 +125,7 @@ export default function CheckoutScreen({ navigation, route }) {
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaType.images,
+      mediaTypes: ['images'],
       allowsEditing: false,
       quality: 0.8,
     });

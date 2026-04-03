@@ -8,6 +8,7 @@ import {
   Dimensions,
   ActivityIndicator,
   StatusBar,
+  Image,
   RefreshControl,
 } from 'react-native';
 import axios from 'axios';
@@ -444,12 +445,15 @@ function QuickOrderSection({ products, onViewAll, onProductPress }) {
 }
 
 function SmallProductCard({ product, onPress }) {
-  const name = product?.name || 'Coffee';
+  const name = product?.productName || product?.name || 'Coffee';
   const price = product?.price != null ? `$${product.price.toFixed(2)}` : '';
 
   return (
     <TouchableOpacity style={smallCardStyles.card} onPress={onPress} activeOpacity={0.8}>
-      <View style={smallCardStyles.imagePlaceholder} />
+      {product?.productImageUrl
+        ? <Image source={{ uri: product.productImageUrl }} style={smallCardStyles.imagePlaceholder} resizeMode="cover" />
+        : <View style={smallCardStyles.imagePlaceholder} />
+      }
       <View style={smallCardStyles.info}>
         <Text style={smallCardStyles.name} numberOfLines={1}>{name}</Text>
         {!!price && <Text style={smallCardStyles.price}>{price}</Text>}
@@ -459,13 +463,16 @@ function SmallProductCard({ product, onPress }) {
 }
 
 function LargeProductCard({ product, onPress }) {
-  const name = product?.name || 'Morning Set';
+  const name = product?.productName || product?.name || 'Morning Set';
   const price = product?.price != null ? `$${product.price.toFixed(2)}` : '';
   const description = product?.description || 'The perfect start to your day.';
 
   return (
     <TouchableOpacity style={largeCardStyles.card} onPress={onPress} activeOpacity={0.8}>
-      <View style={largeCardStyles.imagePlaceholder} />
+      {product?.productImageUrl
+        ? <Image source={{ uri: product.productImageUrl }} style={largeCardStyles.imagePlaceholder} resizeMode="cover" />
+        : <View style={largeCardStyles.imagePlaceholder} />
+      }
       <View style={largeCardStyles.overlay} />
       <View style={largeCardStyles.content}>
         <Text style={largeCardStyles.name} numberOfLines={2}>{name}</Text>
