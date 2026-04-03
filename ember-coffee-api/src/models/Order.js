@@ -16,6 +16,7 @@ const orderSchema = new Schema(
     totalAmount:          { type: Number, required: true },
     orderStatus:          { type: String, enum: ['Pending', 'Brewing', 'Ready'], default: 'Pending' },
     paymentScreenshotUrl: { type: String, default: '' },
+    promoCode:            { type: String, default: '' },
   },
   { timestamps: true }
 );

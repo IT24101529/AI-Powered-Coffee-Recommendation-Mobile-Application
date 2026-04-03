@@ -1,4 +1,5 @@
 import Promotion from '../models/Promotion.js';
+import Order from '../models/Order.js';
 
 export const getPromotions = async (req, res, next) => {
   try {

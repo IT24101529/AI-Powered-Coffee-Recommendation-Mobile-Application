@@ -168,7 +168,7 @@ function ProductCard({ product, onEdit, onDelete }) {
       <View style={styles.productInfo}>
         <View style={styles.productMeta}>
           <Text style={styles.productName} numberOfLines={1}>{product.productName}</Text>
-          <Text style={styles.productPrice}>${parseFloat(product.price).toFixed(2)}</Text>
+          <Text style={styles.productPrice}>Rs. {parseFloat(product.price).toFixed(2)}</Text>
         </View>
         {product.description ? (
           <Text style={styles.productDesc} numberOfLines={2}>{product.description}</Text>
@@ -322,9 +322,7 @@ export default function AdminDashboardScreen({ navigation }) {
 
       {/* ── TopAppBar ── */}
       <View style={styles.topBar}>
-        <TouchableOpacity style={styles.hamburger} activeOpacity={0.7}>
-          <Text style={styles.hamburgerIcon}>☰</Text>
-        </TouchableOpacity>
+        <View style={{ width: 40 }} />
         <Image source={{ uri: BRAND_LOGO_URI }} style={styles.topBarLogo} resizeMode="contain" />
         <TouchableOpacity style={styles.customerToggleBtn} onPress={handleSwitchToCustomer} activeOpacity={0.8}>
           <Text style={styles.customerToggleText}>☕ Customer</Text>

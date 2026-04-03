@@ -23,11 +23,36 @@ import spacing, { borderRadius } from '../../theme/spacing';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const ADMIN_TABS = [
-  { key: 'Dashboard',  icon: '📊' },
-  { key: 'Products',   icon: '☕' },
-  { key: 'Orders',     icon: '📦' },
-  { key: 'Rewards',    icon: '🎁' },
-  { key: 'Promotions', icon: '🏷️' },
+  {
+    key: 'Dashboard',
+    label: 'Dashboard',
+    selected:   'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775210244/dashboard_icon_selected_twkuel.png',
+    unselected: 'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775210249/dashboard_icon_non-selected_f59pd7.png',
+  },
+  {
+    key: 'Products',
+    label: 'Products',
+    selected:   'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775210245/products_icon_selected_mqk0nn.png',
+    unselected: 'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775210245/products_icon_non-selected_vhus3q.png',
+  },
+  {
+    key: 'Orders',
+    label: 'Orders',
+    selected:   'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775210247/orders_icon_selected_lcallq.png',
+    unselected: 'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775210248/orders_icon_non-selected_jtq6bc.png',
+  },
+  {
+    key: 'Rewards',
+    label: 'Rewards',
+    selected:   'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775210246/rewards_icon_selected_xb64mi.png',
+    unselected: 'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775210246/rewards_icon_non-selected_a7bi00.png',
+  },
+  {
+    key: 'Promotions',
+    label: 'Promos',
+    selected:   'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775210245/Promos_icon_opd7er.png',
+    unselected: 'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775210245/Promos_icon_opd7er.png',
+  },
 ];
 
 // ─── Admin BottomNavBar ───────────────────────────────────────────────────────
@@ -43,9 +68,13 @@ function AdminBottomNavBar({ activeTab, onTabPress }) {
             onPress={() => onTabPress && onTabPress(tab.key)}
             activeOpacity={0.7}
           >
-            <Text style={navStyles.icon}>{tab.icon}</Text>
+            <Image
+              source={{ uri: isActive ? tab.selected : tab.unselected }}
+              style={navStyles.icon}
+              resizeMode="contain"
+            />
             <Text style={[navStyles.label, isActive ? navStyles.labelActive : navStyles.labelInactive]}>
-              {tab.key}
+              {tab.label}
             </Text>
             {isActive ? <View style={navStyles.activeDot} /> : null}
           </TouchableOpacity>
@@ -57,15 +86,15 @@ function AdminBottomNavBar({ activeTab, onTabPress }) {
 
 const navStyles = StyleSheet.create({
   bar: {
-    height: 60,
+    height: 64,
     flexDirection: 'row',
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.08)',
     backgroundColor: '#FFFFFF',
   },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 6 },
-  icon: { fontSize: 16, lineHeight: 20 },
-  label: { fontFamily: fonts.semiBold, fontSize: 9, marginTop: 2 },
+  icon: { width: 24, height: 24 },
+  label: { fontFamily: fonts.semiBold, fontSize: 9, marginTop: 3 },
   labelActive: { color: colors.primary },
   labelInactive: { color: '#9E9E9E' },
   activeDot: {

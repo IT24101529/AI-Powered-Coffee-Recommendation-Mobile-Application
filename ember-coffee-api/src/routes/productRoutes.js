@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { protect, adminOnly } from '../middleware/authMiddleware.js';
+import { protect, adminOnly, managerOrAdmin } from '../middleware/authMiddleware.js';
 import upload from '../middleware/uploadMiddleware.js';
 import {
   getProducts,
@@ -14,9 +14,9 @@ const router = Router();
 
 router.get('/',            getProducts);
 router.get('/:id',         getProductById);
-router.post('/',           protect, adminOnly, createProduct);
-router.put('/:id',         protect, adminOnly, updateProduct);
-router.delete('/:id',      protect, adminOnly, deleteProduct);
-router.post('/:id/upload', protect, adminOnly, upload.single('image'), uploadProductImage);
+router.post('/',           protect, managerOrAdmin, createProduct);
+router.put('/:id',         protect, managerOrAdmin, updateProduct);
+router.delete('/:id',      protect, adminOnly,      deleteProduct);
+router.post('/:id/upload', protect, managerOrAdmin, upload.single('image'), uploadProductImage);
 
 export default router;
