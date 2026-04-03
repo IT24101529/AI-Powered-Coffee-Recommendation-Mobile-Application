@@ -1,9 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { Resend } from 'resend';
 import User from '../models/User.js';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const register = async (req, res, next) => {
   try {
@@ -138,73 +135,44 @@ export const uploadProfileImage = async (req, res, next) => {
   }
 };
 
-export const forgotPassword = async (req, res, next) => {
+
+// ─── Admin: User Management ───────────────────────────────────────────────────
+
+export const getAllUsers = async (req, res, next) => {
   try {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ message: 'Email is required' });
-
-    const user = await User.findOne({ email: email.toLowerCase() });
-    // Always respond OK to prevent email enumeration
-    if (!user) return res.json({ message: 'If that email exists, a reset code has been sent.' });
-
-    // Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const hashedOtp = await bcrypt.hash(otp, 10);
-
-    user.passwordResetOtp = hashedOtp;
-    user.passwordResetExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
-    await user.save();
-
-    await resend.emails.send({
-      from: process.env.FROM_EMAIL,
-      to: user.email,
-      subject: 'Ember Coffee Co. — Password Reset Code',
-      html: `
-        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#FDF6EE;border-radius:12px;">
-          <h2 style="color:#62371E;margin-bottom:8px;">☕ Ember Coffee Co.</h2>
-          <p style="color:#2E1500;font-size:16px;">Hi ${user.name},</p>
-          <p style="color:#2E1500;font-size:15px;">Use the code below to reset your password. It expires in <strong>15 minutes</strong>.</p>
-          <div style="text-align:center;margin:32px 0;">
-            <span style="font-size:40px;font-weight:bold;letter-spacing:12px;color:#62371E;background:#fff;padding:16px 24px;border-radius:8px;border:2px solid #E8D5C0;">${otp}</span>
-          </div>
-          <p style="color:#888;font-size:13px;">If you didn't request this, you can safely ignore this email.</p>
-        </div>
-      `,
-    });
-
-    res.json({ message: 'If that email exists, a reset code has been sent.' });
+    const users = await User.find().select('-passwordHash').sort({ createdAt: -1 });
+    res.json(users);
   } catch (err) {
     next(err);
   }
 };
 
-export const resetPassword = async (req, res, next) => {
+export const updateUserByAdmin = async (req, res, next) => {
   try {
-    const { email, otp, newPassword } = req.body;
-    if (!email || !otp || !newPassword)
-      return res.status(400).json({ message: 'Email, code, and new password are required' });
+    const { name, email, role } = req.body;
+    const updates = {};
+    if (name !== undefined) updates.name = name;
+    if (email !== undefined) updates.email = email.toLowerCase();
+    if (role !== undefined) updates.role = role;
 
-    if (newPassword.length < 8)
-      return res.status(400).json({ message: 'Password must be at least 8 characters' });
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      updates,
+      { new: true, runValidators: true }
+    ).select('-passwordHash');
 
-    const user = await User.findOne({
-      email: email.toLowerCase(),
-      passwordResetExpires: { $gt: new Date() },
-    });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    next(err);
+  }
+};
 
-    if (!user || !user.passwordResetOtp)
-      return res.status(400).json({ message: 'Reset code is invalid or has expired' });
-
-    const valid = await bcrypt.compare(otp, user.passwordResetOtp);
-    if (!valid)
-      return res.status(400).json({ message: 'Incorrect reset code' });
-
-    user.passwordHash = await bcrypt.hash(newPassword, 10);
-    user.passwordResetOtp = undefined;
-    user.passwordResetExpires = undefined;
-    await user.save();
-
-    res.json({ message: 'Password reset successfully' });
+export const deleteUserByAdmin = async (req, res, next) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json({ message: 'User deleted' });
   } catch (err) {
     next(err);
   }

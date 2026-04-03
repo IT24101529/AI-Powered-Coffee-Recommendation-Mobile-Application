@@ -2,6 +2,7 @@ import React from 'react';
 import {
   View,
   Text,
+  Image,
   ImageBackground,
   StyleSheet,
   TouchableOpacity,
@@ -14,9 +15,9 @@ import { borderRadius } from '../theme/spacing';
 
 const { height } = Dimensions.get('window');
 
-// Placeholder coffee background — replace with actual asset when available
+const LOGO_URI = 'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775206009/white_logo_d3ma34.png';
 const COFFEE_BG = {
-  uri: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800',
+  uri: 'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775205865/Artisanal_Coffee_Pouring_oduqi8.png',
 };
 
 export default function SplashScreen({ navigation }) {
@@ -32,9 +33,11 @@ export default function SplashScreen({ navigation }) {
         <View style={styles.content}>
           {/* Logo area */}
           <View style={styles.logoContainer}>
-            {/* SVG logo placeholder — replace with actual SVG/Image asset */}
-            <Text style={styles.logoText}>☕</Text>
-            <Text style={styles.logoTitle}>EMBER COFFEE CO.</Text>
+            <Image
+              source={{ uri: LOGO_URI }}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
           </View>
 
           {/* "Since 2024" peach pill badge */}
@@ -55,7 +58,7 @@ export default function SplashScreen({ navigation }) {
               onPress={() => navigation.navigate('Register')}
               activeOpacity={0.8}
             >
-              <Text style={styles.primaryButtonText}>Get Started</Text>
+              <Text style={styles.primaryButtonText}>Get Started →</Text>
             </TouchableOpacity>
 
             {/* "Our Story" ghost glass button */}
@@ -86,8 +89,8 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    height: height * 0.45,
-    backgroundColor: 'rgba(0,0,0,0.20)',
+    height: height * 0.63,
+    backgroundColor: 'rgba(0,0,0,0.40)',
   },
   // Bottom gradient layer — dark at 85% opacity
   gradientBottom: {
@@ -95,8 +98,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: height * 0.55,
-    backgroundColor: 'rgba(0,0,0,0.85)',
+    height: height * 0.37,
+    backgroundColor: 'rgba(0,0,0,0.70)',
   },
   content: {
     flex: 1,
@@ -108,19 +111,12 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: 'center',
     marginBottom: 16,
-    // Figma: logo centered at y=230
     position: 'absolute',
-    top: 200,
+    top: 270,
   },
-  logoText: {
-    fontSize: 48,
-    marginBottom: 8,
-  },
-  logoTitle: {
-    fontFamily: fonts.extraBold,
-    fontSize: fontSizes['2xl'],
-    color: '#FFFFFF',
-    letterSpacing: 4,
+  logoImage: {
+    width: 250,
+    height: 130,
   },
   badge: {
     backgroundColor: colors.accent,
@@ -165,7 +161,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.glass,
     borderRadius: borderRadius.pill,
     borderWidth: 1,
-    borderColor: '#FFFFFF',
+    borderColor: '#ffffff37',
     alignItems: 'center',
     justifyContent: 'center',
   },

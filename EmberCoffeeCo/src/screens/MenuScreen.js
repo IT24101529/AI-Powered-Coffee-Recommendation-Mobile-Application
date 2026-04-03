@@ -22,6 +22,7 @@ import { useCart } from '../context/CartContext';
 import TopAppBar from '../components/ui/TopAppBar';
 import BottomNavBar from '../components/ui/BottomNavBar';
 import Badge from '../components/ui/Badge';
+import { BRAND_LOGO_URI } from '../components/ui/TopAppBar';
 
 import colors from '../theme/colors';
 import { fonts, fontSizes } from '../theme/typography';
@@ -101,16 +102,18 @@ export default function MenuScreen({ navigation }) {
 
       {/* Top App Bar — custom header with hamburger + logo + cart */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.iconBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-          <Text style={styles.iconText}>☰</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>EMBER COFFEE CO.</Text>
+        <View style={styles.iconBtn} />
+        <Image source={{ uri: BRAND_LOGO_URI }} style={styles.headerLogo} resizeMode="contain" />
         <TouchableOpacity
           onPress={() => navigation?.navigate('Cart')}
           style={styles.iconBtn}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
-          <Text style={styles.iconText}>🛒</Text>
+          <Image
+            source={{ uri: 'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775211239/cart_icon_az8hkp.png' }}
+            style={styles.cartIconImg}
+            resizeMode="contain"
+          />
           {cartCount > 0 && (
             <View style={styles.cartBadge}>
               <Text style={styles.cartBadgeText}>{cartCount}</Text>
@@ -927,19 +930,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     backgroundColor: 'transparent',
   },
-  headerTitle: {
+  headerLogo: {
     flex: 1,
-    textAlign: 'center',
-    fontFamily: fonts.bold,
-    fontSize: fontSizes.base,
-    color: colors.dark,
-    letterSpacing: 0.5,
+    height: 32,
+    alignSelf: 'center',
+  },
+  cartIconImg: {
+    width: 24,
+    height: 24,
   },
   cartBadge: {
     position: 'absolute',
     top: -2,
-    right: -2,
-    backgroundColor: colors.primary,
+    right: -2,    backgroundColor: colors.primary,
     borderRadius: borderRadius.pill,
     minWidth: 16,
     height: 16,

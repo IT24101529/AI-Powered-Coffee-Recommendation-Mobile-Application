@@ -129,7 +129,7 @@ export default function OrdersScreen() {
         />
       )}
 
-      <BottomNavBar activeTab="Orders" />
+      <BottomNavBar activeTab="Orders" onTabPress={(tab) => navigation.navigate(tab)} />
     </SafeAreaView>
   );
 }

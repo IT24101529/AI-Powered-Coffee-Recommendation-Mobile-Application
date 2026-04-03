@@ -11,6 +11,7 @@ import {
   StatusBar,
   Modal,
   Alert,
+  Image,
 } from 'react-native';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
@@ -128,8 +129,11 @@ export default function RegisterScreen({ navigation }) {
         >
           {/* Logo — horizontal layout */}
           <View style={styles.logoRow}>
-            <Text style={styles.logoEmoji}>☕</Text>
-            <Text style={styles.logoTitle}>EMBER COFFEE CO.</Text>
+            <Image
+              source={{ uri: 'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775206010/black_logo_nualaj.png' }}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
           </View>
 
           {/* Heading */}
@@ -356,19 +360,11 @@ const styles = StyleSheet.create({
     paddingBottom: spacing['2xl'],
   },
   logoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
     marginBottom: spacing['2xl'],
   },
-  logoEmoji: {
-    fontSize: 22,
-  },
-  logoTitle: {
-    fontFamily: fonts.extraBold,
-    fontSize: fontSizes.sm,
-    color: colors.dark,
-    letterSpacing: 3,
+  logoImage: {
+    width: 180,
+    height: 60,
   },
   headingBlock: {
     marginBottom: spacing.xl,
