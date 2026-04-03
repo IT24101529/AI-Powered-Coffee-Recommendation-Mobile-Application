@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, ScrollView,
-  StyleSheet, Alert, SafeAreaView, StatusBar, Image,
+  StyleSheet, Alert, StatusBar, Image,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import { BASE_URL } from '../../config/api';

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -20,7 +20,6 @@ import { useCart } from '../context/CartContext';
 
 import TopAppBar from '../components/ui/TopAppBar';
 import BottomNavBar from '../components/ui/BottomNavBar';
-import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 
@@ -52,6 +51,7 @@ export default function HomeScreen({ navigation }) {
   const [promo, setPromo] = useState(null);
   const [profile, setProfile] = useState(null);
   const [products, setProducts] = useState([]);
+  const [signatureProducts, setSignatureProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -78,9 +78,14 @@ export default function HomeScreen({ navigation }) {
       if (productsRes.status === 'fulfilled') {
         const all = productsRes.value.data;
         const available = Array.isArray(all)
-          ? all.filter((p) => p.isAvailable !== false).slice(0, 3)
+          ? all.filter((p) => p.isAvailable !== false)
           : [];
-        setProducts(available);
+        setProducts(available.slice(0, 3));
+        setSignatureProducts(
+          available.filter((p) =>
+            (p.category || '').toLowerCase() === 'signature brews'
+          )
+        );
       }
 
       if (token) {
@@ -137,7 +142,11 @@ export default function HomeScreen({ navigation }) {
             style={styles.cartBtn}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Text style={styles.cartIcon}>🛒</Text>
+            <Image
+              source={{ uri: 'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775211239/cart_icon_az8hkp.png' }}
+              style={styles.cartIcon}
+              resizeMode="contain"
+            />
             {cartCount > 0 && (
               <View style={styles.cartBadge}>
                 <Text style={styles.cartBadgeText}>{cartCount}</Text>
@@ -167,7 +176,12 @@ export default function HomeScreen({ navigation }) {
         ) : (
           <>
             {/* Hero Promotional Banner */}
-            <HeroBanner promo={promo} onOrderNow={() => navigateTo('Menu')} />
+            <HeroBanner
+              promo={promo}
+              signatureProducts={signatureProducts}
+              onOrderNow={() => navigateTo('Menu')}
+              onProductPress={(product) => navigateTo('ProductDetail', { product })}
+            />
 
             {/* Rewards Tracker */}
             <RewardsTracker profile={profile} />
@@ -184,25 +198,10 @@ export default function HomeScreen({ navigation }) {
             {/* Our Story Section */}
             <OurStorySection />
 
-            {/* Bottom padding for FAB */}
-            <View style={{ height: 80 }} />
+            <View style={{ height: 24 }} />
           </>
         )}
       </ScrollView>
-
-      {/* Floating Action Button */}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => navigateTo('Cart')}
-        activeOpacity={0.85}
-      >
-        <Text style={styles.fabIcon}>🛒</Text>
-        {cartCount > 0 && (
-          <View style={styles.fabBadge}>
-            <Text style={styles.fabBadgeText}>{cartCount}</Text>
-          </View>
-        )}
-      </TouchableOpacity>
 
       {/* Bottom Nav Bar */}
       <BottomNavBar activeTab="Home" onTabPress={handleTabPress} />
@@ -210,64 +209,86 @@ export default function HomeScreen({ navigation }) {
   );
 }
 
-// ─── Hero Banner ────────────────────────────────────────────────────────────
-function HeroBanner({ promo, onOrderNow }) {
-  const title = promo?.title || 'Start Your Morning Right';
-  const description =
-    promo?.description || 'Handcrafted espresso drinks made with love.';
+// ─── Hero Banner (auto-scrolling Signature Brews carousel) ──────────────────
+function HeroBanner({ promo, signatureProducts, onOrderNow, onProductPress }) {
+  const scrollRef = useRef(null);
+  const currentIndex = useRef(0);
+  const items = signatureProducts && signatureProducts.length > 0
+    ? signatureProducts
+    : [{ _id: 'placeholder', productName: promo?.title || 'Start Your Morning Right', description: promo?.description || 'Handcrafted espresso drinks made with love.', productImageUrl: null }];
+
+  useEffect(() => {
+    if (items.length <= 1) return;
+    const interval = setInterval(() => {
+      currentIndex.current = (currentIndex.current + 1) % items.length;
+      scrollRef.current?.scrollTo({ x: currentIndex.current * (SCREEN_WIDTH - HORIZONTAL_MARGIN * 2), animated: true });
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [items.length]);
 
   return (
-    <View style={heroBannerStyles.container}>
-      {/* Background image placeholder */}
-      <View style={heroBannerStyles.imagePlaceholder} />
-
-      {/* Gradient overlay (simulated with layered views) */}
-      <View style={heroBannerStyles.gradientTop} />
-      <View style={heroBannerStyles.gradientBottom} />
-
-      {/* Content */}
-      <View style={heroBannerStyles.content}>
-        <Badge label="Featured" variant="accent" style={heroBannerStyles.badge} />
-        <Text style={heroBannerStyles.heading}>{title}</Text>
-        <Text style={heroBannerStyles.description} numberOfLines={2}>
-          {description}
-        </Text>
-        <Button
-          title="Order Now"
-          variant="secondary"
-          onPress={onOrderNow}
-          style={heroBannerStyles.button}
-        />
-      </View>
+    <View style={heroBannerStyles.wrapper}>
+      <ScrollView
+        ref={scrollRef}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        scrollEnabled={false}
+        style={heroBannerStyles.scroll}
+      >
+        {items.map((item) => (
+          <TouchableOpacity
+            key={item._id}
+            style={heroBannerStyles.container}
+            activeOpacity={item._productId ? 0.85 : 1}
+            onPress={() => item.price != null && onProductPress && onProductPress(item)}
+          >
+            {item.productImageUrl
+              ? <Image source={{ uri: item.productImageUrl }} style={heroBannerStyles.image} resizeMode="cover" />
+              : <View style={heroBannerStyles.imagePlaceholder} />
+            }
+            <View style={heroBannerStyles.gradientBottom} />
+            <View style={heroBannerStyles.content}>
+              <Badge label="Signature Brew" variant="accent" style={heroBannerStyles.badge} />
+              <Text style={heroBannerStyles.heading} numberOfLines={2}>{item.productName}</Text>
+              <Text style={heroBannerStyles.description} numberOfLines={2}>{item.description}</Text>
+              {item.price != null && (
+                <Text style={heroBannerStyles.price}>Rs. {Number(item.price).toFixed(2)}</Text>
+              )}
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
     </View>
   );
 }
 
 const heroBannerStyles = StyleSheet.create({
-  container: {
+  wrapper: {
     marginHorizontal: HORIZONTAL_MARGIN,
     marginTop: spacing.md,
-    height: HERO_HEIGHT,
     borderRadius: borderRadius.cardLg,
     overflow: 'hidden',
+    height: HERO_HEIGHT,
+  },
+  scroll: {
+    height: HERO_HEIGHT,
+  },
+  container: {
+    width: SCREEN_WIDTH - HORIZONTAL_MARGIN * 2,
+    height: HERO_HEIGHT,
+  },
+  image: {
+    ...StyleSheet.absoluteFillObject,
   },
   imagePlaceholder: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: colors.dark,
   },
-  gradientTop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'transparent',
-    top: 0,
-    height: '40%',
-    opacity: 0.3,
-    backgroundColor: colors.dark,
-  },
   gradientBottom: {
     ...StyleSheet.absoluteFillObject,
-    top: '40%',
-    backgroundColor: colors.dark,
-    opacity: 0.75,
+    top: '35%',
+    backgroundColor: 'rgba(46,21,0,0.72)',
   },
   content: {
     ...StyleSheet.absoluteFillObject,
@@ -276,23 +297,26 @@ const heroBannerStyles = StyleSheet.create({
   },
   badge: {
     marginBottom: spacing.sm,
+    alignSelf: 'flex-start',
   },
   heading: {
     fontFamily: fonts.extraBold,
-    fontSize: fontSizes['3xl'],
+    fontSize: fontSizes['2xl'],
     color: '#FFFFFF',
-    lineHeight: 36,
+    lineHeight: 30,
     marginBottom: spacing.xs,
   },
   description: {
     fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
     color: 'rgba(255,255,255,0.85)',
-    marginBottom: spacing.md,
+    marginBottom: spacing.sm,
+    lineHeight: 18,
   },
-  button: {
-    width: 140,
-    height: 44,
+  price: {
+    fontFamily: fonts.bold,
+    fontSize: fontSizes.md,
+    color: colors.accent,
   },
 });
 
@@ -446,7 +470,7 @@ function QuickOrderSection({ products, onViewAll, onProductPress }) {
 
 function SmallProductCard({ product, onPress }) {
   const name = product?.productName || product?.name || 'Coffee';
-  const price = product?.price != null ? `$${product.price.toFixed(2)}` : '';
+  const price = product?.price != null ? `Rs. ${product.price.toFixed(2)}` : '';
 
   return (
     <TouchableOpacity style={smallCardStyles.card} onPress={onPress} activeOpacity={0.8}>
@@ -464,7 +488,7 @@ function SmallProductCard({ product, onPress }) {
 
 function LargeProductCard({ product, onPress }) {
   const name = product?.productName || product?.name || 'Morning Set';
-  const price = product?.price != null ? `$${product.price.toFixed(2)}` : '';
+  const price = product?.price != null ? `Rs. ${product.price.toFixed(2)}` : '';
   const description = product?.description || 'The perfect start to your day.';
 
   return (
@@ -714,7 +738,8 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   cartIcon: {
-    fontSize: 22,
+    width: 24,
+    height: 24,
   },
   cartBadge: {
     position: 'absolute',
@@ -732,38 +757,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.bold,
     fontSize: 9,
     color: '#FFFFFF',
-  },
-  // FAB
-  fab: {
-    position: 'absolute',
-    bottom: 76,
-    right: HORIZONTAL_MARGIN,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 6,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-  },
-  fabIcon: {
-    fontSize: 22,
-  },
-  fabBadge: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
-    backgroundColor: colors.accent,
-    borderRadius: borderRadius.pill,
-    minWidth: 16,
-    height: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 3,
   },
   fabBadgeText: {
     fontFamily: fonts.bold,

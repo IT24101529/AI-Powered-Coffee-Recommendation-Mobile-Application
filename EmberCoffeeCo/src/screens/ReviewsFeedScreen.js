@@ -206,7 +206,6 @@ export default function ReviewsFeedScreen({ navigation, route }) {
       <TopAppBar
         title="EMBER COFFEE CO."
         onBack={navigation?.canGoBack() ? () => navigation.goBack() : undefined}
-        rightElement={<Text style={styles.navIcon}>🔔</Text>}
       />
 
       <ScrollView

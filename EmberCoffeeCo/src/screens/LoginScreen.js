@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   ImageBackground,
+  Image,
   StatusBar,
   Alert,
 } from 'react-native';
@@ -95,8 +96,11 @@ export default function LoginScreen({ navigation }) {
           >
             {/* Logo top-left */}
             <View style={styles.logoArea}>
-              <Text style={styles.logoEmoji}>☕</Text>
-              <Text style={styles.logoTitle}>EMBER COFFEE CO.</Text>
+              <Image
+                source={{ uri: 'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775206009/white_logo_d3ma34.png' }}
+                style={styles.logoImage}
+                resizeMode="contain"
+              />
             </View>
 
             {/* Bottom form section */}
@@ -135,7 +139,7 @@ export default function LoginScreen({ navigation }) {
                     </TouchableOpacity>
                   }
                 />
-                <TouchableOpacity style={styles.forgotRow} onPress={() => navigation.navigate('ForgotPassword')}>
+                <TouchableOpacity style={styles.forgotRow} onPress={() => {}}>
                   <Text style={styles.forgotText}>Forgot password?</Text>
                 </TouchableOpacity>
               </View>
@@ -212,15 +216,15 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: '55%',
-    backgroundColor: 'rgba(0,0,0,0.20)',
+    backgroundColor: 'rgba(0,0,0,0.30)',
   },
   gradientBottom: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    top: '45%',
-    backgroundColor: 'rgba(0,0,0,0.75)',
+    top: '42%',
+    backgroundColor: 'rgba(0,0,0,0.65)',
   },
   scrollContent: {
     flexGrow: 1,
@@ -228,20 +232,12 @@ const styles = StyleSheet.create({
     paddingBottom: 48,
   },
   logoArea: {
-    paddingTop: 56,
-    paddingLeft: 24,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+    paddingTop: 180,
+    paddingLeft: 90,
   },
-  logoEmoji: {
-    fontSize: 24,
-  },
-  logoTitle: {
-    fontFamily: fonts.extraBold,
-    fontSize: fontSizes.sm,
-    color: '#FFFFFF',
-    letterSpacing: 3,
+  logoImage: {
+    width: 230,
+    height: 110,
   },
   formSection: {
     paddingHorizontal: 24,

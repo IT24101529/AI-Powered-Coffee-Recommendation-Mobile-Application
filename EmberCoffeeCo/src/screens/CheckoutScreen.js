@@ -184,16 +184,6 @@ export default function CheckoutScreen({ navigation, route }) {
     }
   };
 
-  // ── Cart icon ───────────────────────────────────────────────────────────────
-  const cartIcon = (
-    <TouchableOpacity
-      onPress={() => navigation.navigate('Cart')}
-      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-    >
-      <Text style={{ fontSize: 20 }}>🛒</Text>
-    </TouchableOpacity>
-  );
-
   // ── Empty cart guard ────────────────────────────────────────────────────────
   if (items.length === 0) {
     return (
@@ -201,7 +191,6 @@ export default function CheckoutScreen({ navigation, route }) {
         <TopAppBar
           title="Checkout"
           onBack={() => navigation.goBack()}
-          rightElement={cartIcon}
         />
         <View style={styles.emptyState}>
           <Text style={styles.emptyIcon}>🛒</Text>
@@ -225,7 +214,6 @@ export default function CheckoutScreen({ navigation, route }) {
       <TopAppBar
         title="Checkout"
         onBack={() => navigation.goBack()}
-        rightElement={cartIcon}
       />
 
       <ScrollView

@@ -1,9 +1,13 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import colors from '../../theme/colors';
 import { fonts, fontSizes } from '../../theme/typography';
 
+export const BRAND_LOGO_URI = 'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775206010/black_logo_nualaj.png';
+
 export default function TopAppBar({ title, onBack, rightElement, style }) {
+  const isBrandTitle = !title || title === 'EMBER COFFEE CO.';
+
   return (
     <View style={[styles.bar, style]}>
       {/* Left: back button or spacer */}
@@ -15,10 +19,12 @@ export default function TopAppBar({ title, onBack, rightElement, style }) {
         ) : null}
       </View>
 
-      {/* Center: title */}
-      <Text style={styles.title} numberOfLines={1}>
-        {title}
-      </Text>
+      {/* Center: logo or title */}
+      {isBrandTitle ? (
+        <Image source={{ uri: BRAND_LOGO_URI }} style={styles.logo} resizeMode="contain" />
+      ) : (
+        <Text style={styles.title} numberOfLines={1}>{title}</Text>
+      )}
 
       {/* Right: optional element or spacer */}
       <View style={[styles.side, styles.sideRight]}>
@@ -53,6 +59,10 @@ const styles = StyleSheet.create({
     color: colors.dark,
     lineHeight: 32,
     fontFamily: fonts.light,
+  },
+  logo: {
+    flex: 1,
+    height: 32,
   },
   title: {
     flex: 1,

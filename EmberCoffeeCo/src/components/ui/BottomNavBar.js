@@ -1,14 +1,39 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
 import colors from '../../theme/colors';
 import { fonts, fontSizes } from '../../theme/typography';
 
 const TABS = [
-  { key: 'Home',    icon: '🏠' },
-  { key: 'Menu',    icon: '☕' },
-  { key: 'Rewards', icon: '🎁' },
-  { key: 'Orders',  icon: '📦' },
-  { key: 'Profile', icon: '👤' },
+  {
+    key: 'Home',
+    label: 'Home',
+    selected:    'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775208775/home_icon_selected_p0iw8j.png',
+    unselected:  'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775208775/home_icon_non-selected_pqsken.png',
+  },
+  {
+    key: 'Menu',
+    label: 'Menu',
+    selected:    'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775208776/menu_icon_selected_zthasn.png',
+    unselected:  'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775208775/menu_icon_non-selected_qvdfxh.png',
+  },
+  {
+    key: 'Rewards',
+    label: 'Rewards',
+    selected:    'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775208775/rewards_icon_selected_b0om0y.png',
+    unselected:  'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775208779/rewards_icon_non-selected_nepvb6.png',
+  },
+  {
+    key: 'Orders',
+    label: 'Orders',
+    selected:    'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775208777/orders_icon_selected_df3ndx.png',
+    unselected:  'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775208776/orders_icon_non-selected_dytebh.png',
+  },
+  {
+    key: 'Profile',
+    label: 'Profile',
+    selected:    'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775208779/profile_icon_selected_pllp3v.png',
+    unselected:  'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775208778/profile_icon_non-selected_is0shg.png',
+  },
 ];
 
 export default function BottomNavBar({ activeTab, onTabPress }) {
@@ -23,9 +48,13 @@ export default function BottomNavBar({ activeTab, onTabPress }) {
             onPress={() => onTabPress && onTabPress(tab.key)}
             activeOpacity={0.7}
           >
-            <Text style={styles.icon}>{tab.icon}</Text>
+            <Image
+              source={{ uri: isActive ? tab.selected : tab.unselected }}
+              style={styles.icon}
+              resizeMode="contain"
+            />
             <Text style={[styles.label, isActive ? styles.labelActive : styles.labelInactive]}>
-              {tab.key}
+              {tab.label}
             </Text>
             {isActive ? <View style={styles.activeDot} /> : null}
           </TouchableOpacity>
@@ -37,7 +66,7 @@ export default function BottomNavBar({ activeTab, onTabPress }) {
 
 const styles = StyleSheet.create({
   bar: {
-    height: 60,
+    height: 64,
     flexDirection: 'row',
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.08)',
@@ -50,13 +79,13 @@ const styles = StyleSheet.create({
     paddingTop: 6,
   },
   icon: {
-    fontSize: 18,
-    lineHeight: 22,
+    width: 24,
+    height: 24,
   },
   label: {
     fontFamily: fonts.semiBold,
     fontSize: fontSizes.xs,
-    marginTop: 2,
+    marginTop: 3,
   },
   labelActive: {
     color: colors.primary,
