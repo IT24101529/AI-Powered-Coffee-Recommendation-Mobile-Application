@@ -4,12 +4,12 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
+  Image,
   StyleSheet,
   Alert,
   ActivityIndicator,
   StatusBar,
   RefreshControl,
-  FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
@@ -44,11 +44,36 @@ const STATUS_ICONS = {
 const FILTER_TABS = ['All', 'Pending', 'Brewing', 'Ready'];
 
 const ADMIN_TABS = [
-  { key: 'Dashboard',  icon: '📊' },
-  { key: 'Products',   icon: '☕' },
-  { key: 'Orders',     icon: '📦' },
-  { key: 'Rewards',    icon: '🎁' },
-  { key: 'Promotions', icon: '🏷️' },
+  {
+    key: 'Dashboard',
+    label: 'Dashboard',
+    selected:   'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775210244/dashboard_icon_selected_twkuel.png',
+    unselected: 'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775210249/dashboard_icon_non-selected_f59pd7.png',
+  },
+  {
+    key: 'Products',
+    label: 'Products',
+    selected:   'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775210245/products_icon_selected_mqk0nn.png',
+    unselected: 'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775210245/products_icon_non-selected_vhus3q.png',
+  },
+  {
+    key: 'Orders',
+    label: 'Orders',
+    selected:   'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775210247/orders_icon_selected_lcallq.png',
+    unselected: 'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775210248/orders_icon_non-selected_jtq6bc.png',
+  },
+  {
+    key: 'Rewards',
+    label: 'Rewards',
+    selected:   'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775210246/rewards_icon_selected_xb64mi.png',
+    unselected: 'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775210246/rewards_icon_non-selected_a7bi00.png',
+  },
+  {
+    key: 'Promotions',
+    label: 'Promos',
+    selected:   'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775210245/Promos_icon_opd7er.png',
+    unselected: 'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775210245/Promos_icon_opd7er.png',
+  },
 ];
 
 // ─── Admin BottomNavBar ───────────────────────────────────────────────────────
@@ -64,9 +89,13 @@ function AdminBottomNavBar({ activeTab, onTabPress }) {
             onPress={() => onTabPress && onTabPress(tab.key)}
             activeOpacity={0.7}
           >
-            <Text style={navStyles.icon}>{tab.icon}</Text>
+            <Image
+              source={{ uri: isActive ? tab.selected : tab.unselected }}
+              style={navStyles.icon}
+              resizeMode="contain"
+            />
             <Text style={[navStyles.label, isActive ? navStyles.labelActive : navStyles.labelInactive]}>
-              {tab.key}
+              {tab.label}
             </Text>
             {isActive ? <View style={navStyles.activeDot} /> : null}
           </TouchableOpacity>
@@ -78,15 +107,15 @@ function AdminBottomNavBar({ activeTab, onTabPress }) {
 
 const navStyles = StyleSheet.create({
   bar: {
-    height: 60,
+    height: 64,
     flexDirection: 'row',
     borderTopWidth: 1,
     borderTopColor: 'rgba(0,0,0,0.08)',
     backgroundColor: '#FFFFFF',
   },
   tab: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 6 },
-  icon: { fontSize: 16, lineHeight: 20 },
-  label: { fontFamily: fonts.semiBold, fontSize: 9, marginTop: 2 },
+  icon: { width: 24, height: 24 },
+  label: { fontFamily: fonts.semiBold, fontSize: 9, marginTop: 3 },
   labelActive: { color: colors.primary },
   labelInactive: { color: '#9E9E9E' },
   activeDot: {
@@ -98,11 +127,7 @@ const navStyles = StyleSheet.create({
 // ─── Status Filter Tabs ───────────────────────────────────────────────────────
 function StatusFilterTabs({ activeFilter, onFilterChange, counts }) {
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={tabStyles.container}
-    >
+    <View style={tabStyles.container}>
       {FILTER_TABS.map((tab) => {
         const isActive = activeFilter === tab;
         const count = counts[tab] ?? 0;
@@ -113,7 +138,6 @@ function StatusFilterTabs({ activeFilter, onFilterChange, counts }) {
             onPress={() => onFilterChange(tab)}
             activeOpacity={0.8}
           >
-            <Text style={tabStyles.tabIcon}>{STATUS_ICONS[tab]}</Text>
             <Text style={[tabStyles.tabLabel, isActive && tabStyles.tabLabelActive]}>
               {tab}
             </Text>
@@ -125,51 +149,54 @@ function StatusFilterTabs({ activeFilter, onFilterChange, counts }) {
           </TouchableOpacity>
         );
       })}
-    </ScrollView>
+    </View>
   );
 }
 
 const tabStyles = StyleSheet.create({
   container: {
+    flexDirection: 'row',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     gap: spacing.sm,
+    backgroundColor: colors.cream,
   },
   tab: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: spacing.md,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.sm,
     paddingVertical: spacing.sm,
     borderRadius: borderRadius.pill,
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: 'rgba(98,55,30,0.15)',
-    gap: spacing.xs,
+    gap: 4,
   },
   tabActive: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
   },
-  tabIcon: { fontSize: 14 },
   tabLabel: {
     fontFamily: fonts.semiBold,
-    fontSize: fontSizes.sm,
+    fontSize: fontSizes.xs,
     color: colors.dark,
   },
   tabLabelActive: { color: '#fff' },
   badge: {
-    minWidth: 20,
-    height: 20,
-    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
     backgroundColor: 'rgba(98,55,30,0.1)',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 4,
+    paddingHorizontal: 3,
   },
   badgeActive: { backgroundColor: 'rgba(255,255,255,0.25)' },
   badgeText: {
     fontFamily: fonts.bold,
-    fontSize: fontSizes.xs,
+    fontSize: 9,
     color: colors.primary,
   },
   badgeTextActive: { color: '#fff' },
@@ -317,7 +344,7 @@ function OrderCard({ order, onStatusUpdate, updating }) {
           {order.items?.length ?? 0} item{order.items?.length !== 1 ? 's' : ''}
         </Text>
         <Text style={cardStyles.totalAmount}>
-          ${(order.totalAmount ?? 0).toFixed(2)}
+          Rs. {(order.totalAmount ?? 0).toFixed(2)}
         </Text>
       </View>
 
@@ -559,21 +586,24 @@ export default function AdminOrdersScreen({ navigation }) {
 
       {/* ── TopAppBar ── */}
       <View style={styles.topBar}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.7}>
-          <Text style={styles.backIcon}>←</Text>
-        </TouchableOpacity>
+        <View style={{ width: 40 }} />
         <Text style={styles.topBarTitle}>Order Processing</Text>
-        <View style={styles.avatarCircle}>
-          {user?.profileImageUrl ? (
-            <Text style={styles.avatarInitial}>
-              {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
-            </Text>
-          ) : (
-            <Text style={styles.avatarInitial}>
-              {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
-            </Text>
-          )}
-        </View>
+        {user?.role === 'manager' ? (
+          <TouchableOpacity
+            style={styles.customerToggleBtn}
+            onPress={() => navigation.navigate('Home')}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.customerToggleText}>☕ Exit</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.avatarCircle}>
+            {user?.profileImageUrl
+              ? <Image source={{ uri: user.profileImageUrl }} style={styles.avatarImg} />
+              : <Text style={styles.avatarInitial}>{user?.name ? user.name.charAt(0).toUpperCase() : 'A'}</Text>
+            }
+          </View>
+        )}
       </View>
 
       {/* ── Dashboard Header ── */}
@@ -600,16 +630,7 @@ export default function AdminOrdersScreen({ navigation }) {
           <Text style={styles.loadingText}>Loading orders...</Text>
         </View>
       ) : (
-        <FlatList
-          data={filteredOrders}
-          keyExtractor={(item) => item._id}
-          renderItem={({ item }) => (
-            <OrderCard
-              order={item}
-              onStatusUpdate={handleStatusUpdate}
-              updating={updatingId === item._id}
-            />
-          )}
+        <ScrollView
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           refreshControl={
@@ -620,7 +641,8 @@ export default function AdminOrdersScreen({ navigation }) {
               colors={[colors.primary]}
             />
           }
-          ListEmptyComponent={
+        >
+          {filteredOrders.length === 0 ? (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyIcon}>📭</Text>
               <Text style={styles.emptyTitle}>No orders found</Text>
@@ -630,8 +652,18 @@ export default function AdminOrdersScreen({ navigation }) {
                   : `No ${activeFilter} orders at the moment.`}
               </Text>
             </View>
-          }
-        />
+          ) : (
+            filteredOrders.map((item, index) => (
+              <View key={item._id} style={{ zIndex: filteredOrders.length - index }}>
+                <OrderCard
+                  order={item}
+                  onStatusUpdate={handleStatusUpdate}
+                  updating={updatingId === item._id}
+                />
+              </View>
+            ))
+          )}
+        </ScrollView>
       )}
 
       {/* ── FAB ── */}
@@ -678,7 +710,19 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
   },
+  avatarImg: { width: 36, height: 36, borderRadius: 18 },
   avatarInitial: { fontFamily: fonts.bold, fontSize: fontSizes.base, color: '#fff' },
+  customerToggleBtn: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6,
+    backgroundColor: colors.accent,
+    borderRadius: borderRadius.pill,
+  },
+  customerToggleText: {
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.xs,
+    color: colors.primary,
+  },
 
   // Dashboard Header
   dashHeader: {

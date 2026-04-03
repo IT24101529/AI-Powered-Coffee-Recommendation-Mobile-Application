@@ -565,27 +565,31 @@ function GridCard({ product, onPress, onAddToCart }) {
   const [added, setAdded] = useState(false);
   const name = product?.productName || product?.name || 'Coffee';
   const price = product?.price != null ? `Rs. ${Number(product.price).toFixed(2)}` : '';
+  const unavailable = product?.isAvailable === false;
 
   const handleAdd = () => {
+    if (unavailable) return;
     onAddToCart(product);
     setAdded(true);
     setTimeout(() => setAdded(false), 1200);
   };
 
   return (
-    <TouchableOpacity style={gridCardStyles.card} onPress={onPress} activeOpacity={0.85}>
+    <TouchableOpacity style={[gridCardStyles.card, unavailable && gridCardStyles.cardUnavailable]} onPress={onPress} activeOpacity={unavailable ? 1 : 0.85}>
       {product?.productImageUrl
         ? <Image source={{ uri: product.productImageUrl }} style={gridCardStyles.image} resizeMode="cover" />
         : <View style={gridCardStyles.image} />
       }
+      {unavailable && <View style={gridCardStyles.unavailableOverlay}><Text style={gridCardStyles.unavailableText}>Unavailable</Text></View>}
       <View style={gridCardStyles.info}>
         <Text style={gridCardStyles.name} numberOfLines={2}>{name}</Text>
         <View style={gridCardStyles.footer}>
           <Text style={gridCardStyles.price}>{price}</Text>
           <TouchableOpacity
-            style={[gridCardStyles.addBtn, added && gridCardStyles.addBtnAdded]}
+            style={[gridCardStyles.addBtn, (added || unavailable) && gridCardStyles.addBtnAdded, unavailable && gridCardStyles.addBtnDisabled]}
             onPress={handleAdd}
             activeOpacity={0.8}
+            disabled={unavailable}
           >
             <Text style={gridCardStyles.addBtnText}>{added ? '✓' : '+'}</Text>
           </TouchableOpacity>
@@ -663,11 +667,29 @@ const gridCardStyles = StyleSheet.create({
   addBtnAdded: {
     backgroundColor: '#38A169',
   },
+  addBtnDisabled: {
+    backgroundColor: '#ccc',
+  },
   addBtnText: {
     fontFamily: fonts.bold,
     fontSize: fontSizes.md,
     color: '#FFFFFF',
     lineHeight: 18,
+  },
+  cardUnavailable: { opacity: 0.6 },
+  unavailableOverlay: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    backgroundColor: 'rgba(198,40,40,0.85)',
+    borderRadius: borderRadius.pill,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  unavailableText: {
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.xs,
+    color: '#fff',
   },
 });
 

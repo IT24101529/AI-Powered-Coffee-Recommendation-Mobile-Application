@@ -38,6 +38,8 @@ export default function ProfileScreen() {
   const navigation = useNavigation();
   const { user, token, login, logout } = useAuth();
   const isAdmin = user?.role === 'admin';
+  const isManager = user?.role === 'manager';
+  const isStaff = isAdmin || isManager;
 
   const [ordersCount, setOrdersCount] = useState(0);
   const [editVisible, setEditVisible] = useState(false);
@@ -108,14 +110,17 @@ export default function ProfileScreen() {
 
   // ── Switch to Admin portal ──────────────────────────────────────────────────
   const handleGoAdmin = () => {
+    const isManager = user?.role === 'manager';
     Alert.alert(
-      'Switch to Admin Portal',
-      'You are about to enter the Admin side of the app.',
+      isManager ? 'Switch to Manager Portal' : 'Switch to Admin Portal',
+      isManager
+        ? 'You are about to enter the Manager portal (Orders & Products).'
+        : 'You are about to enter the Admin side of the app.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Continue',
-          onPress: () => navigation.navigate('Admin'),
+          onPress: () => navigation.navigate(isManager ? 'Manager' : 'Admin'),
         },
       ],
     );
@@ -275,11 +280,13 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Admin portal button — only for admins */}
-          {isAdmin && (
+          {/* Staff portal button — admin and manager only */}
+          {isStaff && (
             <TouchableOpacity style={styles.adminBtn} onPress={handleGoAdmin} activeOpacity={0.8}>
               <Text style={styles.adminBtnIcon}>🛠️</Text>
-              <Text style={styles.adminBtnText}>Switch to Admin Portal</Text>
+              <Text style={styles.adminBtnText}>
+                {isManager ? 'Switch to Manager Portal' : 'Switch to Admin Portal'}
+              </Text>
               <Text style={styles.actionChevron}>{'›'}</Text>
             </TouchableOpacity>
           )}

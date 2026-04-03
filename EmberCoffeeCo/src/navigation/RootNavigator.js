@@ -92,6 +92,7 @@ function OrdersStack() {
       <Stack.Screen name="OrderTracking" component={OrderTrackingScreen} />
       <Stack.Screen name="Checkout" component={CheckoutScreen} />
       <Stack.Screen name="Cart" component={CartScreen} />
+      <Stack.Screen name="ReviewsFeed" component={ReviewsFeedScreen} />
     </Stack.Navigator>
   );
 }
@@ -121,6 +122,17 @@ function AdminStack() {
   );
 }
 
+// Manager stack — Orders and Products only
+function ManagerStack() {
+  return (
+    <Stack.Navigator screenOptions={stackOptions}>
+      <Stack.Screen name="AdminOrders" component={AdminOrdersScreen} />
+      <Stack.Screen name="AdminProducts" component={AdminProductsScreen} />
+      <Stack.Screen name="AdminAddProduct" component={AdminAddProductScreen} />
+    </Stack.Navigator>
+  );
+}
+
 const tabOptions = {
   headerShown: false,
   tabBarStyle: { display: 'none' },
@@ -129,6 +141,7 @@ const tabOptions = {
 function AppTabs() {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
+  const isManager = user?.role === 'manager';
 
   return (
     <Tab.Navigator screenOptions={tabOptions}>
@@ -137,9 +150,8 @@ function AppTabs() {
       <Tab.Screen name="Rewards" component={RewardsStack} />
       <Tab.Screen name="Orders" component={OrdersStack} />
       <Tab.Screen name="Profile" component={ProfileStack} />
-      {isAdmin && (
-        <Tab.Screen name="Admin" component={AdminStack} />
-      )}
+      {isAdmin && <Tab.Screen name="Admin" component={AdminStack} />}
+      {isManager && <Tab.Screen name="Manager" component={ManagerStack} />}
     </Tab.Navigator>
   );
 }

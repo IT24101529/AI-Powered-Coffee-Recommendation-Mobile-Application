@@ -9,8 +9,7 @@ import {
   ActivityIndicator,
   Alert,
   StatusBar,
-} from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+} from 'react-native';import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -105,6 +104,7 @@ export default function ProductDetailScreen({ route, navigation }) {
   const sweetnesLabel = ['None', 'Low', 'Medium', 'High', 'Extra'][sweetness] ?? 'Medium';
 
   const isPastry = (product?.category || '').toLowerCase() === 'pastries';
+  const isUnavailable = product?.isAvailable === false;
 
   return (
     <View style={styles.root}>
@@ -151,7 +151,11 @@ export default function ProductDetailScreen({ route, navigation }) {
             onPress={() => navigation.navigate('Cart')}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Text style={styles.topBarIcon}>🛒</Text>
+            <Image
+              source={{ uri: 'https://res.cloudinary.com/dqjzgnghk/image/upload/v1775211239/cart_icon_az8hkp.png' }}
+              style={styles.topBarCartIcon}
+              resizeMode="contain"
+            />
           </TouchableOpacity>
         </View>
 
@@ -275,11 +279,11 @@ export default function ProductDetailScreen({ route, navigation }) {
           <Text style={styles.actionPriceValue}>Rs. {Number(product.price).toFixed(2)}</Text>
         </View>
         <TouchableOpacity
-          style={styles.addToCartBtn}
-          onPress={handleAddToCart}
-          activeOpacity={0.8}
+          style={[styles.addToCartBtn, isUnavailable && styles.addToCartBtnDisabled]}
+          onPress={isUnavailable ? undefined : handleAddToCart}
+          activeOpacity={isUnavailable ? 1 : 0.8}
         >
-          <Text style={styles.addToCartText}>Add to Cart</Text>
+          <Text style={styles.addToCartText}>{isUnavailable ? 'Unavailable' : 'Add to Cart'}</Text>
         </TouchableOpacity>
       </View>
 
@@ -349,10 +353,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  topBarIcon: {
-    fontSize: 22,
-    color: colors.dark,
-    lineHeight: 26,
+  topBarCartIcon: {
+    width: 22,
+    height: 22,
   },
   topBarTitle: {
     flex: 1,
@@ -584,6 +587,9 @@ const styles = StyleSheet.create({
     height: 52,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  addToCartBtnDisabled: {
+    backgroundColor: '#ccc',
   },
   addToCartText: {
     fontFamily: fonts.bold,

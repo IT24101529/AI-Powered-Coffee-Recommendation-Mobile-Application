@@ -24,3 +24,10 @@ export const adminOnly = (req, res, next) => {
   }
   next();
 };
+
+export const managerOrAdmin = (req, res, next) => {
+  if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+    return res.status(403).json({ message: 'Access restricted to staff only' });
+  }
+  next();
+};
