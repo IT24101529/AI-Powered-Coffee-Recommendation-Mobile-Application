@@ -22,7 +22,7 @@ import spacing, { borderRadius } from '../theme/spacing';
 import { fonts, fontSizes } from '../theme/typography';
 
 const TAX_RATE = 0.06; // 6% SST
-const STARS_PER_RM = 10;
+const STARS_PER_Rs = 0.01;
 
 // ─── Cart Item Card ───────────────────────────────────────────────────────────
 
@@ -56,7 +56,7 @@ function CartItemCard({ item, onIncrement, onDecrement, onDelete }) {
             {customization}
           </Text>
         ) : null}
-        <Text style={styles.itemPrice}>RM {Number(item.price).toFixed(2)}</Text>
+        <Text style={styles.itemPrice}>Rs. {Number(item.price).toFixed(2)}</Text>
       </View>
 
       {/* Quantity stepper */}
@@ -111,7 +111,7 @@ export default function CartScreen({ navigation }) {
   const discountedSubtotal = subtotal - discountAmount;
   const tax = discountedSubtotal * TAX_RATE;
   const total = discountedSubtotal + tax;
-  const starsEarned = Math.floor(total * STARS_PER_RM);
+  const starsEarned = Math.floor(total * STARS_PER_Rs);
 
   // ── Promo code validation ───────────────────────────────────────────────────
   const handleApplyPromo = async () => {
@@ -268,7 +268,7 @@ export default function CartScreen({ navigation }) {
 
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Subtotal</Text>
-            <Text style={styles.summaryValue}>RM {subtotal.toFixed(2)}</Text>
+            <Text style={styles.summaryValue}>Rs. {subtotal.toFixed(2)}</Text>
           </View>
 
           {discount > 0 && (
@@ -277,21 +277,21 @@ export default function CartScreen({ navigation }) {
                 Discount ({discount}%)
               </Text>
               <Text style={[styles.summaryValue, styles.discountValue]}>
-                − RM {discountAmount.toFixed(2)}
+                − Rs. {discountAmount.toFixed(2)}
               </Text>
             </View>
           )}
 
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Tax (6% SST)</Text>
-            <Text style={styles.summaryValue}>RM {tax.toFixed(2)}</Text>
+            <Text style={styles.summaryValue}>Rs. {tax.toFixed(2)}</Text>
           </View>
 
           <View style={styles.summaryDivider} />
 
           <View style={styles.summaryRow}>
             <Text style={styles.totalLabel}>Total</Text>
-            <Text style={styles.totalValue}>RM {total.toFixed(2)}</Text>
+            <Text style={styles.totalValue}>Rs. {total.toFixed(2)}</Text>
           </View>
         </View>
 

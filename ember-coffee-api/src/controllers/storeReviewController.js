@@ -38,3 +38,13 @@ export const uploadStoreReviewImage = async (req, res, next) => {
     next(err);
   }
 };
+
+export const deleteStoreReview = async (req, res, next) => {
+  try {
+    const review = await StoreReview.findByIdAndDelete(req.params.id);
+    if (!review) return res.status(404).json({ message: 'Review not found' });
+    res.json({ message: 'Review deleted' });
+  } catch (err) {
+    next(err);
+  }
+};

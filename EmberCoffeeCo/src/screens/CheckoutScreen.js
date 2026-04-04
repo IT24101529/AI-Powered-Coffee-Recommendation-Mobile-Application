@@ -21,7 +21,7 @@ import spacing, { borderRadius } from '../theme/spacing';
 import { fonts, fontSizes } from '../theme/typography';
 
 const TAX_RATE = 0.06;
-const STARS_PER_RM = 10;
+const STARS_PER_Rs = 0.01;
 
 // ─── Fulfillment Toggle Card ──────────────────────────────────────────────────
 
@@ -85,11 +85,11 @@ function SummaryItem({ item }) {
           </Text>
         )}
         <Text style={styles.summaryItemQtyPrice}>
-          {item.quantity} × RM {Number(item.price).toFixed(2)}
+          {item.quantity} × Rs. {Number(item.price).toFixed(2)}
         </Text>
       </View>
       <Text style={styles.summaryItemTotal}>
-        RM {(item.price * item.quantity).toFixed(2)}
+        Rs. {(item.price * item.quantity).toFixed(2)}
       </Text>
     </View>
   );
@@ -115,7 +115,7 @@ export default function CheckoutScreen({ navigation, route }) {
   const discountedSubtotal = subtotal - discountAmount;
   const tax = discountedSubtotal * TAX_RATE;
   const total = discountedSubtotal + tax;
-  const starsEarned = Math.floor(total * STARS_PER_RM);
+  const starsEarned = Math.floor(total * STARS_PER_Rs);
 
   // ── Screenshot picker ───────────────────────────────────────────────────────
   const handlePickScreenshot = async () => {
@@ -318,7 +318,7 @@ export default function CheckoutScreen({ navigation, route }) {
           {/* Subtotal */}
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Subtotal</Text>
-            <Text style={styles.totalValue}>RM {subtotal.toFixed(2)}</Text>
+            <Text style={styles.totalValue}>Rs. {subtotal.toFixed(2)}</Text>
           </View>
 
           {/* Discount row */}
@@ -328,7 +328,7 @@ export default function CheckoutScreen({ navigation, route }) {
                 Discount ({discount}%{promoCode ? ` · ${promoCode}` : ''})
               </Text>
               <Text style={[styles.totalValue, styles.discountValue]}>
-                − RM {discountAmount.toFixed(2)}
+                − Rs. {discountAmount.toFixed(2)}
               </Text>
             </View>
           )}
@@ -336,13 +336,13 @@ export default function CheckoutScreen({ navigation, route }) {
           {/* Tax */}
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Tax (6% SST)</Text>
-            <Text style={styles.totalValue}>RM {tax.toFixed(2)}</Text>
+            <Text style={styles.totalValue}>Rs. {tax.toFixed(2)}</Text>
           </View>
 
           {/* Total */}
           <View style={[styles.totalRow, styles.grandTotalRow]}>
             <Text style={styles.grandTotalLabel}>Total</Text>
-            <Text style={styles.grandTotalValue}>RM {total.toFixed(2)}</Text>
+            <Text style={styles.grandTotalValue}>Rs. {total.toFixed(2)}</Text>
           </View>
 
           {/* Place Order button */}

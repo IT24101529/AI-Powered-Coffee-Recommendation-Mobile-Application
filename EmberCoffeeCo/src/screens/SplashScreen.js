@@ -52,22 +52,12 @@ export default function SplashScreen({ navigation }) {
 
           {/* Buttons */}
           <View style={styles.buttons}>
-            {/* "Get Started" primary brown pill button */}
             <TouchableOpacity
               style={styles.primaryButton}
               onPress={() => navigation.navigate('Register')}
               activeOpacity={0.8}
             >
               <Text style={styles.primaryButtonText}>Get Started →</Text>
-            </TouchableOpacity>
-
-            {/* "Our Story" ghost glass button */}
-            <TouchableOpacity
-              style={styles.ghostButton}
-              onPress={() => {}}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.ghostButtonText}>Our Story</Text>
             </TouchableOpacity>
           </View>
         </View>

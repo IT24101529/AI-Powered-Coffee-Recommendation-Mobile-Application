@@ -1,4 +1,5 @@
 import Order from '../models/Order.js';
+import User from '../models/User.js';
 
 const STATUS_SEQUENCE = ['Pending', 'Brewing', 'Ready'];
 
@@ -60,6 +61,15 @@ export const updateOrderStatus = async (req, res, next) => {
 
     order.orderStatus = nextStatus;
     await order.save();
+
+    // Award points when order is Ready (1% of totalAmount, rounded down)
+    if (nextStatus === 'Ready') {
+      const pointsEarned = Math.floor(order.totalAmount * 0.01);
+      if (pointsEarned > 0) {
+        await User.findByIdAndUpdate(order.userId, { $inc: { totalPoints: pointsEarned } });
+      }
+    }
+
     res.json(order);
   } catch (err) {
     next(err);

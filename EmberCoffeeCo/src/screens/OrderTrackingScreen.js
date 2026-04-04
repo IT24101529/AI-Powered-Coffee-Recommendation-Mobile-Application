@@ -135,7 +135,7 @@ function AdminOrderCard({ order, onUpdated }) {
         </View>
       </View>
       <Text style={styles.adminOrderItems}>
-        {order.items.length} item{order.items.length !== 1 ? 's' : ''} · RM {subtotal.toFixed(2)}
+        {order.items.length} item{order.items.length !== 1 ? 's' : ''} · Rs. {subtotal.toFixed(2)}
       </Text>
       <AdminStatusControl order={order} onUpdated={onUpdated} />
     </View>
@@ -223,21 +223,21 @@ export default function OrderTrackingScreen({ navigation, route }) {
               </Text>
               <Text style={styles.itemQty}>Qty: {item.quantity}</Text>
             </View>
-            <Text style={styles.itemPrice}>RM {(item.price * item.quantity).toFixed(2)}</Text>
+            <Text style={styles.itemPrice}>Rs. {(item.price * item.quantity).toFixed(2)}</Text>
           </View>
         ))}
         <View style={styles.divider} />
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>Subtotal</Text>
-          <Text style={styles.summaryValue}>RM {subtotal.toFixed(2)}</Text>
+          <Text style={styles.summaryValue}>Rs. {subtotal.toFixed(2)}</Text>
         </View>
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>Tax (8%)</Text>
-          <Text style={styles.summaryValue}>RM {tax.toFixed(2)}</Text>
+          <Text style={styles.summaryValue}>Rs. {tax.toFixed(2)}</Text>
         </View>
         <View style={[styles.summaryRow, styles.summaryTotal]}>
           <Text style={styles.summaryTotalLabel}>Total</Text>
-          <Text style={styles.summaryTotalValue}>RM {total.toFixed(2)}</Text>
+          <Text style={styles.summaryTotalValue}>Rs. {total.toFixed(2)}</Text>
         </View>
       </View>
     );

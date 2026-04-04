@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -194,12 +195,12 @@ const CATEGORIES = ['All', 'Signature Brews', 'Espresso', 'Tea', 'Iced Drinks', 
 export default function AdminDashboardScreen({ navigation }) {
   const { user, token } = useAuth();
 
-  const [products, setProducts]         = useState([]);
-  const [orders, setOrders]             = useState([]);
-  const [rewards, setRewards]           = useState([]);
-  const [loading, setLoading]           = useState(true);
-  const [searchQuery, setSearchQuery]   = useState('');
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [promos, setPromos]               = useState([]);
+  const [storeReviews, setStoreReviews]   = useState([]);
+  const [productReviews, setProductReviews] = useState([]);
+  const [orders, setOrders]               = useState([]);
+  const [products, setProducts]           = useState([]);
+  const [loading, setLoading]             = useState(true);
 
   // Guard: non-admin
   if (!user || user.role !== 'admin') {
@@ -212,19 +213,21 @@ export default function AdminDashboardScreen({ navigation }) {
 
   const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
-  // ── Data fetching ────────────────────────────────────────────────────────
   const fetchAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [productsRes, ordersRes, rewardsRes] = await Promise.allSettled([
-        axios.get(`${BASE_URL}/api/products`, authHeader),
+      const [promosRes, storeRevRes, prodRevRes, ordersRes, productsRes] = await Promise.allSettled([
+        axios.get(`${BASE_URL}/api/promotions`, authHeader),
+        axios.get(`${BASE_URL}/api/store-reviews`),
+        axios.get(`${BASE_URL}/api/reviews`, authHeader),
         axios.get(`${BASE_URL}/api/orders`, authHeader),
-        axios.get(`${BASE_URL}/api/rewards`, authHeader),
+        axios.get(`${BASE_URL}/api/products`, authHeader),
       ]);
-
-      if (productsRes.status === 'fulfilled') setProducts(productsRes.value.data);
-      if (ordersRes.status === 'fulfilled')   setOrders(ordersRes.value.data);
-      if (rewardsRes.status === 'fulfilled')  setRewards(rewardsRes.value.data);
+      if (promosRes.status === 'fulfilled')   setPromos(promosRes.value.data || []);
+      if (storeRevRes.status === 'fulfilled') setStoreReviews(storeRevRes.value.data || []);
+      if (prodRevRes.status === 'fulfilled')  setProductReviews(prodRevRes.value.data || []);
+      if (ordersRes.status === 'fulfilled')   setOrders(ordersRes.value.data || []);
+      if (productsRes.status === 'fulfilled') setProducts(productsRes.value.data || []);
     } catch (err) {
       Alert.alert('Error', 'Failed to load dashboard data.');
     } finally {
@@ -232,63 +235,12 @@ export default function AdminDashboardScreen({ navigation }) {
     }
   }, [token]);
 
-  useEffect(() => {
-    fetchAll();
-  }, [fetchAll]);
+  useFocusEffect(useCallback(() => { fetchAll(); }, [fetchAll]));
 
-  // ── Derived stats ────────────────────────────────────────────────────────
-  const totalInventory  = products.length;
+  // Derived stats
   const activeOrders    = orders.filter((o) => o.orderStatus === 'Pending' || o.orderStatus === 'Brewing').length;
-  const rewardsActive   = rewards.filter((r) => r.isAvailable).length;
-
-  // ── Filtered product list ────────────────────────────────────────────────
-  const filteredProducts = products.filter((p) => {
-    const matchesSearch = p.productName.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory =
-      activeCategory === 'All' ||
-      p.category?.toLowerCase() === activeCategory.toLowerCase();
-    return matchesSearch && matchesCategory;
-  });
-
-  // ── Delete handler ───────────────────────────────────────────────────────
-  const handleDelete = (product) => {
-    Alert.alert(
-      'Delete Product',
-      `Are you sure you want to delete "${product.productName}"?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await axios.delete(`${BASE_URL}/api/products/${product._id}`, authHeader);
-              fetchAll();
-            } catch (err) {
-              Alert.alert('Error', err?.response?.data?.message || 'Failed to delete product.');
-            }
-          },
-        },
-      ]
-    );
-  };
-
-  // ── Navigation helpers ───────────────────────────────────────────────────
-  const navigateToAddProduct = () => {
-    navigation.navigate('AdminAddProduct');
-  };
-
-  const navigateToEditProduct = (product) => {
-    navigation.navigate('AdminAddProduct', { product });
-  };
-
-  const navigateToRewards = () => {
-    navigation.navigate('AdminRewards');
-  };
-
-  const navigateToTeam = () => {
-    navigation.navigate('AdminUserManagement');
-  };
+  const activePromos    = promos.filter((p) => p.isActive !== false && new Date(p.validUntil) > new Date()).length;
+  const totalInventory  = products.length;
 
   const handleSwitchToCustomer = () => {
     Alert.alert(
@@ -310,17 +262,44 @@ export default function AdminDashboardScreen({ navigation }) {
       Promotions: 'AdminPromotions',
     };
     const route = routeMap[tab];
-    if (route && route !== 'AdminDashboard') {
-      navigation.navigate(route);
-    }
+    if (route && route !== 'AdminDashboard') navigation.navigate(route);
   };
 
-  // ── Render ───────────────────────────────────────────────────────────────
+  const handleDeleteStoreReview = (id) => {
+    Alert.alert('Delete Review', 'Remove this store review?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete', style: 'destructive',
+        onPress: async () => {
+          try {
+            await axios.delete(`${BASE_URL}/api/store-reviews/${id}`, authHeader);
+            setStoreReviews((prev) => prev.filter((r) => r._id !== id));
+          } catch { Alert.alert('Error', 'Could not delete review.'); }
+        },
+      },
+    ]);
+  };
+
+  const handleDeleteProductReview = (id) => {
+    Alert.alert('Delete Review', 'Remove this product review?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete', style: 'destructive',
+        onPress: async () => {
+          try {
+            await axios.delete(`${BASE_URL}/api/reviews/${id}`, authHeader);
+            setProductReviews((prev) => prev.filter((r) => r._id !== id));
+          } catch { Alert.alert('Error', 'Could not delete review.'); }
+        },
+      },
+    ]);
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.cream} />
 
-      {/* ── TopAppBar ── */}
+      {/* TopAppBar */}
       <View style={styles.topBar}>
         <View style={{ width: 40 }} />
         <Image source={{ uri: BRAND_LOGO_URI }} style={styles.topBarLogo} resizeMode="contain" />
@@ -329,128 +308,104 @@ export default function AdminDashboardScreen({ navigation }) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* ── Dashboard Heading ── */}
-        <Text style={styles.dashHeading}>Velvet Roast Dashboard</Text>
+      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <Text style={styles.dashHeading}>Dashboard</Text>
 
-        {/* ── Bento Stats Grid ── */}
+        {/* Stats */}
         {loading ? (
           <ActivityIndicator color={colors.primary} size="large" style={{ marginVertical: 24 }} />
         ) : (
           <View style={styles.statsGrid}>
-            {/* Row 1: Total Inventory + Active Orders */}
             <View style={styles.statsRow}>
-              <StatCard
-                title="Total Inventory"
-                value={totalInventory}
-                description="Products in catalogue"
-              />
-              <StatCard
-                title="Active Orders"
-                value={activeOrders}
-                trend="Live orders"
-              />
+              <StatCard title="Total Inventory" value={totalInventory} description="Products in catalogue" />
+              <StatCard title="Active Orders" value={activeOrders} trend="Live orders" />
             </View>
-
-            {/* Row 2: Rewards Active + Team & Access */}
             <View style={styles.statsRow}>
-              <StatCard
-                title="Rewards Active"
-                value={rewardsActive}
-                linkLabel="Manage Rewards"
-                onLinkPress={navigateToRewards}
-              />
-              <StatCard
-                title="Team & Access"
-                icon="👥"
-                description="Manage your team"
-                linkLabel="Manage Team"
-                onLinkPress={navigateToTeam}
-              />
+              <StatCard title="Active Promos" value={activePromos} linkLabel="Manage Promos" onLinkPress={() => navigation.navigate('AdminPromotions')} />
+              <StatCard title="Team & Access" icon="👥" description="Manage your team" linkLabel="Manage Team" onLinkPress={() => navigation.navigate('AdminUserManagement')} />
             </View>
           </View>
         )}
 
-        {/* ── Search & Filter Bar ── */}
-        <View style={styles.searchSection}>
-          <View style={styles.searchInputWrap}>
-            <Text style={styles.searchIcon}>🔍</Text>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search products..."
-              placeholderTextColor="#A0856E"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchQuery('')} activeOpacity={0.7}>
-                <Text style={styles.clearSearch}>✕</Text>
-              </TouchableOpacity>
-            )}
+        {/* Active Promotions Card */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionCardHeader}>
+            <Text style={styles.sectionCardTitle}>🏷️  Active Promotions</Text>
+            <TouchableOpacity onPress={() => navigation.navigate('AdminPromotions')} activeOpacity={0.7}>
+              <Text style={styles.sectionCardLink}>Manage</Text>
+            </TouchableOpacity>
           </View>
-
-          {/* Category filter chips */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.chipsScroll}
-            contentContainerStyle={styles.chipsContent}
-          >
-            {CATEGORIES.map((cat) => (
-              <TouchableOpacity
-                key={cat}
-                style={[styles.chip, activeCategory === cat && styles.chipActive]}
-                onPress={() => setActiveCategory(cat)}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.chipText, activeCategory === cat && styles.chipTextActive]}>
-                  {cat}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* ── Product List ── */}
-        <View style={styles.productListSection}>
-          <Text style={styles.sectionHeading}>
-            Products {filteredProducts.length > 0 ? `(${filteredProducts.length})` : ''}
-          </Text>
-
-          {loading ? null : filteredProducts.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyStateText}>No products found.</Text>
-            </View>
+          {promos.filter(p => p.isActive !== false && new Date(p.validUntil) > new Date()).length === 0 ? (
+            <Text style={styles.emptyText}>No active promotions.</Text>
           ) : (
-            filteredProducts.map((product) => (
-              <ProductCard
-                key={product._id}
-                product={product}
-                onEdit={navigateToEditProduct}
-                onDelete={handleDelete}
-              />
+            promos.filter(p => p.isActive !== false && new Date(p.validUntil) > new Date()).map((promo) => (
+              <View key={promo._id} style={styles.promoRow}>
+                <View style={styles.promoCodePill}>
+                  <Text style={styles.promoCodeText}>{promo.promoCode}</Text>
+                </View>
+                <Text style={styles.promoDiscount}>{promo.discountPercent}% off</Text>
+                <Text style={styles.promoExpiry}>
+                  Exp. {new Date(promo.validUntil).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </Text>
+              </View>
             ))
           )}
         </View>
 
-        {/* Bottom padding for FAB */}
+        {/* Store Reviews Card */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionCardHeader}>
+            <Text style={styles.sectionCardTitle}>⭐  Store Reviews</Text>
+            <Text style={styles.sectionCardCount}>{storeReviews.length} total</Text>
+          </View>
+          {storeReviews.length === 0 ? (
+            <Text style={styles.emptyText}>No store reviews yet.</Text>
+          ) : (
+            storeReviews.slice(0, 5).map((review) => (
+              <View key={review._id} style={styles.reviewRow}>
+                <View style={styles.reviewInfo}>
+                  <Text style={styles.reviewerName}>{review.userId?.name || 'Anonymous'}</Text>
+                  <Text style={styles.reviewRating}>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</Text>
+                  {review.comment ? <Text style={styles.reviewComment} numberOfLines={2}>{review.comment}</Text> : null}
+                </View>
+                <TouchableOpacity style={styles.deleteReviewBtn} onPress={() => handleDeleteStoreReview(review._id)} activeOpacity={0.7}>
+                  <Text style={styles.deleteReviewIcon}>🗑️</Text>
+                </TouchableOpacity>
+              </View>
+            ))
+          )}
+        </View>
+
+        {/* Product Reviews Card */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionCardHeader}>
+            <Text style={styles.sectionCardTitle}>☕  Product Reviews</Text>
+            <Text style={styles.sectionCardCount}>{productReviews.length} total</Text>
+          </View>
+          {productReviews.length === 0 ? (
+            <Text style={styles.emptyText}>No product reviews yet.</Text>
+          ) : (
+            productReviews.slice(0, 5).map((review) => (
+              <View key={review._id} style={styles.reviewRow}>
+                <View style={styles.reviewInfo}>
+                  <Text style={styles.reviewerName}>{review.userId?.name || 'Anonymous'}</Text>
+                  {review.productId?.productName ? (
+                    <Text style={styles.reviewProduct}>{review.productId.productName}</Text>
+                  ) : null}
+                  <Text style={styles.reviewRating}>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</Text>
+                  {review.comment ? <Text style={styles.reviewComment} numberOfLines={2}>{review.comment}</Text> : null}
+                </View>
+                <TouchableOpacity style={styles.deleteReviewBtn} onPress={() => handleDeleteProductReview(review._id)} activeOpacity={0.7}>
+                  <Text style={styles.deleteReviewIcon}>🗑️</Text>
+                </TouchableOpacity>
+              </View>
+            ))
+          )}
+        </View>
+
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* ── FAB ── */}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={navigateToAddProduct}
-        activeOpacity={0.85}
-      >
-        <Text style={styles.fabIcon}>+</Text>
-      </TouchableOpacity>
-
-      {/* ── Admin BottomNavBar ── */}
       <AdminBottomNavBar activeTab="Dashboard" onTabPress={handleAdminTabPress} />
     </SafeAreaView>
   );
@@ -525,7 +480,7 @@ const styles = StyleSheet.create({
   },
   customerToggleText: {
     fontFamily: fonts.semiBold,
-    fontSize: fontSizes.xs,
+    fontSize: fontSizes.s,
     color: colors.primary,
   },
   // ── Scroll ──
@@ -802,6 +757,122 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.sm,
     color: '#c62828',
   },
+
+  // Section cards
+  sectionCard: {
+    backgroundColor: '#fff',
+    borderRadius: borderRadius.card,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+    shadowColor: colors.dark,
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  sectionCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  sectionCardTitle: {
+    fontFamily: fonts.bold,
+    fontSize: fontSizes.base,
+    color: colors.dark,
+  },
+  sectionCardLink: {
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.sm,
+    color: colors.primary,
+    textDecorationLine: 'underline',
+  },
+  sectionCardCount: {
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.sm,
+    color: 'rgba(46,21,0,0.5)',
+  },
+  emptyText: {
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.sm,
+    color: '#A0856E',
+    textAlign: 'center',
+    paddingVertical: spacing.sm,
+  },
+  // Promo rows
+  promoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing.xs,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.05)',
+    gap: spacing.sm,
+  },
+  promoCodePill: {
+    backgroundColor: colors.accent,
+    borderRadius: borderRadius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+  },
+  promoCodeText: {
+    fontFamily: fonts.bold,
+    fontSize: fontSizes.xs,
+    color: colors.primary,
+    letterSpacing: 1,
+  },
+  promoDiscount: {
+    flex: 1,
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.sm,
+    color: colors.dark,
+  },
+  promoExpiry: {
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.xs,
+    color: '#A0856E',
+  },
+  // Review rows
+  reviewRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.05)',
+    gap: spacing.sm,
+  },
+  reviewInfo: { flex: 1 },
+  reviewerName: {
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.sm,
+    color: colors.dark,
+  },
+  reviewProduct: {
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.xs,
+    color: colors.primary,
+    marginTop: 1,
+  },
+  reviewRating: {
+    fontSize: 12,
+    color: '#F57C00',
+    marginTop: 2,
+  },
+  reviewComment: {
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.xs,
+    color: '#6B5E57',
+    marginTop: 2,
+    lineHeight: 16,
+  },
+  deleteReviewBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: borderRadius.input,
+    backgroundColor: 'rgba(211,47,47,0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  deleteReviewIcon: { fontSize: 14 },
 
   // ── FAB ──
   fab: {
