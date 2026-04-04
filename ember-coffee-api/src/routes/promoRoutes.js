@@ -12,11 +12,12 @@ import {
 
 const router = Router();
 
-router.get('/', getPromotions);
-router.post('/', protect, adminOnly, createPromotion);
-router.put('/:id', protect, adminOnly, updatePromotion);
-router.delete('/:id', protect, adminOnly, deletePromotion);
+router.get('/',                          getPromotions);
+router.post('/',           protect, adminOnly, createPromotion);
+// validate must come before /:id routes to avoid collision
 router.post('/validate/:promoCode', protect, validatePromoCode);
+router.put('/:id',         protect, adminOnly, updatePromotion);
+router.delete('/:id',      protect, adminOnly, deletePromotion);
 router.post('/:id/upload', protect, adminOnly, upload.single('image'), uploadPromoBanner);
 
 export default router;

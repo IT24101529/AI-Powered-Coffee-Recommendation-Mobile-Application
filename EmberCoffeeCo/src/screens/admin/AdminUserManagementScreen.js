@@ -296,8 +296,7 @@ export default function AdminUserManagementScreen({ navigation }) {
               await axios.delete(`${BASE_URL}/api/auth/users/${targetUser._id}`, authHeader);
               setUsers((prev) => prev.filter((u) => u._id !== targetUser._id));
             } catch (err) {
-              const msg = err?.response?.data?.message || 'Delete is not supported by the current API.';
-              Alert.alert('Unable to Delete', msg);
+              Alert.alert('Error', err?.response?.data?.message || 'Failed to delete user.');
             } finally {
               setDeletingId(null);
             }

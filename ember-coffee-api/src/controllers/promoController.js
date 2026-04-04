@@ -21,9 +21,7 @@ export const createPromotion = async (req, res, next) => {
     const promotion = await Promotion.create({ promoCode, discountPercent, validUntil });
     res.status(201).json(promotion);
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      err.status = 400;
-    }
+    if (err.name === 'ValidationError') err.status = 400;
     next(err);
   }
 };
@@ -37,16 +35,14 @@ export const updatePromotion = async (req, res, next) => {
       return next(err);
     }
     const { promoCode, discountPercent, validUntil, promoBannerUrl } = req.body;
-    if (promoCode !== undefined)      promotion.promoCode       = promoCode;
-    if (discountPercent !== undefined) promotion.discountPercent = discountPercent;
-    if (validUntil !== undefined)     promotion.validUntil      = validUntil;
-    if (promoBannerUrl !== undefined) promotion.promoBannerUrl  = promoBannerUrl;
+    if (promoCode !== undefined)       promotion.promoCode       = promoCode;
+    if (discountPercent !== undefined)  promotion.discountPercent = discountPercent;
+    if (validUntil !== undefined)      promotion.validUntil      = validUntil;
+    if (promoBannerUrl !== undefined)  promotion.promoBannerUrl  = promoBannerUrl;
     const updated = await promotion.save();
     res.status(200).json(updated);
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      err.status = 400;
-    }
+    if (err.name === 'ValidationError') err.status = 400;
     next(err);
   }
 };
@@ -72,11 +68,24 @@ export const validatePromoCode = async (req, res, next) => {
     const promotion = await Promotion.findOne({
       promoCode: { $regex: new RegExp(`^${promoCode}$`, 'i') },
     });
-    if (!promotion || promotion.validUntil <= Date.now()) {
+
+    if (!promotion || new Date(promotion.validUntil) <= new Date()) {
       const err = new Error('Promo code not found or expired');
       err.status = 404;
       return next(err);
     }
+
+    // Check if this user already used this promo code
+    if (req.user) {
+      const alreadyUsed = await Order.findOne({
+        userId: req.user.id,
+        promoCode: { $regex: new RegExp(`^${promoCode}$`, 'i') },
+      });
+      if (alreadyUsed) {
+        return res.status(409).json({ message: 'You have already used this promo code.' });
+      }
+    }
+
     res.status(200).json({ discountPercent: promotion.discountPercent });
   } catch (err) {
     next(err);

@@ -35,6 +35,7 @@ import AdminAddRewardScreen from '../screens/admin/AdminAddRewardScreen';
 import AdminAddPromoScreen from '../screens/admin/AdminAddPromoScreen';
 import AdminUserManagementScreen from '../screens/admin/AdminUserManagementScreen';
 import AdminAddUserScreen from '../screens/admin/AdminAddUserScreen';
+import AccessRestrictedScreen from '../screens/admin/AccessRestrictedScreen';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -129,6 +130,10 @@ function ManagerStack() {
       <Stack.Screen name="AdminOrders" component={AdminOrdersScreen} />
       <Stack.Screen name="AdminProducts" component={AdminProductsScreen} />
       <Stack.Screen name="AdminAddProduct" component={AdminAddProductScreen} />
+      <Stack.Screen name="AdminDashboard" component={AccessRestrictedScreen} />
+      <Stack.Screen name="AdminRewards" component={AccessRestrictedScreen} />
+      <Stack.Screen name="AdminPromotions" component={AccessRestrictedScreen} />
+      <Stack.Screen name="AdminUserManagement" component={AccessRestrictedScreen} />
     </Stack.Navigator>
   );
 }

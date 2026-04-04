@@ -4,7 +4,7 @@ const STATUS_SEQUENCE = ['Pending', 'Brewing', 'Ready'];
 
 export const createOrder = async (req, res, next) => {
   try {
-    const { items, totalAmount } = req.body;
+    const { items, totalAmount, promoCode } = req.body;
     if (!items || items.length === 0) {
       return res.status(400).json({ message: 'items array must not be empty' });
     }
@@ -13,12 +13,11 @@ export const createOrder = async (req, res, next) => {
       items,
       totalAmount,
       orderStatus: 'Pending',
+      promoCode: promoCode || '',
     });
     res.status(201).json(order);
   } catch (err) {
-    if (err.name === 'ValidationError') {
-      err.status = 400;
-    }
+    if (err.name === 'ValidationError') err.status = 400;
     next(err);
   }
 };

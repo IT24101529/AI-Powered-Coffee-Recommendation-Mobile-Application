@@ -153,6 +153,7 @@ export default function CheckoutScreen({ navigation, route }) {
             price: i.price,
           })),
           totalAmount: parseFloat(total.toFixed(2)),
+          promoCode: promoCode || undefined,
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );

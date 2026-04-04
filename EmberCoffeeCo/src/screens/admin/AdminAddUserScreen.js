@@ -11,7 +11,7 @@ import colors from '../../theme/colors';
 import { fonts, fontSizes } from '../../theme/typography';
 import spacing, { borderRadius } from '../../theme/spacing';
 
-const ROLES = ['customer', 'admin'];
+const ROLES = ['customer', 'manager', 'admin'];
 
 export default function AdminAddUserScreen({ navigation, route }) {
   const { user: authUser, token } = useAuth();
@@ -38,7 +38,11 @@ export default function AdminAddUserScreen({ navigation, route }) {
     setSaving(true);
     try {
       if (isEdit) {
-        await axios.put(`${BASE_URL}/api/auth/profile`, { name, email }, authHeader);
+        await axios.put(
+          `${BASE_URL}/api/auth/users/${existingUser._id}`,
+          { name, email, role },
+          authHeader
+        );
         Alert.alert('Success', 'User updated.');
       } else {
         await axios.post(`${BASE_URL}/api/auth/register`, { name, email, password, role });
