@@ -6,12 +6,14 @@ import {
   TextInput,
   TouchableOpacity,
   Image,
+  Platform,
   StyleSheet,
   Alert,
   ActivityIndicator,
   StatusBar,
   Switch,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
@@ -224,11 +226,18 @@ export default function AdminAddPromoScreen({ navigation, route }) {
   const [expiryDate, setExpiryDate]         = useState(
     editPromo?.validUntil ? editPromo.validUntil.split('T')[0] : ''
   );
-  const [showOnHome, setShowOnHome]         = useState(true);
-  const [applyAtCheckout, setApplyAtCheckout] = useState(true);
+  const [showOnHome, setShowOnHome]         = useState(editPromo?.showOnHome ?? true);
+  const [applyAtCheckout, setApplyAtCheckout] = useState(editPromo?.isActive ?? true);
   const [bannerUri, setBannerUri]           = useState(editPromo?.promoBannerUrl ?? null);
   const [bannerFile, setBannerFile]         = useState(null);
   const [saving, setSaving]                 = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  // Parse stored date or default to today + 30 days
+  const parsedDate = editPromo?.validUntil
+    ? new Date(editPromo.validUntil)
+    : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  const [selectedDate, setSelectedDate] = useState(parsedDate);
 
   const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
@@ -278,10 +287,6 @@ export default function AdminAddPromoScreen({ navigation, route }) {
       Alert.alert('Validation', 'Discount must be between 1 and 100.');
       return false;
     }
-    if (!expiryDate.trim() || !/^\d{4}-\d{2}-\d{2}$/.test(expiryDate.trim())) {
-      Alert.alert('Validation', 'Please enter a valid expiry date (YYYY-MM-DD).');
-      return false;
-    }
     return true;
   };
 
@@ -293,7 +298,9 @@ export default function AdminAddPromoScreen({ navigation, route }) {
       const payload = {
         promoCode: promoCode.trim().toUpperCase(),
         discountPercent: parseInt(discountPercent, 10),
-        validUntil: expiryDate.trim(),
+        validUntil: selectedDate.toISOString().split('T')[0],
+        showOnHome,
+        isActive: applyAtCheckout,
       };
 
       let savedPromo;
@@ -339,9 +346,6 @@ export default function AdminAddPromoScreen({ navigation, route }) {
 
       {/* ── TopAppBar (node 13:1107) ── */}
       <View style={styles.topBar}>
-        <TouchableOpacity style={styles.menuBtn} onPress={() => navigation.goBack()} activeOpacity={0.7}>
-          <Text style={styles.menuIcon}>☰</Text>
-        </TouchableOpacity>
         <Text style={styles.topBarTitle}>Edit Promotion</Text>
         <View style={styles.avatarCircle}>
           {user?.profileImageUrl ? (
@@ -372,9 +376,6 @@ export default function AdminAddPromoScreen({ navigation, route }) {
               : 'Create a new promotional campaign with a discount code and banner.'}
           </Text>
           <View style={styles.heroActions}>
-            <TouchableOpacity style={styles.previewBtn} activeOpacity={0.8}>
-              <Text style={styles.previewBtnText}>👁  Preview</Text>
-            </TouchableOpacity>
             <TouchableOpacity
               style={[styles.saveHeroBtn, saving && styles.btnDisabled]}
               onPress={handleSave}
@@ -430,23 +431,33 @@ export default function AdminAddPromoScreen({ navigation, route }) {
             </View>
           </View>
 
-          {/* Expiry Date with calendar icon */}
+          {/* Expiry Date — date picker */}
           <Text style={styles.fieldLabel}>Expiry Date</Text>
-          <View style={styles.iconInputRow}>
+          <TouchableOpacity
+            style={styles.iconInputRow}
+            onPress={() => setShowDatePicker(true)}
+            activeOpacity={0.8}
+          >
             <View style={styles.inputIconBox}>
               <Text style={styles.inputIcon}>📅</Text>
             </View>
-            <TextInput
-              style={styles.iconInput}
-              placeholder="YYYY-MM-DD"
-              placeholderTextColor="#A0856E"
-              value={expiryDate}
-              onChangeText={setExpiryDate}
-              keyboardType="numbers-and-punctuation"
-              returnKeyType="done"
-              maxLength={10}
+            <Text style={styles.datePickerText}>
+              {selectedDate.toLocaleDateString('en-CA')}
+            </Text>
+          </TouchableOpacity>
+
+          {showDatePicker && (
+            <DateTimePicker
+              value={selectedDate}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              minimumDate={new Date()}
+              onChange={(event, date) => {
+                setShowDatePicker(Platform.OS === 'ios');
+                if (date) setSelectedDate(date);
+              }}
             />
-          </View>
+          )}
         </View>
 
         {/* Live Preview Card */}
@@ -889,4 +900,69 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   btnDisabled: { opacity: 0.6 },
+
+  // Date picker modal
+  datePickerText: {
+    flex: 1,
+    paddingHorizontal: spacing.md,
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.md,
+    color: colors.dark,
+    lineHeight: 52,
+  },
+  dateModalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  dateModalSheet: {
+    backgroundColor: colors.cream,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: spacing.lg,
+    paddingBottom: spacing['3xl'],
+  },
+  dateModalTitle: {
+    fontFamily: fonts.bold,
+    fontSize: fontSizes.lg,
+    color: colors.dark,
+    textAlign: 'center',
+    marginBottom: spacing.lg,
+  },
+  dateInputsRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  dateInputWrap: { flex: 1, alignItems: 'center' },
+  dateInputLabel: {
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.xs,
+    color: 'rgba(46,21,0,0.5)',
+    marginBottom: spacing.xs,
+  },
+  dateInput: {
+    width: '100%',
+    height: 52,
+    backgroundColor: '#fff',
+    borderRadius: borderRadius.input,
+    borderWidth: 1,
+    borderColor: 'rgba(98,55,30,0.2)',
+    textAlign: 'center',
+    fontFamily: fonts.bold,
+    fontSize: fontSizes.lg,
+    color: colors.dark,
+  },
+  dateConfirmBtn: {
+    backgroundColor: colors.primary,
+    borderRadius: borderRadius.pill,
+    height: 52,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dateConfirmBtnText: {
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.base,
+    color: '#fff',
+  },
 });

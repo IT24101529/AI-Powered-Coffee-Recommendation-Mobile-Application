@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -493,7 +494,7 @@ export default function AdminPromotionsScreen({ navigation }) {
     }
   }, [token]);
 
-  useEffect(() => { fetchPromos(); }, [fetchPromos]);
+  useFocusEffect(useCallback(() => { fetchPromos(); }, [fetchPromos]));
 
   const onRefresh = () => {
     setRefreshing(true);

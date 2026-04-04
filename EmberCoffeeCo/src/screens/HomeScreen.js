@@ -69,10 +69,7 @@ export default function HomeScreen({ navigation }) {
 
       if (promoRes.status === 'fulfilled') {
         const promos = promoRes.value.data;
-        const active = Array.isArray(promos)
-          ? promos.find((p) => p.isActive) || promos[0]
-          : null;
-        setPromo(active || null);
+        setPromo(Array.isArray(promos) ? promos.filter(p => p.isActive !== false && new Date(p.validUntil) > new Date()) : []);
       }
 
       if (productsRes.status === 'fulfilled') {
@@ -177,7 +174,7 @@ export default function HomeScreen({ navigation }) {
           <>
             {/* Hero Promotional Banner */}
             <HeroBanner
-              promo={promo}
+              promo={Array.isArray(promo) ? promo[0] : promo}
               signatureProducts={signatureProducts}
               onOrderNow={() => navigateTo('Menu')}
               onProductPress={(product) => navigateTo('ProductDetail', { product })}
@@ -195,8 +192,8 @@ export default function HomeScreen({ navigation }) {
               }
             />
 
-            {/* Our Story Section */}
-            <OurStorySection />
+            {/* Promotions Section */}
+            <PromotionsSection promos={Array.isArray(promo) ? promo : []} />
 
             <View style={{ height: 24 }} />
           </>
@@ -614,59 +611,45 @@ const largeCardStyles = StyleSheet.create({
   },
 });
 
-// ─── Our Story Section ───────────────────────────────────────────────────────
-const STORY_CARDS = [
-  {
-    id: '1',
-    caption: 'From Bean to Cup',
-    subtitle: 'Sourced from the finest farms around the world.',
-  },
-  {
-    id: '2',
-    caption: 'Crafted with Care',
-    subtitle: 'Every cup is a labor of love by our baristas.',
-  },
-];
+// ─── Promotions Section ───────────────────────────────────────────────────────
+const PROMO_CARD_WIDTH = SCREEN_WIDTH * 0.72;
+const PROMO_CARD_HEIGHT = 180;
 
-function OurStorySection() {
+function PromotionsSection({ promos }) {
+  if (!promos || promos.length === 0) return null;
   return (
-    <View style={storyStyles.section}>
-      <Text style={storyStyles.sectionTitle}>Our Story</Text>
+    <View style={promoSectionStyles.section}>
+      <Text style={promoSectionStyles.sectionTitle}>Active Promotions</Text>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={storyStyles.scrollContent}
+        contentContainerStyle={promoSectionStyles.scrollContent}
       >
-        {STORY_CARDS.map((card) => (
-          <StoryCard key={card.id} card={card} />
+        {promos.map((promo) => (
+          <View key={promo._id} style={promoSectionStyles.card}>
+            {promo.promoBannerUrl
+              ? <Image source={{ uri: promo.promoBannerUrl }} style={StyleSheet.absoluteFillObject} resizeMode="cover" />
+              : <View style={[StyleSheet.absoluteFillObject, { backgroundColor: colors.primary, opacity: 0.8 }]} />
+            }
+            <View style={promoSectionStyles.overlay} />
+            <View style={promoSectionStyles.content}>
+              <View style={promoSectionStyles.codePill}>
+                <Text style={promoSectionStyles.codeText}>{promo.promoCode}</Text>
+              </View>
+              <Text style={promoSectionStyles.discount}>{promo.discountPercent}% OFF</Text>
+              <Text style={promoSectionStyles.expiry}>
+                Expires {new Date(promo.validUntil).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+              </Text>
+            </View>
+          </View>
         ))}
       </ScrollView>
     </View>
   );
 }
 
-function StoryCard({ card }) {
-  return (
-    <View style={storyCardStyles.card}>
-      <View style={storyCardStyles.imagePlaceholder} />
-      <View style={storyCardStyles.overlay} />
-      <View style={storyCardStyles.content}>
-        <Text style={storyCardStyles.caption}>{card.caption}</Text>
-        <Text style={storyCardStyles.subtitle} numberOfLines={2}>
-          {card.subtitle}
-        </Text>
-      </View>
-    </View>
-  );
-}
-
-const STORY_CARD_WIDTH = SCREEN_WIDTH * 0.72;
-const STORY_CARD_HEIGHT = 180;
-
-const storyStyles = StyleSheet.create({
-  section: {
-    marginTop: spacing.xl,
-  },
+const promoSectionStyles = StyleSheet.create({
+  section: { marginTop: spacing.xl },
   sectionTitle: {
     fontFamily: fonts.bold,
     fontSize: fontSizes.lg,
@@ -674,45 +657,34 @@ const storyStyles = StyleSheet.create({
     marginBottom: spacing.md,
     paddingHorizontal: HORIZONTAL_MARGIN,
   },
-  scrollContent: {
-    paddingHorizontal: HORIZONTAL_MARGIN,
-    gap: spacing.md,
-  },
-});
-
-const storyCardStyles = StyleSheet.create({
+  scrollContent: { paddingHorizontal: HORIZONTAL_MARGIN, gap: spacing.md },
   card: {
-    width: STORY_CARD_WIDTH,
-    height: STORY_CARD_HEIGHT,
+    width: PROMO_CARD_WIDTH,
+    height: PROMO_CARD_HEIGHT,
     borderRadius: borderRadius.cardLg,
     overflow: 'hidden',
     backgroundColor: colors.dark,
   },
-  imagePlaceholder: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: colors.primary,
-    opacity: 0.6,
-  },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(46,21,0,0.5)',
+    backgroundColor: 'rgba(46,21,0,0.55)',
   },
   content: {
     ...StyleSheet.absoluteFillObject,
     padding: spacing.md,
     justifyContent: 'flex-end',
   },
-  caption: {
-    fontFamily: fonts.bold,
-    fontSize: fontSizes.base,
-    color: '#FFFFFF',
-    marginBottom: 4,
+  codePill: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.accent,
+    borderRadius: borderRadius.pill,
+    paddingHorizontal: spacing.sm + 4,
+    paddingVertical: 3,
+    marginBottom: spacing.xs,
   },
-  subtitle: {
-    fontFamily: fonts.regular,
-    fontSize: fontSizes.xs,
-    color: 'rgba(255,255,255,0.8)',
-  },
+  codeText: { fontFamily: fonts.bold, fontSize: fontSizes.xs, color: colors.primary, letterSpacing: 1.5 },
+  discount: { fontFamily: fonts.extraBold, fontSize: fontSizes['2xl'], color: '#fff', marginBottom: 2 },
+  expiry: { fontFamily: fonts.regular, fontSize: fontSizes.xs, color: 'rgba(255,255,255,0.75)' },
 });
 
 // ─── Main Styles ─────────────────────────────────────────────────────────────

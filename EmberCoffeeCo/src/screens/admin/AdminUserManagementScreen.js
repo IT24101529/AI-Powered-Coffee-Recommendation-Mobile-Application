@@ -335,10 +335,6 @@ export default function AdminUserManagementScreen({ navigation }) {
 
       {/* ── TopAppBar (node 13:1490) ── */}
       <View style={styles.topBar}>
-        <TouchableOpacity style={styles.hamburgerBtn} onPress={() => navigation.goBack()} activeOpacity={0.7}>
-          <Text style={styles.hamburgerIcon}>☰</Text>
-        </TouchableOpacity>
-        <Text style={styles.topBarLogo}>☕</Text>
         <Text style={styles.topBarTitle}>Team & Access</Text>
         <View style={styles.avatarWrap}>
           {user?.profileImageUrl ? (

@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
   ScrollView,
   TouchableOpacity,
   Image,
+  TextInput,
   StyleSheet,
   Alert,
   ActivityIndicator,
@@ -21,6 +23,7 @@ import spacing, { borderRadius } from '../../theme/spacing';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const PAGE_SIZE = 10;
+const CATEGORIES = ['All', 'Signature Brews', 'Espresso', 'Tea', 'Iced Drinks', 'Pastries'];
 
 const ADMIN_TABS = [
   {
@@ -302,6 +305,8 @@ export default function AdminProductManagementScreen({ navigation }) {
   const [refreshing, setRefreshing] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [searchQuery, setSearchQuery]   = useState('');
+  const [activeCategory, setActiveCategory] = useState('All');
 
   const authHeader = { headers: { Authorization: `Bearer ${token}` } };
 
@@ -328,7 +333,7 @@ export default function AdminProductManagementScreen({ navigation }) {
     }
   }, [token]);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useFocusEffect(useCallback(() => { fetchData(); }, [fetchData]));
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -344,9 +349,18 @@ export default function AdminProductManagementScreen({ navigation }) {
     return new Date(p.validUntil) > new Date();
   }).length;
 
-  // ── Visible slice for pagination ──────────────────────────────────────────
-  const visibleProducts = products.slice(0, visibleCount);
-  const hasMore = visibleCount < products.length;
+  // ── Filtered + paginated products ────────────────────────────────────────
+  const filteredProducts = products.filter((p) => {
+    const matchesSearch = searchQuery
+      ? (p.productName || '').toLowerCase().includes(searchQuery.toLowerCase())
+      : true;
+    const matchesCategory = activeCategory === 'All'
+      ? true
+      : (p.category || '').toLowerCase() === activeCategory.toLowerCase();
+    return matchesSearch && matchesCategory;
+  });
+  const visibleProducts = filteredProducts.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredProducts.length;
 
   // ── Delete product ────────────────────────────────────────────────────────
   const handleDelete = (product) => {
@@ -382,6 +396,16 @@ export default function AdminProductManagementScreen({ navigation }) {
   // ── Navigate to add new ───────────────────────────────────────────────────
   const handleAddNew = () => {
     navigation.navigate('AdminAddProduct', { product: null });
+  };
+
+  const handleSearchChange = (text) => {
+    setSearchQuery(text);
+    setVisibleCount(PAGE_SIZE);
+  };
+
+  const handleCategoryChange = (cat) => {
+    setActiveCategory(cat);
+    setVisibleCount(PAGE_SIZE);
   };
 
   // ── Admin tab navigation ──────────────────────────────────────────────────
@@ -438,6 +462,45 @@ export default function AdminProductManagementScreen({ navigation }) {
           <Text style={styles.addBtnText}>+ Add New Product</Text>
         </TouchableOpacity>
 
+        {/* ── Search bar ── */}
+        <View style={styles.searchBar}>
+          <Text style={styles.searchIcon}>🔍</Text>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search products..."
+            placeholderTextColor="#A0856E"
+            value={searchQuery}
+            onChangeText={handleSearchChange}
+            returnKeyType="search"
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => handleSearchChange('')} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <Text style={styles.searchClear}>✕</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* ── Category filter chips ── */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.chipsContent}
+          style={styles.chipsScroll}
+        >
+          {CATEGORIES.map((cat) => (
+            <TouchableOpacity
+              key={cat}
+              style={[styles.chip, activeCategory === cat && styles.chipActive]}
+              onPress={() => handleCategoryChange(cat)}
+              activeOpacity={0.75}
+            >
+              <Text style={[styles.chipText, activeCategory === cat && styles.chipTextActive]}>
+                {cat}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
         {/* ── Dashboard Stats bento (node 15:1784) ── */}
         <View style={styles.statsRow}>
           <StatCard
@@ -459,7 +522,11 @@ export default function AdminProductManagementScreen({ navigation }) {
         </View>
 
         {/* ── Product List (node 15:1801) ── */}
-        <Text style={styles.sectionTitle}>All Products</Text>
+        <Text style={styles.sectionTitle}>
+          {filteredProducts.length > 0
+            ? `Products (${filteredProducts.length})`
+            : 'Products'}
+        </Text>
 
         {loading ? (
           <ActivityIndicator size="large" color={colors.primary} style={styles.loader} />
@@ -608,6 +675,42 @@ const styles = StyleSheet.create({
     color: colors.dark,
     marginBottom: spacing.md,
   },
+
+  // Search bar
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: borderRadius.input,
+    borderWidth: 1,
+    borderColor: 'rgba(98,55,30,0.15)',
+    paddingHorizontal: spacing.md,
+    height: 48,
+    marginBottom: spacing.sm,
+  },
+  searchIcon: { fontSize: 16, marginRight: spacing.sm },
+  searchInput: {
+    flex: 1,
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.md,
+    color: colors.dark,
+  },
+  searchClear: { fontSize: 14, color: '#A0856E', paddingLeft: spacing.sm },
+
+  // Category chips
+  chipsScroll: { flexGrow: 0, marginBottom: spacing.md },
+  chipsContent: { gap: spacing.sm, paddingRight: spacing.sm },
+  chip: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs + 2,
+    borderRadius: borderRadius.pill,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: 'rgba(98,55,30,0.2)',
+  },
+  chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  chipText: { fontFamily: fonts.semiBold, fontSize: fontSizes.sm, color: colors.dark },
+  chipTextActive: { color: '#fff' },
 
   // Loader
   loader: { marginTop: spacing['3xl'] },

@@ -34,11 +34,13 @@ export const updatePromotion = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-    const { promoCode, discountPercent, validUntil, promoBannerUrl } = req.body;
+    const { promoCode, discountPercent, validUntil, promoBannerUrl, showOnHome, isActive } = req.body;
     if (promoCode !== undefined)       promotion.promoCode       = promoCode;
     if (discountPercent !== undefined)  promotion.discountPercent = discountPercent;
     if (validUntil !== undefined)      promotion.validUntil      = validUntil;
     if (promoBannerUrl !== undefined)  promotion.promoBannerUrl  = promoBannerUrl;
+    if (showOnHome !== undefined)      promotion.showOnHome      = showOnHome;
+    if (isActive !== undefined)        promotion.isActive        = isActive;
     const updated = await promotion.save();
     res.status(200).json(updated);
   } catch (err) {

@@ -2,7 +2,20 @@ import Review from '../models/Review.js';
 
 export const getReviewsByProduct = async (req, res, next) => {
   try {
-    const reviews = await Review.find({ productId: req.params.productId });
+    const reviews = await Review.find({ productId: req.params.productId })
+      .populate('userId', 'name profileImageUrl');
+    res.json(reviews);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getAllReviews = async (req, res, next) => {
+  try {
+    const reviews = await Review.find()
+      .populate('userId', 'name profileImageUrl')
+      .populate('productId', 'productName')
+      .sort({ createdAt: -1 });
     res.json(reviews);
   } catch (err) {
     next(err);

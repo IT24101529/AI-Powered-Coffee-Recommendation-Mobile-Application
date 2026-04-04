@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -184,9 +185,7 @@ export default function AdminRewardsScreen({ navigation }) {
     }
   }, [token]);
 
-  useEffect(() => {
-    fetchRewards();
-  }, [fetchRewards]);
+  useFocusEffect(useCallback(() => { fetchRewards(); }, [fetchRewards]));
 
   const onRefresh = () => {
     setRefreshing(true);
