@@ -72,13 +72,22 @@ const orderSchema = new mongoose.Schema({
   paymentScreenshotUrl: { type: String, default: '' },
 }, { timestamps: true });
 
+const storeReviewSchema = new mongoose.Schema({
+  _id:            mongoose.Schema.Types.ObjectId,
+  userId:         { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  rating:         { type: Number, required: true },
+  comment:        { type: String, default: '' },
+  reviewImageUrl: { type: String, default: '' },
+}, { timestamps: true });
+
 // ── Models ────────────────────────────────────────────────────────────────────
 
-const User      = mongoose.model('User',      userSchema);
-const Product   = mongoose.model('Product',   productSchema);
-const Promotion = mongoose.model('Promotion', promotionSchema);
-const Reward    = mongoose.model('Reward',    rewardSchema);
-const Order     = mongoose.model('Order',     orderSchema);
+const User        = mongoose.model('User',        userSchema);
+const Product     = mongoose.model('Product',     productSchema);
+const Promotion   = mongoose.model('Promotion',   promotionSchema);
+const Reward      = mongoose.model('Reward',      rewardSchema);
+const Order       = mongoose.model('Order',       orderSchema);
+const StoreReview = mongoose.model('StoreReview', storeReviewSchema);
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -138,6 +147,14 @@ const orders = load('orders.json').map(o => ({
   items:  o.items.map(i => ({ ...i, productId: new mongoose.Types.ObjectId(i.productId) })),
 }));
 await upsertAll(Order, orders, 'Orders');
+
+// Store Reviews
+const storeReviews = load('reviews.json').map(r => ({
+  ...r,
+  _id:    new mongoose.Types.ObjectId(r._id),
+  userId: new mongoose.Types.ObjectId(r.userId),
+}));
+await upsertAll(StoreReview, storeReviews, 'Store Reviews');
 
 console.log(`\nSeed complete (${target}).\n`);
 await mongoose.disconnect();
