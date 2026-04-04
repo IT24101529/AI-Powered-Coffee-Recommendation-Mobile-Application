@@ -20,7 +20,7 @@ export const register = async (req, res, next) => {
       name,
       email,
       passwordHash,
-      role: 'customer',
+      role: role && ['customer', 'manager', 'admin'].includes(role) ? role : 'customer',
       totalPoints: 0,
     });
 

@@ -126,8 +126,8 @@ export default function CartScreen({ navigation }) {
     setPromoValid(null);
     try {
       const res = await axios.post(
-        `${BASE_URL}/api/promotions/validate`,
-        { promoCode: code },
+        `${BASE_URL}/api/promotions/validate/${encodeURIComponent(code)}`,
+        {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const { discountPercent } = res.data;
