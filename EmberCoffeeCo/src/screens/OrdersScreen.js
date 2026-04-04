@@ -29,52 +29,31 @@ const STATUS_COLORS = {
   Cancelled: '#C62828',
 };
 
-// 3 sample community reviews with Unsplash images
-const SAMPLE_REVIEWS = [
-  {
-    _id: 'sample1',
-    name: 'Aisha Fernando',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&q=80',
-    rating: 5,
-    comment: 'Absolutely love the Pistachio-Rose Velvet Latte! The ambiance is cozy and the staff are so warm. My go-to spot every morning.',
-    photo: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&q=80',
-    date: 'Mar 28, 2026',
-  },
-  {
-    _id: 'sample2',
-    name: 'Rohan Perera',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&q=80',
-    rating: 4,
-    comment: 'Great service and the cold brew is exceptional. The Salted Caramel Nitro Brew is a must-try. Would love more seating though!',
-    photo: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&q=80',
-    date: 'Mar 30, 2026',
-  },
-  {
-    _id: 'sample3',
-    name: 'Priya Nair',
-    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&q=80',
-    rating: 5,
-    comment: 'The Masala Chai Tea Latte is the best I\'ve had outside of home. Ember Coffee Co. really nails the spice balance. 10/10!',
-    photo: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=400&q=80',
-    date: 'Apr 1, 2026',
-  },
-];
-
-function SampleReviewCard({ review }) {
+function ReviewCard({ review }) {
+  const name = review.userId?.name || 'Anonymous';
+  const avatar = review.userId?.profileImageUrl;
+  const date = review.createdAt
+    ? new Date(review.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : '';
   return (
     <View style={styles.reviewCard}>
       <View style={styles.reviewHeader}>
-        <Image source={{ uri: review.avatar }} style={styles.reviewAvatar} />
+        {avatar
+          ? <Image source={{ uri: avatar }} style={styles.reviewAvatar} />
+          : <View style={[styles.reviewAvatar, styles.reviewAvatarFallback]}>
+              <Text style={styles.reviewAvatarText}>{name.charAt(0).toUpperCase()}</Text>
+            </View>
+        }
         <View style={styles.reviewMeta}>
-          <Text style={styles.reviewerName}>{review.name}</Text>
-          <Text style={styles.reviewDate}>{review.date}</Text>
+          <Text style={styles.reviewerName}>{name}</Text>
+          <Text style={styles.reviewDate}>{date}</Text>
         </View>
       </View>
       <StarRating rating={review.rating} size={14} />
-      <Text style={styles.reviewComment}>{review.comment}</Text>
-      {review.photo && (
-        <Image source={{ uri: review.photo }} style={styles.reviewPhoto} resizeMode="cover" />
-      )}
+      {review.comment ? <Text style={styles.reviewComment}>{review.comment}</Text> : null}
+      {review.reviewImageUrl ? (
+        <Image source={{ uri: review.reviewImageUrl }} style={styles.reviewPhoto} resizeMode="cover" />
+      ) : null}
     </View>
   );
 }
@@ -83,19 +62,26 @@ export default function OrdersScreen() {
   const navigation = useNavigation();
   const { token } = useAuth();
   const [orders, setOrders] = useState([]);
+  const [storeReviews, setStoreReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchOrders = useCallback(async (silent = false) => {
+  const fetchData = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     try {
-      const { data } = await axios.get(`${BASE_URL}/api/orders/my`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const sorted = [...(data || [])].sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-      );
-      setOrders(sorted);
+      const [ordersRes, reviewsRes] = await Promise.allSettled([
+        axios.get(`${BASE_URL}/api/orders/my`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${BASE_URL}/api/store-reviews`),
+      ]);
+      if (ordersRes.status === 'fulfilled') {
+        const sorted = [...(ordersRes.value.data || [])].sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setOrders(sorted);
+      }
+      if (reviewsRes.status === 'fulfilled') {
+        setStoreReviews(reviewsRes.value.data || []);
+      }
     } catch {
       // handled by interceptor
     } finally {
@@ -104,11 +90,11 @@ export default function OrdersScreen() {
     }
   }, [token]);
 
-  useEffect(() => { fetchOrders(); }, [fetchOrders]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
   const onRefresh = () => {
     setRefreshing(true);
-    fetchOrders(true);
+    fetchData(true);
   };
 
   return (
@@ -187,8 +173,8 @@ export default function OrdersScreen() {
               </TouchableOpacity>
             </View>
 
-            {SAMPLE_REVIEWS.map((review) => (
-              <SampleReviewCard key={review._id} review={review} />
+            {storeReviews.slice(0, 3).map((review) => (
+              <ReviewCard key={review._id} review={review} />
             ))}
 
             <TouchableOpacity
@@ -287,6 +273,8 @@ const styles = StyleSheet.create({
   },
   reviewHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.xs },
   reviewAvatar: { width: 40, height: 40, borderRadius: 20, marginRight: spacing.sm, backgroundColor: colors.accent },
+  reviewAvatarFallback: { alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary },
+  reviewAvatarText: { fontFamily: fonts.bold, fontSize: fontSizes.sm, color: '#fff' },
   reviewMeta: { flex: 1 },
   reviewerName: { fontFamily: fonts.semiBold, fontSize: fontSizes.md, color: colors.dark },
   reviewDate: { fontFamily: fonts.regular, fontSize: fontSizes.xs, color: 'rgba(46,21,0,0.45)', marginTop: 1 },
