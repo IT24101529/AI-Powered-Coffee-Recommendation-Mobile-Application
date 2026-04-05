@@ -26,23 +26,16 @@ import Badge from '../components/ui/Badge';
 import colors from '../theme/colors';
 import { fonts, fontSizes } from '../theme/typography';
 import spacing, { borderRadius } from '../theme/spacing';
+import {
+  LOYALTY_MILESTONES,
+  getTierShortName,
+  getHomeJourneyProgress,
+  effectiveLoyaltyPoints,
+} from '../utils/loyaltyTier';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const HERO_HEIGHT = 260;
 const HORIZONTAL_MARGIN = spacing.lg; // 24
-
-// Milestone definitions for rewards tracker
-const MILESTONES = [
-  { icon: '☕', label: 'Starter', points: 0 },
-  { icon: '🌟', label: 'Regular', points: 100 },
-  { icon: '🏆', label: 'Champion', points: 300 },
-];
-
-function getTierName(points) {
-  if (points >= 300) return 'Champion';
-  if (points >= 100) return 'Regular';
-  return 'Starter';
-}
 
 export default function HomeScreen({ navigation }) {
   const { token } = useAuth();
@@ -319,11 +312,10 @@ const heroBannerStyles = StyleSheet.create({
 
 // ─── Rewards Tracker ─────────────────────────────────────────────────────────
 function RewardsTracker({ profile }) {
-  const totalPoints = profile?.totalPoints ?? profile?.points ?? 0;
-  const tierName = getTierName(totalPoints);
-  const nextMilestone = MILESTONES.find((m) => m.points > totalPoints);
-  const progressMax = nextMilestone ? nextMilestone.points : 300;
-  const progressPct = Math.min(totalPoints / progressMax, 1);
+  const raw = profile?.totalPoints ?? profile?.points ?? 0;
+  const totalPoints = effectiveLoyaltyPoints(raw);
+  const tierName = getTierShortName(totalPoints);
+  const progressPct = getHomeJourneyProgress(totalPoints);
 
   return (
     <Card style={rewardsStyles.card} shadow>
@@ -343,7 +335,7 @@ function RewardsTracker({ profile }) {
 
       {/* Milestone icons */}
       <View style={rewardsStyles.milestonesRow}>
-        {MILESTONES.map((m) => {
+        {LOYALTY_MILESTONES.map((m) => {
           const reached = totalPoints >= m.points;
           return (
             <View key={m.label} style={rewardsStyles.milestone}>

@@ -9,7 +9,8 @@ import {
   ActivityIndicator,
   Alert,
   StatusBar,
-} from 'react-native';import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -20,9 +21,6 @@ import ReviewOverlay from '../components/ui/ReviewOverlay';
 import colors from '../theme/colors';
 import spacing, { borderRadius } from '../theme/spacing';
 import { fonts, fontSizes } from '../theme/typography';
-
-const SIZES = ['Small', 'Medium', 'Large'];
-const MILK_TYPES = ['Oat', 'Almond', 'Whole', 'Soy'];
 
 export default function ProductDetailScreen({ route, navigation }) {
   const { product: initialProduct } = route.params;
@@ -35,11 +33,6 @@ export default function ProductDetailScreen({ route, navigation }) {
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [reviewCount, setReviewCount] = useState(0);
   const [avgRating, setAvgRating] = useState(0);
-
-  // Customisation state
-  const [selectedSize, setSelectedSize] = useState('Medium');
-  const [selectedMilk, setSelectedMilk] = useState('Oat');
-  const [sweetness, setSweetness] = useState(2);
 
   // Review overlay
   const [overlayVisible, setOverlayVisible] = useState(false);
@@ -82,16 +75,7 @@ export default function ProductDetailScreen({ route, navigation }) {
   }, [initialProduct._id]);
 
   const handleAddToCart = () => {
-    const cartItem = isPastry
-      ? { ...product, _id: product._id, _productId: product._id }
-      : {
-          ...product,
-          size: selectedSize,
-          milkType: selectedMilk,
-          sweetness,
-          _id: `${product._id}_${selectedSize}_${selectedMilk}_${sweetness}`,
-          _productId: product._id,
-        };
+    const cartItem = { ...product, _id: product._id, _productId: product._id };
     addItem(cartItem);
     Alert.alert('Added to cart', `${product.productName} added.`);
   };
@@ -101,9 +85,6 @@ export default function ProductDetailScreen({ route, navigation }) {
     fetchReviews();
   };
 
-  const sweetnesLabel = ['None', 'Low', 'Medium', 'High', 'Extra'][sweetness] ?? 'Medium';
-
-  const isPastry = (product?.category || '').toLowerCase() === 'pastries';
   const isUnavailable = product?.isAvailable === false;
 
   return (
@@ -191,67 +172,6 @@ export default function ProductDetailScreen({ route, navigation }) {
             <Text style={styles.description}>{product.description}</Text>
           ) : null}
         </View>
-
-        {/* ── Customisation ── */}
-        {!isPastry && (
-        <View style={styles.customSection}>
-          {/* Choose Size */}
-          <Text style={styles.customLabel}>Choose Size</Text>
-          <View style={styles.pillRow}>
-            {SIZES.map((s) => (
-              <TouchableOpacity
-                key={s}
-                style={[styles.pill, selectedSize === s && styles.pillActive]}
-                onPress={() => setSelectedSize(s)}
-                activeOpacity={0.75}
-              >
-                <Text style={[styles.pillText, selectedSize === s && styles.pillTextActive]}>
-                  {s}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {/* Milk Type */}
-          <Text style={styles.customLabel}>Milk Type</Text>
-          <View style={styles.pillRow}>
-            {MILK_TYPES.map((m) => (
-              <TouchableOpacity
-                key={m}
-                style={[styles.pill, selectedMilk === m && styles.pillActive]}
-                onPress={() => setSelectedMilk(m)}
-                activeOpacity={0.75}
-              >
-                <Text style={[styles.pillText, selectedMilk === m && styles.pillTextActive]}>
-                  {m}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {/* Sweetness Level */}
-          <Text style={styles.customLabel}>Sweetness Level</Text>
-          <View style={styles.stepperRow}>
-            <TouchableOpacity
-              style={styles.stepperBtn}
-              onPress={() => setSweetness((v) => Math.max(0, v - 1))}
-              activeOpacity={0.75}
-            >
-              <Text style={styles.stepperIcon}>−</Text>
-            </TouchableOpacity>
-            <View style={styles.stepperLabelBox}>
-              <Text style={styles.stepperLabel}>{sweetnesLabel}</Text>
-            </View>
-            <TouchableOpacity
-              style={styles.stepperBtn}
-              onPress={() => setSweetness((v) => Math.min(4, v + 1))}
-              activeOpacity={0.75}
-            >
-              <Text style={styles.stepperIcon}>+</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        )}
 
         {/* ── Review Feed Section ── */}
         <View style={styles.reviewSection}>
@@ -438,82 +358,6 @@ const styles = StyleSheet.create({
     color: colors.dark,
     opacity: 0.75,
     lineHeight: 24,
-  },
-
-  // ── Customisation ──
-  customSection: {
-    marginHorizontal: spacing.lg,
-    marginTop: spacing.lg,
-    backgroundColor: '#fff',
-    borderRadius: borderRadius.cardLg,
-    padding: spacing.lg,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  customLabel: {
-    fontFamily: fonts.semiBold,
-    fontSize: fontSizes.md,
-    color: colors.dark,
-    marginBottom: spacing.sm,
-    marginTop: spacing.sm,
-  },
-  pillRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.sm,
-    marginBottom: spacing.sm,
-  },
-  pill: {
-    borderRadius: borderRadius.pill,
-    borderWidth: 1.5,
-    borderColor: colors.accent,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs + 2,
-    backgroundColor: '#fff',
-  },
-  pillActive: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  pillText: {
-    fontFamily: fonts.semiBold,
-    fontSize: fontSizes.sm,
-    color: colors.dark,
-  },
-  pillTextActive: {
-    color: '#fff',
-  },
-  stepperRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    marginBottom: spacing.xs,
-  },
-  stepperBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.accent,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stepperIcon: {
-    fontSize: 22,
-    color: colors.primary,
-    fontFamily: fonts.bold,
-    lineHeight: 26,
-  },
-  stepperLabelBox: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  stepperLabel: {
-    fontFamily: fonts.semiBold,
-    fontSize: fontSizes.base,
-    color: colors.dark,
   },
 
   // ── Review Section ──

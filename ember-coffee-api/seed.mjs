@@ -68,8 +68,14 @@ const orderSchema = new mongoose.Schema({
   userId:               { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   items:                [orderItemSchema],
   totalAmount:          { type: Number, required: true },
-  orderStatus:          { type: String, enum: ['Pending', 'Brewing', 'Ready'], default: 'Pending' },
+  orderStatus:          {
+    type: String,
+    enum: ['Pending', 'Brewing', 'Ready', 'Delivering', 'Delivered'],
+    default: 'Pending',
+  },
+  fulfillmentMethod:    { type: String, enum: ['Pickup', 'Delivery'], default: 'Pickup' },
   paymentScreenshotUrl: { type: String, default: '' },
+  completedAt:          { type: Date, default: null },
 }, { timestamps: true });
 
 const storeReviewSchema = new mongoose.Schema({

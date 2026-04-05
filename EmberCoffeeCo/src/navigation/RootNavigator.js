@@ -20,6 +20,7 @@ import ProfileScreen from '../screens/ProfileScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
 import MyRewardsScreen from '../screens/MyRewardsScreen';
 import OrderTrackingScreen from '../screens/OrderTrackingScreen';
+import OrderHistoryScreen from '../screens/OrderHistoryScreen';
 import CheckoutScreen from '../screens/CheckoutScreen';
 import CartScreen from '../screens/CartScreen';
 
@@ -90,6 +91,7 @@ function OrdersStack() {
   return (
     <Stack.Navigator screenOptions={stackOptions}>
       <Stack.Screen name="OrdersScreen" component={OrdersScreen} />
+      <Stack.Screen name="OrderHistory" component={OrderHistoryScreen} />
       <Stack.Screen name="OrderTracking" component={OrderTrackingScreen} />
       <Stack.Screen name="Checkout" component={CheckoutScreen} />
       <Stack.Screen name="Cart" component={CartScreen} />

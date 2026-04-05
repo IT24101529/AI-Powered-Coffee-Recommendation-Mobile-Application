@@ -148,12 +148,13 @@ export default function CheckoutScreen({ navigation, route }) {
         `${BASE_URL}/api/orders`,
         {
           items: items.map((i) => ({
-            productId: i._id,
+            productId: i._productId || i._id,
             quantity: i.quantity,
             price: i.price,
           })),
           totalAmount: parseFloat(total.toFixed(2)),
           promoCode: promoCode || undefined,
+          fulfillmentMethod: fulfillment === 'delivery' ? 'Delivery' : 'Pickup',
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -176,7 +177,7 @@ export default function CheckoutScreen({ navigation, route }) {
       }
 
       clearCart();
-      navigation.navigate('OrderTracking', { orderId });
+      navigation.navigate('Orders', { screen: 'OrdersScreen' });
     } catch (err) {
       const msg = err.response?.data?.message || 'Failed to place order. Please try again.';
       Alert.alert('Error', msg);
