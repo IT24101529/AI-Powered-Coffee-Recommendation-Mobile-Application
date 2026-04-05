@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -20,28 +20,38 @@ import { fonts, fontSizes } from '../../theme/typography';
 import spacing, { borderRadius } from '../../theme/spacing';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-const STATUS_SEQUENCE = ['Pending', 'Brewing', 'Ready'];
+function statusSequenceForOrder(order) {
+  return order?.fulfillmentMethod === 'Delivery'
+    ? ['Pending', 'Brewing', 'Delivering', 'Delivered']
+    : ['Pending', 'Brewing', 'Ready'];
+}
 
 const STATUS_COLORS = {
   Pending: '#F57C00',
   Brewing: '#1565C0',
-  Ready:   '#2E7D32',
+  Ready: '#2E7D32',
+  Delivering: '#5E35B1',
+  Delivered: '#1B5E20',
 };
 
 const STATUS_BG = {
   Pending: 'rgba(245,124,0,0.12)',
   Brewing: 'rgba(21,101,192,0.12)',
-  Ready:   'rgba(46,125,50,0.12)',
+  Ready: 'rgba(46,125,50,0.12)',
+  Delivering: 'rgba(94,53,177,0.12)',
+  Delivered: 'rgba(27,94,32,0.12)',
 };
 
 const STATUS_ICONS = {
-  All:     '📋',
+  All: '📋',
   Pending: '⏳',
   Brewing: '☕',
-  Ready:   '✅',
+  Ready: '✅',
+  Delivering: '🚚',
+  Delivered: '📦',
 };
 
-const FILTER_TABS = ['All', 'Pending', 'Brewing', 'Ready'];
+const FILTER_TABS = ['All', 'Pending', 'Brewing', 'Ready', 'Delivering', 'Delivered'];
 
 const ADMIN_TABS = [
   {
@@ -127,7 +137,12 @@ const navStyles = StyleSheet.create({
 // ─── Status Filter Tabs ───────────────────────────────────────────────────────
 function StatusFilterTabs({ activeFilter, onFilterChange, counts }) {
   return (
-    <View style={tabStyles.container}>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={tabStyles.scrollContent}
+      style={tabStyles.scrollOuter}
+    >
       {FILTER_TABS.map((tab) => {
         const isActive = activeFilter === tab;
         const count = counts[tab] ?? 0;
@@ -149,24 +164,29 @@ function StatusFilterTabs({ activeFilter, onFilterChange, counts }) {
           </TouchableOpacity>
         );
       })}
-    </View>
+    </ScrollView>
   );
 }
 
 const tabStyles = StyleSheet.create({
-  container: {
+  scrollOuter: {
+    maxHeight: 52,
+    backgroundColor: colors.cream,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(98,55,30,0.06)',
+  },
+  scrollContent: {
     flexDirection: 'row',
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     gap: spacing.sm,
-    backgroundColor: colors.cream,
+    alignItems: 'center',
   },
   tab: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: spacing.sm,
+    paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderRadius: borderRadius.pill,
     backgroundColor: '#fff',
@@ -179,11 +199,11 @@ const tabStyles = StyleSheet.create({
     borderColor: colors.primary,
   },
   tabLabel: {
-    fontFamily: fonts.semiBold,
-    fontSize: fontSizes.xs,
-    color: colors.dark,
+    fontSize: fontSizes.sm,
+    fontWeight: '700',
+    color: '#2E1500',
   },
-  tabLabelActive: { color: '#fff' },
+  tabLabelActive: { color: '#FFFFFF', fontWeight: '700' },
   badge: {
     minWidth: 18,
     height: 18,
@@ -195,32 +215,35 @@ const tabStyles = StyleSheet.create({
   },
   badgeActive: { backgroundColor: 'rgba(255,255,255,0.25)' },
   badgeText: {
-    fontFamily: fonts.bold,
-    fontSize: 9,
+    fontSize: 11,
+    fontWeight: '700',
     color: colors.primary,
   },
-  badgeTextActive: { color: '#fff' },
+  badgeTextActive: { color: '#FFFFFF', fontWeight: '700' },
 });
 
-// ─── Status Dropdown ──────────────────────────────────────────────────────────
-function StatusDropdown({ currentStatus, onSelect, disabled }) {
+// ─── Status Dropdown (only valid next step for this order) ────────────────────
+function StatusDropdown({ order, currentStatus, onSelect, disabled }) {
   const [open, setOpen] = useState(false);
-  const nextStatuses = STATUS_SEQUENCE.filter((s) => s !== currentStatus);
+  const seq = statusSequenceForOrder(order);
+  const idx = seq.indexOf(currentStatus);
+  const nextOnly = idx >= 0 && idx < seq.length - 1 ? [seq[idx + 1]] : [];
+  const dotColor = STATUS_COLORS[currentStatus] || colors.primary;
 
   return (
     <View style={dropStyles.wrapper}>
       <TouchableOpacity
         style={[dropStyles.trigger, disabled && dropStyles.triggerDisabled]}
-        onPress={() => !disabled && setOpen((o) => !o)}
+        onPress={() => !disabled && nextOnly.length > 0 && setOpen((o) => !o)}
         activeOpacity={0.8}
       >
-        <View style={[dropStyles.dot, { backgroundColor: STATUS_COLORS[currentStatus] }]} />
+        <View style={[dropStyles.dot, { backgroundColor: dotColor }]} />
         <Text style={dropStyles.triggerText}>{currentStatus}</Text>
-        {!disabled && <Text style={dropStyles.chevron}>{open ? '▲' : '▼'}</Text>}
+        {!disabled && nextOnly.length > 0 && <Text style={dropStyles.chevron}>{open ? '▲' : '▼'}</Text>}
       </TouchableOpacity>
-      {open && (
+      {open && nextOnly.length > 0 && (
         <View style={dropStyles.menu}>
-          {nextStatuses.map((s) => (
+          {nextOnly.map((s) => (
             <TouchableOpacity
               key={s}
               style={dropStyles.option}
@@ -254,9 +277,9 @@ const dropStyles = StyleSheet.create({
   dot: { width: 8, height: 8, borderRadius: 4 },
   triggerText: {
     flex: 1,
-    fontFamily: fonts.semiBold,
     fontSize: fontSizes.sm,
-    color: colors.dark,
+    fontWeight: '600',
+    color: '#2E1500',
   },
   chevron: { fontSize: 10, color: colors.primary },
   menu: {
@@ -285,17 +308,23 @@ const dropStyles = StyleSheet.create({
     borderBottomColor: 'rgba(98,55,30,0.06)',
   },
   optionText: {
-    fontFamily: fonts.regular,
     fontSize: fontSizes.sm,
-    color: colors.dark,
+    fontWeight: '500',
+    color: '#2E1500',
   },
 });
 
 // ─── Order Card ───────────────────────────────────────────────────────────────
 function OrderCard({ order, onStatusUpdate, updating }) {
   const [selectedStatus, setSelectedStatus] = useState(order.orderStatus);
-  const nextStatus = STATUS_SEQUENCE[STATUS_SEQUENCE.indexOf(order.orderStatus) + 1] ?? null;
-  const isReady = order.orderStatus === 'Ready';
+  const seq = statusSequenceForOrder(order);
+  const statusIndex = seq.indexOf(order.orderStatus);
+  const nextStatus = statusIndex >= 0 && statusIndex < seq.length - 1 ? seq[statusIndex + 1] : null;
+  const isTerminal = statusIndex === seq.length - 1 && statusIndex >= 0;
+
+  useEffect(() => {
+    setSelectedStatus(order.orderStatus);
+  }, [order.orderStatus]);
 
   const customerName = order.userId?.name ?? 'Customer';
   const orderNum = order._id?.slice(-6).toUpperCase() ?? '------';
@@ -305,7 +334,7 @@ function OrderCard({ order, onStatusUpdate, updating }) {
         hour: '2-digit', minute: '2-digit',
       })
     : '—';
-  const method = order.fulfillmentMethod ?? 'Pickup';
+  const method = order.fulfillmentMethod === 'Delivery' ? 'Delivery' : 'Pickup';
 
   const handleMarkNext = () => {
     if (!nextStatus) return;
@@ -320,9 +349,9 @@ function OrderCard({ order, onStatusUpdate, updating }) {
   return (
     <View style={cardStyles.card}>
       {/* Status badge */}
-      <View style={[cardStyles.statusBadge, { backgroundColor: STATUS_BG[order.orderStatus] }]}>
-        <View style={[cardStyles.statusDot, { backgroundColor: STATUS_COLORS[order.orderStatus] }]} />
-        <Text style={[cardStyles.statusText, { color: STATUS_COLORS[order.orderStatus] }]}>
+      <View style={[cardStyles.statusBadge, { backgroundColor: STATUS_BG[order.orderStatus] || 'rgba(0,0,0,0.06)' }]}>
+        <View style={[cardStyles.statusDot, { backgroundColor: STATUS_COLORS[order.orderStatus] || colors.primary }]} />
+        <Text style={[cardStyles.statusText, { color: STATUS_COLORS[order.orderStatus] || colors.dark }]}>
           {order.orderStatus}
         </Text>
       </View>
@@ -349,10 +378,11 @@ function OrderCard({ order, onStatusUpdate, updating }) {
       </View>
 
       {/* Status dropdown + action button */}
-      {!isReady && (
+      {!isTerminal && (
         <View style={cardStyles.actionsRow}>
           <View style={cardStyles.dropdownWrap}>
             <StatusDropdown
+              order={order}
               currentStatus={selectedStatus}
               onSelect={handleDropdownSelect}
               disabled={updating}
@@ -375,9 +405,9 @@ function OrderCard({ order, onStatusUpdate, updating }) {
         </View>
       )}
 
-      {isReady && (
+      {isTerminal && (
         <View style={cardStyles.completedRow}>
-          <Text style={cardStyles.completedText}>✅ Order Complete</Text>
+          <Text style={cardStyles.completedText}>✅ Order complete</Text>
         </View>
       )}
     </View>
@@ -477,9 +507,9 @@ const cardStyles = StyleSheet.create({
   },
   markBtnDisabled: { opacity: 0.6 },
   markBtnText: {
-    fontFamily: fonts.bold,
     fontSize: fontSizes.sm,
-    color: '#fff',
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
   completedRow: {
     alignItems: 'center',
@@ -554,12 +584,14 @@ export default function AdminOrdersScreen({ navigation }) {
     : orders.filter((o) => o.orderStatus === activeFilter);
 
   // ── Tab counts ────────────────────────────────────────────────────────────
-  const counts = {
-    All:     orders.length,
+  const counts = useMemo(() => ({
+    All: orders.length,
     Pending: orders.filter((o) => o.orderStatus === 'Pending').length,
     Brewing: orders.filter((o) => o.orderStatus === 'Brewing').length,
-    Ready:   orders.filter((o) => o.orderStatus === 'Ready').length,
-  };
+    Ready: orders.filter((o) => o.orderStatus === 'Ready').length,
+    Delivering: orders.filter((o) => o.orderStatus === 'Delivering').length,
+    Delivered: orders.filter((o) => o.orderStatus === 'Delivered').length,
+  }), [orders]);
 
   // ── Admin tab navigation ──────────────────────────────────────────────────
   const handleAdminTabPress = (tab) => {

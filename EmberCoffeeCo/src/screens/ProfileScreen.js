@@ -23,16 +23,10 @@ import Input from '../components/ui/Input';
 import colors from '../theme/colors';
 import spacing, { borderRadius } from '../theme/spacing';
 import { fonts, fontSizes } from '../theme/typography';
+import { getProfileTierInfo, LOYALTY_POINTS_CAP } from '../utils/loyaltyTier';
 
 const PLACEHOLDER_AVATAR =
   'https://ui-avatars.com/api/?background=62371E&color=fff&size=128&name=';
-
-function getTierInfo(points) {
-  if (points >= 600) return { name: 'Platinum', next: null, progress: 1 };
-  if (points >= 300) return { name: 'Gold', next: 600, progress: (points - 300) / 300 };
-  if (points >= 100) return { name: 'Silver', next: 300, progress: (points - 100) / 200 };
-  return { name: 'Bronze', next: 100, progress: points / 100 };
-}
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
@@ -56,7 +50,8 @@ export default function ProfileScreen() {
   const [errors, setErrors]                   = useState({});
 
   const points   = user?.totalPoints ?? 0;
-  const tierInfo = getTierInfo(points);
+  const tierInfo = getProfileTierInfo(points);
+  const displayPoints = tierInfo.displayPoints;
   const avatarUri = user?.profileImageUrl
     ? user.profileImageUrl
     : PLACEHOLDER_AVATAR + encodeURIComponent(user?.name || 'U');
@@ -74,7 +69,7 @@ export default function ProfileScreen() {
   const fetchOrders = useCallback(async () => {
     if (!token) return;
     try {
-      const { data } = await axios.get(BASE_URL + '/api/orders/my', {
+      const { data } = await axios.get(BASE_URL + '/api/orders/my/history', {
         headers: { Authorization: 'Bearer ' + token },
       });
       setOrdersCount(Array.isArray(data) ? data.length : 0);
@@ -235,7 +230,7 @@ export default function ProfileScreen() {
 
           {/* Rewards Balance card */}
           <View style={styles.rewardsCard}>
-            <Text style={styles.rewardsPoints}>{points}</Text>
+            <Text style={styles.rewardsPoints}>{displayPoints}</Text>
             <Text style={styles.rewardsStarsLabel}>Stars</Text>
             <View style={styles.progressTrack}>
               <View style={[styles.progressFill, { width: (Math.min(tierInfo.progress, 1) * 100) + '%' }]} />
@@ -243,7 +238,11 @@ export default function ProfileScreen() {
             <View style={styles.tierRow}>
               <Text style={styles.tierName}>{tierInfo.name}</Text>
               {tierInfo.next !== null && (
-                <Text style={styles.tierNext}>{tierInfo.next - points} pts to next tier</Text>
+                <Text style={styles.tierNext}>
+                  {tierInfo.next === LOYALTY_POINTS_CAP
+                    ? `${tierInfo.next - displayPoints} pts to maximum`
+                    : `${tierInfo.next - displayPoints} pts to next tier`}
+                </Text>
               )}
             </View>
           </View>
@@ -253,7 +252,7 @@ export default function ProfileScreen() {
             <View style={styles.statCard}>
               <Text style={styles.statIcon}>{'📦'}</Text>
               <Text style={styles.statNumber}>{ordersCount}</Text>
-              <Text style={styles.statLabel}>Orders</Text>
+              <Text style={styles.statLabel}>All orders</Text>
             </View>
             <View style={styles.statCard}>
               <Text style={styles.statIcon}>{'⭐'}</Text>
@@ -269,7 +268,11 @@ export default function ProfileScreen() {
               <Text style={styles.actionChevron}>{'›'}</Text>
             </TouchableOpacity>
             <View style={styles.rowDivider} />
-            <TouchableOpacity style={styles.actionRow} onPress={() => navigation.navigate('Orders')} activeOpacity={0.7}>
+            <TouchableOpacity
+              style={styles.actionRow}
+              onPress={() => navigation.navigate('Orders', { screen: 'OrderHistory' })}
+              activeOpacity={0.7}
+            >
               <Text style={styles.actionLabel}>Order History</Text>
               <Text style={styles.actionChevron}>{'›'}</Text>
             </TouchableOpacity>

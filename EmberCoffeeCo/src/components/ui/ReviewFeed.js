@@ -12,7 +12,18 @@ import { BASE_URL } from '../../config/api';
 import StarRating from './StarRating';
 import colors from '../../theme/colors';
 import spacing, { borderRadius } from '../../theme/spacing';
-import { fontSizes } from '../../theme/typography';
+import { fonts, fontSizes } from '../../theme/typography';
+
+function reviewerFromReview(item) {
+  const u = item.userId;
+  if (u && typeof u === 'object' && (u.name || u.profileImageUrl)) {
+    return {
+      name: u.name || 'Member',
+      avatar: u.profileImageUrl || null,
+    };
+  }
+  return { name: 'Member', avatar: null };
+}
 
 /**
  * ReviewFeed component
@@ -74,13 +85,24 @@ const ReviewFeed = forwardRef(function ReviewFeed({ productId }, ref) {
       keyExtractor={(item) => item._id}
       scrollEnabled={false}
       ItemSeparatorComponent={() => <View style={styles.separator} />}
-      renderItem={({ item }) => (
+      renderItem={({ item }) => {
+        const { name, avatar } = reviewerFromReview(item);
+        return (
         <View style={styles.reviewCard}>
           <View style={styles.reviewHeader}>
-            <Text style={styles.reviewerName}>
-              {item.userId?.name || 'Anonymous'}
-            </Text>
-            <StarRating rating={item.rating} size={14} />
+            {avatar ? (
+              <Image source={{ uri: avatar }} style={styles.reviewerAvatar} />
+            ) : (
+              <View style={[styles.reviewerAvatar, styles.reviewerAvatarFallback]}>
+                <Text style={styles.reviewerAvatarLetter}>{name.charAt(0).toUpperCase()}</Text>
+              </View>
+            )}
+            <View style={styles.reviewerTextCol}>
+              <Text style={styles.reviewerName} numberOfLines={1}>
+                {name}
+              </Text>
+              <StarRating rating={item.rating} size={14} />
+            </View>
           </View>
           {item.comment ? (
             <Text style={styles.reviewComment}>{item.comment}</Text>
@@ -93,7 +115,8 @@ const ReviewFeed = forwardRef(function ReviewFeed({ productId }, ref) {
             />
           ) : null}
         </View>
-      )}
+        );
+      }}
     />
   );
 });
@@ -125,15 +148,34 @@ const styles = StyleSheet.create({
   reviewHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     marginBottom: spacing.xs,
+    gap: spacing.sm,
+  },
+  reviewerAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.accent,
+  },
+  reviewerAvatarFallback: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primary,
+  },
+  reviewerAvatarLetter: {
+    fontFamily: fonts.bold,
+    fontSize: fontSizes.md,
+    color: '#fff',
+  },
+  reviewerTextCol: {
+    flex: 1,
+    minWidth: 0,
   },
   reviewerName: {
+    fontFamily: fonts.bold,
     fontSize: fontSizes.md,
-    fontWeight: '700',
     color: colors.dark,
-    flex: 1,
-    marginRight: spacing.sm,
+    marginBottom: 4,
   },
   reviewComment: {
     fontSize: fontSizes.md,

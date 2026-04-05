@@ -18,6 +18,7 @@ import { BASE_URL } from '../config/api';
 import colors from '../theme/colors';
 import spacing, { borderRadius } from '../theme/spacing';
 import { fontSizes } from '../theme/typography';
+import { effectiveLoyaltyPoints, getRewardsTierInfo } from '../utils/loyaltyTier';
 
 // ─── Circular Progress ────────────────────────────────────────────────────────
 // Custom implementation using two half-circle clips — no extra dependencies.
@@ -25,8 +26,8 @@ import { fontSizes } from '../theme/typography';
 const CIRCLE_SIZE = 140;
 const STROKE = 12;
 
-function CircularProgress({ points, maxPoints = 500 }) {
-  const pct = Math.min(points / maxPoints, 1);
+function CircularProgress({ progress, displayPoints }) {
+  const pct = Math.min(Math.max(progress, 0), 1);
   const deg = pct * 360;
 
   // We render two half-circle "slices" to simulate a progress arc.
@@ -61,9 +62,8 @@ function CircularProgress({ points, maxPoints = 500 }) {
         />
       </View>
 
-      {/* Centre label */}
       <View style={cp.centre}>
-        <Text style={cp.pointsValue}>{points}</Text>
+        <Text style={cp.pointsValue}>{displayPoints}</Text>
         <Text style={cp.pointsLabel}>pts</Text>
       </View>
     </View>
@@ -251,6 +251,9 @@ export default function MyRewardsScreen() {
     );
   }
 
+  const cappedPoints = effectiveLoyaltyPoints(totalPoints);
+  const tierRing = getRewardsTierInfo(totalPoints);
+
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
@@ -259,7 +262,7 @@ export default function MyRewardsScreen() {
         renderItem={({ item }) => (
           <RewardCard
             reward={item}
-            userPoints={totalPoints}
+            userPoints={cappedPoints}
             onRedeem={handleRedeem}
             redeeming={redeeming}
           />
@@ -268,7 +271,7 @@ export default function MyRewardsScreen() {
         ListHeaderComponent={
           <View style={styles.header}>
             <Text style={styles.headerTitle}>My Rewards</Text>
-            <CircularProgress points={totalPoints} />
+            <CircularProgress progress={tierRing.progress} displayPoints={cappedPoints} />
             <Text style={styles.pointsSubtitle}>loyalty points</Text>
           </View>
         }

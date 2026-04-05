@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Image,
   ActivityIndicator, Alert, RefreshControl, Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
 import { BASE_URL } from '../config/api';
 import TopAppBar from '../components/ui/TopAppBar';
 import BottomNavBar from '../components/ui/BottomNavBar';
@@ -15,18 +14,54 @@ import { fonts, fontSizes } from '../theme/typography';
 
 const TAX_RATE = 0.08;
 const POLL_INTERVAL_MS = 30000;
-const STORE_PHONE = 'tel:+1234567890';
-const STORE_MAPS_URL = 'https://www.google.com/maps/search/?api=1&query=Ember+Coffee+Co+123+Brew+Street+KL';
-const STATUS_STEPS = ['Pending', 'Brewing', 'Ready'];
-const STATUS_META = {
-  Pending: { icon: '📋', label: 'Order Placed',      message: 'Your order has been received',  color: '#F39C12' },
-  Brewing: { icon: '☕', label: 'Brewing',            message: "We're crafting your order",     color: colors.primary },
-  Ready:   { icon: '✅', label: 'Ready for Pickup',  message: 'Your order is ready!',           color: '#27AE60' },
+const STORE_PHONE = 'tel:+94771234567';
+const STORE_PHONE_URL = 'tel:+94771234567';
+const STORE_MAPS_URL = 'https://www.google.com/maps?q=7.2906,80.6337';
+const STORE_EMAIL = 'store@embercoffeeco.lk';
+const STORE_WEB = 'https://www.embercoffeeco.lk';
+
+const PICKUP_STEPS = ['Pending', 'Brewing', 'Ready'];
+const DELIVERY_STEPS = ['Pending', 'Brewing', 'Delivering', 'Delivered'];
+
+const PICKUP_META = {
+  Pending: { icon: '📋', label: 'Order Placed',     message: 'Your order has been received', color: '#F39C12' },
+  Brewing: { icon: '☕', label: 'Brewing',         message: "We're crafting your order",    color: colors.primary },
+  Ready:   { icon: '✅', label: 'Ready for Pickup', message: 'Your order is ready!',          color: '#27AE60' },
 };
-const ESTIMATED_TIMES = { Pending: '15–20 min', Brewing: '5–10 min', Ready: 'Ready now' };
+
+const DELIVERY_META = {
+  Pending:    { icon: '📋', label: 'Order Placed', message: 'Your order has been received',     color: '#F39C12' },
+  Brewing:    { icon: '☕', label: 'Brewing',       message: "We're crafting your order",        color: colors.primary },
+  Delivering: { icon: '🚚', label: 'Delivering',   message: 'Your order is on the way to you', color: '#1565C0' },
+  Delivered:  { icon: '✅', label: 'Delivered',     message: 'Enjoy your order!',                color: '#27AE60' },
+};
+
+const PICKUP_TIMES = { Pending: '15–20 min', Brewing: '5–10 min', Ready: 'Ready now' };
+const DELIVERY_TIMES = {
+  Pending: '15–25 min',
+  Brewing: '5–15 min',
+  Delivering: '10–30 min',
+  Delivered: 'Completed',
+};
+
+function trackingStepsForOrder(order) {
+  return order?.fulfillmentMethod === 'Delivery' ? DELIVERY_STEPS : PICKUP_STEPS;
+}
+
+function statusMetaForOrder(order) {
+  return order?.fulfillmentMethod === 'Delivery' ? DELIVERY_META : PICKUP_META;
+}
+
+function estimatedTimeForOrder(order) {
+  const t = order?.fulfillmentMethod === 'Delivery' ? DELIVERY_TIMES : PICKUP_TIMES;
+  return t[order?.orderStatus] || '—';
+}
 
 // ─── Progress Tracker ────────────────────────────────────────────────────────
-function ProgressTracker({ orderStatus }) {
+function ProgressTracker({ orderStatus, fulfillmentMethod }) {
+  const isDelivery = fulfillmentMethod === 'Delivery';
+  const STATUS_STEPS = isDelivery ? DELIVERY_STEPS : PICKUP_STEPS;
+  const STATUS_META = isDelivery ? DELIVERY_META : PICKUP_META;
   const currentIdx = STATUS_STEPS.indexOf(orderStatus);
   return (
     <View style={styles.progressContainer}>
@@ -78,91 +113,25 @@ function ProgressTracker({ orderStatus }) {
   );
 }
 
-// ─── Admin: advance status button ────────────────────────────────────────────
-function AdminStatusControl({ order, onUpdated }) {
-  const [updating, setUpdating] = useState(false);
-  const currentIdx = STATUS_STEPS.indexOf(order.orderStatus);
-  const nextStatus = STATUS_STEPS[currentIdx + 1];
-  if (!nextStatus) return null;
-
-  const handleAdvance = async () => {
-    setUpdating(true);
-    try {
-      await axios.put(`${BASE_URL}/api/orders/${order._id}/status`, { orderStatus: nextStatus });
-      onUpdated();
-    } catch (err) {
-      Alert.alert('Error', err.response?.data?.message || 'Failed to update status.');
-    } finally {
-      setUpdating(false);
-    }
-  };
-
-  return (
-    <TouchableOpacity
-      style={[styles.advanceBtn, updating && styles.advanceBtnDisabled]}
-      onPress={handleAdvance}
-      disabled={updating}
-      activeOpacity={0.8}
-    >
-      {updating
-        ? <ActivityIndicator size="small" color="#fff" />
-        : <Text style={styles.advanceBtnText}>Mark as {nextStatus}</Text>}
-    </TouchableOpacity>
-  );
-}
-
-// ─── Admin order card ─────────────────────────────────────────────────────────
-function AdminOrderCard({ order, onUpdated }) {
-  const meta     = STATUS_META[order.orderStatus] || STATUS_META.Pending;
-  const subtotal = order.items.reduce((s, i) => s + i.price * i.quantity, 0);
-  return (
-    <View style={styles.adminOrderCard}>
-      <View style={styles.adminOrderHeader}>
-        <View>
-          <Text style={styles.adminOrderNum}>
-            Order #{String(order._id).slice(-6).toUpperCase()}
-          </Text>
-          <Text style={styles.adminOrderDate}>
-            {new Date(order.createdAt).toLocaleDateString('en-MY', {
-              day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
-            })}
-          </Text>
-        </View>
-        <View style={[styles.statusBadge, { backgroundColor: meta.color + '22' }]}>
-          <Text style={[styles.statusBadgeText, { color: meta.color }]}>
-            {order.orderStatus}
-          </Text>
-        </View>
-      </View>
-      <Text style={styles.adminOrderItems}>
-        {order.items.length} item{order.items.length !== 1 ? 's' : ''} · Rs. {subtotal.toFixed(2)}
-      </Text>
-      <AdminStatusControl order={order} onUpdated={onUpdated} />
-    </View>
-  );
-}
-
-// ─── Main Screen ──────────────────────────────────────────────────────────────
+// ─── Main Screen (customer: my orders only; staff use Admin → Order Processing) ─
 export default function OrderTrackingScreen({ navigation, route }) {
-  const { user } = useAuth();
-  const isAdmin  = user?.role === 'admin';
+  const orderIdParam = route.params?.orderId;
 
   const [orders,      setOrders]      = useState([]);
   const [loading,     setLoading]     = useState(true);
   const [refreshing,  setRefreshing]  = useState(false);
   const [error,       setError]       = useState(null);
+  const [archivedOrder, setArchivedOrder] = useState(null);
+  const [fetchingArchived, setFetchingArchived] = useState(false);
+  const [archivedFetchDone, setArchivedFetchDone] = useState(false);
   const pollRef = useRef(null);
-
-  // The most recent customer order (non-admin view)
-  const latestOrder = orders[0] || null;
+  const archivedFetchKeyRef = useRef(null);
 
   const fetchOrders = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     setError(null);
     try {
-      const endpoint = isAdmin ? `${BASE_URL}/api/orders` : `${BASE_URL}/api/orders/my`;
-      const { data } = await axios.get(endpoint);
-      // Sort newest first
+      const { data } = await axios.get(`${BASE_URL}/api/orders/my`);
       const sorted = [...(data || [])].sort(
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
@@ -173,7 +142,7 @@ export default function OrderTrackingScreen({ navigation, route }) {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [isAdmin]);
+  }, []);
 
   // Initial load + 30s polling
   useEffect(() => {
@@ -182,18 +151,80 @@ export default function OrderTrackingScreen({ navigation, route }) {
     return () => clearInterval(pollRef.current);
   }, [fetchOrders]);
 
+  useEffect(() => {
+    archivedFetchKeyRef.current = null;
+    setArchivedOrder(null);
+    setArchivedFetchDone(!orderIdParam);
+    setFetchingArchived(false);
+  }, [orderIdParam]);
+
+  useEffect(() => {
+    if (!orderIdParam || loading) return;
+    const id = String(orderIdParam);
+    const inList = orders.some((o) => String(o._id) === id);
+    if (inList) {
+      setArchivedOrder(null);
+      setFetchingArchived(false);
+      setArchivedFetchDone(true);
+      archivedFetchKeyRef.current = null;
+      return;
+    }
+    if (archivedFetchKeyRef.current === id) return;
+    archivedFetchKeyRef.current = id;
+    let cancelled = false;
+    setFetchingArchived(true);
+    setArchivedFetchDone(false);
+    axios
+      .get(`${BASE_URL}/api/orders/my/order/${id}`)
+      .then(({ data }) => {
+        if (!cancelled && data && String(data._id) === id) setArchivedOrder(data);
+      })
+      .catch(() => {
+        if (!cancelled) setArchivedOrder(null);
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setFetchingArchived(false);
+          setArchivedFetchDone(true);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [loading, orderIdParam, orders]);
+
+  const displayOrder = useMemo(() => {
+    if (orderIdParam) {
+      const fromList = orders.find((o) => String(o._id) === String(orderIdParam));
+      if (fromList) return fromList;
+      if (archivedOrder && String(archivedOrder._id) === String(orderIdParam)) return archivedOrder;
+      return null;
+    }
+    return orders[0] || null;
+  }, [orders, orderIdParam, archivedOrder]);
+
+  const showArchiveSpinner =
+    Boolean(orderIdParam) &&
+    !orders.some((o) => String(o._id) === String(orderIdParam)) &&
+    fetchingArchived;
+
   const onRefresh = useCallback(() => {
+    archivedFetchKeyRef.current = null;
     setRefreshing(true);
     fetchOrders(true);
   }, [fetchOrders]);
 
   const handleShare = () => {
-    if (!latestOrder) return;
-    Alert.alert('Share', `Order #${String(latestOrder._id).slice(-6).toUpperCase()} — ${latestOrder.orderStatus}`);
+    if (!displayOrder) return;
+    Alert.alert('Share', `Order #${String(displayOrder._id).slice(-6).toUpperCase()} — ${displayOrder.orderStatus}`);
   };
 
-  const handleCall = () => Linking.openURL(STORE_PHONE).catch(() => Alert.alert('Error', 'Unable to open phone dialler.'));
+  const handleCall = () => Linking.openURL(STORE_PHONE_URL).catch(() => Alert.alert('Error', 'Unable to open phone dialler.'));
   const handleDirections = () => Linking.openURL(STORE_MAPS_URL).catch(() => Alert.alert('Error', 'Unable to open maps.'));
+  const handleEmail = () =>
+    Linking.openURL(`mailto:${STORE_EMAIL}`).catch(() => Alert.alert('Error', 'Unable to open email.'));
+  const handleWebsite = () =>
+    Linking.openURL(STORE_WEB).catch(() => Alert.alert('Error', 'Unable to open website.'));
 
   const handleTabPress = (tab) => {
     const map = { Home: 'Home', Menu: 'Menu', Rewards: 'Rewards', Orders: 'Orders', Profile: 'Profile' };
@@ -206,26 +237,51 @@ export default function OrderTrackingScreen({ navigation, route }) {
     const subtotal = order.items.reduce((s, i) => s + i.price * i.quantity, 0);
     const tax      = subtotal * TAX_RATE;
     const total    = subtotal + tax;
+
+    const lineKey = (item, idx) => {
+      const ref = item.productId;
+      if (ref && typeof ref === 'object' && ref._id) return String(ref._id);
+      if (ref) return String(ref);
+      return `line-${idx}`;
+    };
+
+    const resolveLine = (item) => {
+      const ref = item.productId;
+      if (ref && typeof ref === 'object' && ref !== null && 'productName' in ref) {
+        return {
+          name: ref.productName || 'Product',
+          imageUrl: ref.productImageUrl || '',
+        };
+      }
+      return {
+        name: item.productName || 'Product',
+        imageUrl: item.productImageUrl || '',
+      };
+    };
+
     return (
       <View style={styles.orderDetailsCard}>
         <Text style={styles.sectionHeading}>Your Order</Text>
-        {order.items.map((item, idx) => (
-          <View key={idx} style={styles.orderItem}>
-            {item.productImageUrl
-              ? <Image source={{ uri: item.productImageUrl }} style={styles.itemThumb} />
+        {order.items.map((item, idx) => {
+          const { name, imageUrl } = resolveLine(item);
+          return (
+          <View key={lineKey(item, idx)} style={styles.orderItem}>
+            {imageUrl
+              ? <Image source={{ uri: imageUrl }} style={styles.itemThumb} />
               : <View style={[styles.itemThumb, styles.itemThumbPlaceholder]}>
                   <Text style={styles.itemThumbIcon}>☕</Text>
                 </View>
             }
             <View style={styles.itemInfo}>
-              <Text style={styles.itemName} numberOfLines={1}>
-                {item.productName || `Item ${idx + 1}`}
+              <Text style={styles.itemName} numberOfLines={2}>
+                {name}
               </Text>
               <Text style={styles.itemQty}>Qty: {item.quantity}</Text>
             </View>
             <Text style={styles.itemPrice}>Rs. {(item.price * item.quantity).toFixed(2)}</Text>
           </View>
-        ))}
+          );
+        })}
         <View style={styles.divider} />
         <View style={styles.summaryRow}>
           <Text style={styles.summaryLabel}>Subtotal</Text>
@@ -244,13 +300,13 @@ export default function OrderTrackingScreen({ navigation, route }) {
   };
 
   // ── Loading / Error states ──────────────────────────────────────────────────
-  if (loading) {
+  if (loading || showArchiveSpinner) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <TopAppBar title="Order Tracking" onBack={() => navigation.goBack()} />
         <View style={styles.centered}>
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Loading orders…</Text>
+          <Text style={styles.loadingText}>{showArchiveSpinner ? 'Loading order…' : 'Loading orders…'}</Text>
         </View>
         <BottomNavBar activeTab="Orders" onTabPress={handleTabPress} />
       </SafeAreaView>
@@ -272,40 +328,28 @@ export default function OrderTrackingScreen({ navigation, route }) {
     );
   }
 
-  // ── Admin view ──────────────────────────────────────────────────────────────
-  if (isAdmin) {
+  // ── Missing order (bad id or not in your history) ───────────────────────────
+  if (orderIdParam && !displayOrder && archivedFetchDone) {
     return (
       <SafeAreaView style={styles.safeArea}>
-        <TopAppBar
-          title="Order Tracking"
-          onBack={() => navigation.goBack()}
-          rightElement={
-            <TouchableOpacity onPress={() => fetchOrders(true)}>
-              <Text style={styles.refreshIcon}>↻</Text>
-            </TouchableOpacity>
-          }
-        />
-        <ScrollView
-          style={styles.scroll}
-          contentContainerStyle={styles.scrollContent}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
-        >
-          <Text style={styles.adminHeading}>All Orders</Text>
-          <Text style={styles.adminSubheading}>{orders.length} order{orders.length !== 1 ? 's' : ''} total</Text>
-          {orders.length === 0
-            ? <Text style={styles.emptyText}>No orders yet.</Text>
-            : orders.map((order) => (
-                <AdminOrderCard key={order._id} order={order} onUpdated={() => fetchOrders(true)} />
-              ))
-          }
-        </ScrollView>
+        <TopAppBar title="Order Tracking" onBack={() => navigation.goBack()} />
+        <View style={styles.centered}>
+          <Text style={styles.errorText}>We could not find this order in your history.</Text>
+          <TouchableOpacity
+            style={styles.retryBtn}
+            onPress={() => navigation.navigate('Orders', { screen: 'OrdersScreen' })}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.retryBtnText}>Back to My Orders</Text>
+          </TouchableOpacity>
+        </View>
         <BottomNavBar activeTab="Orders" onTabPress={handleTabPress} />
       </SafeAreaView>
     );
   }
 
-  // ── Customer view ───────────────────────────────────────────────────────────
-  if (!latestOrder) {
+  // ── No orders ───────────────────────────────────────────────────────────────
+  if (!displayOrder) {
     return (
       <SafeAreaView style={styles.safeArea}>
         <TopAppBar title="Order Tracking" onBack={() => navigation.goBack()} />
@@ -326,9 +370,13 @@ export default function OrderTrackingScreen({ navigation, route }) {
     );
   }
 
-  const meta      = STATUS_META[latestOrder.orderStatus] || STATUS_META.Pending;
-  const orderNum  = String(latestOrder._id).slice(-6).toUpperCase();
-  const estTime   = ESTIMATED_TIMES[latestOrder.orderStatus] || '—';
+  const statusMetaMap = statusMetaForOrder(displayOrder);
+  const meta =
+    statusMetaMap[displayOrder.orderStatus] ||
+    statusMetaMap.Pending;
+  const orderNum  = String(displayOrder._id).slice(-6).toUpperCase();
+  const estTime   = estimatedTimeForOrder(displayOrder);
+  const fulfillmentMethod = displayOrder.fulfillmentMethod === 'Delivery' ? 'Delivery' : 'Pickup';
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -350,7 +398,12 @@ export default function OrderTrackingScreen({ navigation, route }) {
       >
         {/* ── Hero status ── */}
         <View style={styles.heroCard}>
-          <Text style={styles.heroOrderLabel}>Order #{orderNum} • In Progress</Text>
+          <Text style={styles.heroOrderLabel}>
+            Order #{orderNum}
+            {displayOrder.orderStatus === 'Delivered' || displayOrder.orderStatus === 'Ready'
+              ? ' • Completed'
+              : ' • In progress'}
+          </Text>
           <Text style={styles.heroStatusMessage}>{meta.message}</Text>
           <View style={styles.heroEstRow}>
             <Text style={styles.clockIcon}>🕐</Text>
@@ -359,10 +412,13 @@ export default function OrderTrackingScreen({ navigation, route }) {
         </View>
 
         {/* ── Progress tracker ── */}
-        <ProgressTracker orderStatus={latestOrder.orderStatus} />
+        <ProgressTracker
+          orderStatus={displayOrder.orderStatus}
+          fulfillmentMethod={fulfillmentMethod}
+        />
 
         {/* ── Order details ── */}
-        {renderOrderItems(latestOrder)}
+        {renderOrderItems(displayOrder)}
 
         {/* ── Interaction grid ── */}
         <View style={styles.interactionGrid}>
@@ -372,20 +428,41 @@ export default function OrderTrackingScreen({ navigation, route }) {
           </TouchableOpacity>
           <TouchableOpacity style={styles.interactionBtn} onPress={handleDirections} activeOpacity={0.8}>
             <Text style={styles.interactionIcon}>🗺</Text>
-            <Text style={styles.interactionLabel}>Get Directions</Text>
+            <Text style={styles.interactionLabel}>Open in Maps</Text>
           </TouchableOpacity>
         </View>
 
-        {/* ── Map snippet ── */}
-        <TouchableOpacity style={styles.mapCard} onPress={handleDirections} activeOpacity={0.9}>
-          <View style={styles.mapPlaceholder}>
-            <Text style={styles.mapPlaceholderIcon}>📍</Text>
-            <View style={styles.mapOverlay}>
-              <Text style={styles.mapStoreName}>Ember Coffee Co.</Text>
-              <Text style={styles.mapStoreAddress}>123 Brew Street, Kuala Lumpur</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
+        {/* ── Flagship store details ── */}
+        <View style={styles.storeDetailsCard}>
+          <Text style={styles.storeDetailsTitle}>Ember Coffee Co. — Flagship Store</Text>
+
+          <Text style={styles.storeSectionHeading}>Address</Text>
+          <Text style={styles.storeBodyText}>
+            45 Peradeniya Road{'\n'}Kandy, 20000{'\n'}Sri Lanka
+          </Text>
+
+          <Text style={styles.storeSectionHeading}>Contact</Text>
+          <Text style={styles.storeBodyText}>Phone: {STORE_PHONE}</Text>
+          <TouchableOpacity onPress={handleEmail} activeOpacity={0.7}>
+            <Text style={styles.storeLink}>Email: {STORE_EMAIL}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleWebsite} activeOpacity={0.7}>
+            <Text style={styles.storeLink}>Website: www.embercoffeeco.lk</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.storeSectionHeading}>Business hours</Text>
+          <Text style={styles.storeBodyText}>
+            Monday – Friday: 7:00 AM – 9:00 PM{'\n'}
+            Saturday & Sunday: 8:00 AM – 10:00 PM
+          </Text>
+
+          <Text style={styles.storeSectionHeading}>Location & notes</Text>
+          <Text style={styles.storeBodyText}>
+            Coordinates: 7.2906° N, 80.6337° E{'\n'}
+            Store manager: Mr. Ranasinghe{'\n'}
+            Parking: Limited street parking; dedicated lot at the rear.
+          </Text>
+        </View>
 
         <View style={{ height: spacing.xl }} />
       </ScrollView>
@@ -446,12 +523,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: colors.dark,
   },
-  refreshIcon: {
-    fontSize: 22,
-    color: colors.primary,
-    fontWeight: 'bold',
-  },
-
   // ── Hero card ──
   heroCard: {
     backgroundColor: colors.primary,
@@ -707,45 +778,46 @@ const styles = StyleSheet.create({
     color: colors.dark,
   },
 
-  // ── Map snippet ──
-  mapCard: {
+  // ── Store details ──
+  storeDetailsCard: {
+    backgroundColor: '#fff',
     borderRadius: borderRadius.card,
-    overflow: 'hidden',
+    padding: spacing.lg,
     marginBottom: spacing.md,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.06,
     shadowRadius: 8,
     elevation: 2,
   },
-  mapPlaceholder: {
-    height: 140,
-    backgroundColor: '#D5E8D4',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mapPlaceholderIcon: {
-    fontSize: 48,
-  },
-  mapOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  mapStoreName: {
+  storeDetailsTitle: {
     fontFamily: fonts.bold,
-    fontSize: fontSizes.md,
-    color: '#fff',
+    fontSize: fontSizes.lg,
+    color: colors.dark,
+    marginBottom: spacing.md,
   },
-  mapStoreAddress: {
-    fontFamily: fonts.regular,
+  storeSectionHeading: {
+    fontFamily: fonts.semiBold,
     fontSize: fontSizes.sm,
-    color: 'rgba(255,255,255,0.8)',
-    marginTop: 2,
+    color: colors.primary,
+    marginTop: spacing.sm,
+    marginBottom: spacing.xs,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
+  },
+  storeBodyText: {
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.md,
+    color: colors.dark,
+    opacity: 0.85,
+    lineHeight: 22,
+  },
+  storeLink: {
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.md,
+    color: colors.primary,
+    textDecorationLine: 'underline',
+    marginTop: spacing.xs,
   },
 
   // ── Empty state ──
@@ -776,88 +848,6 @@ const styles = StyleSheet.create({
   startOrderingBtnText: {
     fontFamily: fonts.bold,
     fontSize: fontSizes.base,
-    color: '#fff',
-  },
-
-  // ── Admin view ──
-  adminHeading: {
-    fontFamily: fonts.extraBold,
-    fontSize: fontSizes['2xl'],
-    color: colors.dark,
-    marginBottom: 4,
-  },
-  adminSubheading: {
-    fontFamily: fonts.regular,
-    fontSize: fontSizes.md,
-    color: colors.dark,
-    opacity: 0.6,
-    marginBottom: spacing.md,
-  },
-  emptyText: {
-    fontFamily: fonts.regular,
-    fontSize: fontSizes.md,
-    color: colors.dark,
-    opacity: 0.5,
-    textAlign: 'center',
-    marginTop: spacing.xl,
-  },
-  adminOrderCard: {
-    backgroundColor: '#fff',
-    borderRadius: borderRadius.card,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  adminOrderHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: spacing.xs,
-  },
-  adminOrderNum: {
-    fontFamily: fonts.bold,
-    fontSize: fontSizes.md,
-    color: colors.dark,
-  },
-  adminOrderDate: {
-    fontFamily: fonts.regular,
-    fontSize: fontSizes.sm,
-    color: colors.dark,
-    opacity: 0.55,
-    marginTop: 2,
-  },
-  statusBadge: {
-    borderRadius: borderRadius.pill,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-  },
-  statusBadgeText: {
-    fontFamily: fonts.semiBold,
-    fontSize: fontSizes.sm,
-  },
-  adminOrderItems: {
-    fontFamily: fonts.regular,
-    fontSize: fontSizes.sm,
-    color: colors.dark,
-    opacity: 0.7,
-    marginBottom: spacing.sm,
-  },
-  advanceBtn: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.pill,
-    paddingVertical: spacing.sm,
-    alignItems: 'center',
-  },
-  advanceBtnDisabled: {
-    opacity: 0.6,
-  },
-  advanceBtnText: {
-    fontFamily: fonts.semiBold,
-    fontSize: fontSizes.md,
     color: '#fff',
   },
 });

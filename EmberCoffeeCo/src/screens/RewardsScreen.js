@@ -23,27 +23,7 @@ import { fonts, fontSizes } from '../theme/typography';
 import spacing, { borderRadius } from '../theme/spacing';
 import TopAppBar from '../components/ui/TopAppBar';
 import BottomNavBar from '../components/ui/BottomNavBar';
-
-
-// ─── Tier Logic ──────────────────────────────────────────────────────────────
-
-const TIERS = [
-  { name: 'Bronze Member', min: 0,   max: 100,  color: '#CD7F32' },
-  { name: 'Silver Member', min: 100, max: 300,  color: '#A8A9AD' },
-  { name: 'Gold Member',   min: 300, max: 600,  color: '#FFD700' },
-  { name: 'Platinum Member', min: 600, max: 1000, color: '#E5E4E2' },
-];
-
-function getTierInfo(points) {
-  const tier = TIERS.find((t) => points >= t.min && points < t.max) || TIERS[TIERS.length - 1];
-  const isMax = tier === TIERS[TIERS.length - 1];
-  const progress = isMax ? 1 : (points - tier.min) / (tier.max - tier.min);
-  const nextTierPoints = isMax ? null : tier.max;
-  const description = isMax
-    ? 'You have reached the highest tier. Enjoy exclusive Platinum perks!'
-    : `Earn ${tier.max - points} more stars to reach ${TIERS[TIERS.indexOf(tier) + 1]?.name}.`;
-  return { ...tier, progress: Math.min(progress, 1), nextTierPoints, description };
-}
+import { getRewardsTierInfo } from '../utils/loyaltyTier';
 
 // ─── Circular Progress ───────────────────────────────────────────────────────
 
@@ -352,7 +332,7 @@ export default function RewardsScreen({ navigation }) {
     if (map[tab] && tab !== 'Rewards') navigation?.navigate(map[tab]);
   };
 
-  const tierInfo = getTierInfo(totalPoints);
+  const tierInfo = getRewardsTierInfo(totalPoints);
 
   // Split rewards into bento grid: first 2 normal, rest featured
   const card1 = rewards[0] || null;
@@ -388,7 +368,7 @@ export default function RewardsScreen({ navigation }) {
         >
           {/* ── Hero: Circular Progress ── */}
           <View style={styles.heroSection}>
-            <CircularProgress points={totalPoints} tierInfo={tierInfo} />
+            <CircularProgress points={tierInfo.displayPoints} tierInfo={tierInfo} />
           </View>
 
           {/* ── Tier Info Card ── */}
@@ -418,7 +398,7 @@ export default function RewardsScreen({ navigation }) {
               {card1 && (
                 <RewardCard
                   reward={card1}
-                  userPoints={totalPoints}
+                  userPoints={tierInfo.displayPoints}
                   onRedeem={handleRedeem}
                   redeeming={redeeming}
                 />
@@ -428,7 +408,7 @@ export default function RewardsScreen({ navigation }) {
               {card2 && (
                 <RewardCard
                   reward={card2}
-                  userPoints={totalPoints}
+                  userPoints={tierInfo.displayPoints}
                   onRedeem={handleRedeem}
                   redeeming={redeeming}
                 />
@@ -438,7 +418,7 @@ export default function RewardsScreen({ navigation }) {
               {card3 && (
                 <RewardCard
                   reward={card3}
-                  userPoints={totalPoints}
+                  userPoints={tierInfo.displayPoints}
                   onRedeem={handleRedeem}
                   redeeming={redeeming}
                   featured
@@ -450,7 +430,7 @@ export default function RewardsScreen({ navigation }) {
                 <RewardCard
                   key={reward._id}
                   reward={reward}
-                  userPoints={totalPoints}
+                  userPoints={tierInfo.displayPoints}
                   onRedeem={handleRedeem}
                   redeeming={redeeming}
                 />

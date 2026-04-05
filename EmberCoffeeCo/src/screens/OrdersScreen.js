@@ -25,7 +25,8 @@ const STATUS_COLORS = {
   Pending: '#F57C00',
   Brewing: '#1565C0',
   Ready: '#2E7D32',
-  Delivered: '#388E3C',
+  Delivering: '#5E35B1',
+  Delivered: '#1B5E20',
   Cancelled: '#C62828',
 };
 
@@ -62,6 +63,7 @@ export default function OrdersScreen() {
   const navigation = useNavigation();
   const { token } = useAuth();
   const [orders, setOrders] = useState([]);
+  const [historyCount, setHistoryCount] = useState(0);
   const [storeReviews, setStoreReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -69,8 +71,9 @@ export default function OrdersScreen() {
   const fetchData = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     try {
-      const [ordersRes, reviewsRes] = await Promise.allSettled([
+      const [ordersRes, historyRes, reviewsRes] = await Promise.allSettled([
         axios.get(`${BASE_URL}/api/orders/my`, { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get(`${BASE_URL}/api/orders/my/history`, { headers: { Authorization: `Bearer ${token}` } }),
         axios.get(`${BASE_URL}/api/store-reviews`),
       ]);
       if (ordersRes.status === 'fulfilled') {
@@ -78,6 +81,10 @@ export default function OrdersScreen() {
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
         setOrders(sorted);
+      }
+      if (historyRes.status === 'fulfilled') {
+        const h = historyRes.value.data;
+        setHistoryCount(Array.isArray(h) ? h.length : 0);
       }
       if (reviewsRes.status === 'fulfilled') {
         setStoreReviews(reviewsRes.value.data || []);
@@ -120,10 +127,25 @@ export default function OrdersScreen() {
           {orders.length === 0 ? (
             <View style={styles.emptyState}>
               <Text style={styles.emptyIcon}>☕</Text>
-              <Text style={styles.emptyTitle}>No orders yet</Text>
-              <Text style={styles.emptySubtitle}>Your order history will appear here</Text>
+              <Text style={styles.emptyTitle}>
+                {historyCount > 0 ? 'No active orders' : 'No orders yet'}
+              </Text>
+              <Text style={styles.emptySubtitle}>
+                {historyCount > 0
+                  ? 'Ready and delivered orders stay here for 12 hours, then move to Order History in your profile.'
+                  : 'Your active orders will appear here'}
+              </Text>
+              {historyCount > 0 ? (
+                <TouchableOpacity
+                  style={styles.secondaryBtn}
+                  onPress={() => navigation.navigate('OrderHistory')}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.secondaryBtnText}>Open Order History</Text>
+                </TouchableOpacity>
+              ) : null}
               <TouchableOpacity style={styles.browseBtn} onPress={() => navigation.navigate('Menu')}>
-                <Text style={styles.browseBtnText}>Start Ordering</Text>
+                <Text style={styles.browseBtnText}>{historyCount > 0 ? 'Browse menu' : 'Start Ordering'}</Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -136,7 +158,12 @@ export default function OrdersScreen() {
                 <TouchableOpacity
                   key={item._id}
                   style={styles.card}
-                  onPress={() => navigation.navigate('OrderTracking', { orderId: item._id })}
+                  onPress={() =>
+                    navigation.navigate('Orders', {
+                      screen: 'OrderTracking',
+                      params: { orderId: item._id },
+                    })
+                  }
                   activeOpacity={0.8}
                 >
                   <View style={styles.cardHeader}>
@@ -237,8 +264,18 @@ const styles = StyleSheet.create({
   emptyIcon: { fontSize: 56, marginBottom: spacing.md },
   emptyTitle: { fontFamily: fonts.bold, fontSize: fontSizes.xl, color: colors.dark, marginBottom: spacing.xs },
   emptySubtitle: { fontFamily: fonts.regular, fontSize: fontSizes.md, color: colors.dark + '88', marginBottom: spacing.lg },
-  browseBtn: { backgroundColor: colors.primary, paddingHorizontal: spacing.xl, paddingVertical: spacing.sm, borderRadius: 9999 },
+  browseBtn: { backgroundColor: colors.primary, paddingHorizontal: spacing.xl, paddingVertical: spacing.sm, borderRadius: 9999, marginTop: spacing.sm },
   browseBtnText: { fontFamily: fonts.semiBold, fontSize: fontSizes.md, color: '#fff' },
+  secondaryBtn: {
+    marginTop: spacing.md,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.sm,
+    borderRadius: 9999,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    backgroundColor: '#fff',
+  },
+  secondaryBtnText: { fontFamily: fonts.semiBold, fontSize: fontSizes.md, color: colors.primary },
 
   // Community Notes section
   communitySection: { marginTop: spacing.xl },
