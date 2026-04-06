@@ -277,7 +277,11 @@ export default function ProfileScreen() {
               <Text style={styles.actionChevron}>{'›'}</Text>
             </TouchableOpacity>
             <View style={styles.rowDivider} />
-            <TouchableOpacity style={styles.actionRow} activeOpacity={0.7}>
+            <TouchableOpacity 
+              style={styles.actionRow} 
+              activeOpacity={0.7}
+              onPress={() => Alert.alert('Coming Soon!', 'Notifications will be available in a future update.')}
+            >
               <Text style={styles.actionLabel}>Notifications</Text>
               <Text style={styles.actionChevron}>{'›'}</Text>
             </TouchableOpacity>

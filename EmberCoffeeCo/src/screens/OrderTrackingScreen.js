@@ -246,16 +246,10 @@ export default function OrderTrackingScreen({ navigation, route }) {
     };
 
     const resolveLine = (item) => {
-      const ref = item.productId;
-      if (ref && typeof ref === 'object' && ref !== null && 'productName' in ref) {
-        return {
-          name: ref.productName || 'Product',
-          imageUrl: ref.productImageUrl || '',
-        };
-      }
+      const p = item.productId || {};
       return {
-        name: item.productName || 'Product',
-        imageUrl: item.productImageUrl || '',
+        name: p.productName || item.productName || 'Product',
+        imageUrl: p.productImageUrl || item.productImageUrl || '',
       };
     };
 

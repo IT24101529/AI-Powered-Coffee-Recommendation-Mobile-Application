@@ -85,7 +85,7 @@ function ReviewArticle({ review }) {
 
 // ─── Main screen ─────────────────────────────────────────────────────────────
 export default function ReviewsFeedScreen({ navigation, route }) {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   // productId may be passed from ProductDetailScreen
   const productId = route?.params?.productId ?? null;
 
@@ -107,7 +107,7 @@ export default function ReviewsFeedScreen({ navigation, route }) {
       setLoading(true);
       const url = productId
         ? `${BASE_URL}/api/reviews/product/${productId}`
-        : `${BASE_URL}/api/reviews`;
+        : `${BASE_URL}/api/store-reviews`;
       const res = await axios.get(url);
       setAllReviews(res.data);
     } catch {
@@ -164,18 +164,16 @@ export default function ReviewsFeedScreen({ navigation, route }) {
       Alert.alert('Rating required', 'Please select a star rating.');
       return;
     }
-    if (!productId) {
-      Alert.alert('No product', 'A product must be selected to submit a review.');
-      return;
-    }
     try {
       setSubmitting(true);
-      const res = await axios.post(`${BASE_URL}/api/reviews`, {
-        productId,
-        rating,
-        comment,
+      const url = productId ? `${BASE_URL}/api/reviews` : `${BASE_URL}/api/store-reviews`;
+      const payload = productId ? { productId, rating, comment } : { rating, comment };
+      
+      const res = await axios.post(url, payload, {
+        headers: { Authorization: `Bearer ${token}` }
       });
       const reviewId = res.data._id;
+      
       if (photo) {
         const form = new FormData();
         form.append('image', {
@@ -183,8 +181,15 @@ export default function ReviewsFeedScreen({ navigation, route }) {
           name: 'review.jpg',
           type: 'image/jpeg',
         });
-        await axios.post(`${BASE_URL}/api/reviews/${reviewId}/upload`, form, {
-          headers: { 'Content-Type': 'multipart/form-data' },
+        const uploadUrl = productId 
+          ? `${BASE_URL}/api/reviews/${reviewId}/upload` 
+          : `${BASE_URL}/api/store-reviews/${reviewId}/upload`;
+          
+        await axios.post(uploadUrl, form, {
+          headers: { 
+            'Content-Type': 'multipart/form-data',
+            Authorization: `Bearer ${token}`
+          },
         });
       }
       setRating(0);

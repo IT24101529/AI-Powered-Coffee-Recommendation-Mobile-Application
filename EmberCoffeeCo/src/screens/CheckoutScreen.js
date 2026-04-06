@@ -8,6 +8,7 @@ import {
   Image,
   Alert,
   ActivityIndicator,
+  TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
@@ -105,7 +106,8 @@ export default function CheckoutScreen({ navigation, route }) {
   const promoCode = route.params?.promoCode ?? '';
 
   const [fulfillment, setFulfillment] = useState('pickup'); // 'pickup' | 'delivery'
-  const [paymentMethod, setPaymentMethod] = useState('credit'); // 'apple' | 'credit'
+  const [paymentMethod, setPaymentMethod] = useState('cash'); // 'cash' | 'credit' | 'cod' | 'bank'
+  const [deliveryAddress, setDeliveryAddress] = useState('');
   const [screenshot, setScreenshot] = useState(null); // { uri, type, name }
   const [placing, setPlacing] = useState(false);
 
@@ -142,8 +144,27 @@ export default function CheckoutScreen({ navigation, route }) {
 
   // ── Place order ─────────────────────────────────────────────────────────────
   const handlePlaceOrder = async () => {
+    if (fulfillment === 'delivery' && !deliveryAddress.trim()) {
+      Alert.alert('Address Required', 'Please enter a delivery address.');
+      return;
+    }
+    if (fulfillment === 'delivery' && paymentMethod === 'bank' && !screenshot) {
+      Alert.alert('Screenshot Required', 'Please upload a payment screenshot for bank transfer.');
+      return;
+    }
+    if (fulfillment === 'delivery' && paymentMethod === 'credit') {
+      Alert.alert('Coming Soon!', 'Card payment for delivery is not available yet.');
+      return;
+    }
+
     setPlacing(true);
     try {
+      let finalPaymentMethod = paymentMethod;
+      if (paymentMethod === 'cash') finalPaymentMethod = 'Cash';
+      if (paymentMethod === 'cod') finalPaymentMethod = 'Cash on Delivery';
+      if (paymentMethod === 'credit') finalPaymentMethod = 'Card Payment';
+      if (paymentMethod === 'bank') finalPaymentMethod = 'Bank transfer';
+
       const orderRes = await axios.post(
         `${BASE_URL}/api/orders`,
         {
@@ -155,6 +176,8 @@ export default function CheckoutScreen({ navigation, route }) {
           totalAmount: parseFloat(total.toFixed(2)),
           promoCode: promoCode || undefined,
           fulfillmentMethod: fulfillment === 'delivery' ? 'Delivery' : 'Pickup',
+          paymentMethod: finalPaymentMethod,
+          deliveryAddress: fulfillment === 'delivery' ? deliveryAddress : '',
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -235,69 +258,127 @@ export default function CheckoutScreen({ navigation, route }) {
             icon="🏪"
             label="Pickup"
             selected={fulfillment === 'pickup'}
-            onPress={() => setFulfillment('pickup')}
+            onPress={() => {
+              setFulfillment('pickup');
+              if (paymentMethod !== 'cash' && paymentMethod !== 'credit') setPaymentMethod('cash');
+            }}
           />
           <FulfillmentCard
             icon="🚚"
             label="Delivery"
             selected={fulfillment === 'delivery'}
-            onPress={() => setFulfillment('delivery')}
+            onPress={() => {
+              setFulfillment('delivery');
+              if (paymentMethod !== 'cod' && paymentMethod !== 'credit' && paymentMethod !== 'bank') setPaymentMethod('cod');
+            }}
           />
         </View>
 
-        {/* ── Location Details ── */}
-        <View style={styles.locationCard}>
-          <View style={styles.locationHeader}>
-            <View>
-              <Text style={styles.locationName}>Ember Coffee Co.</Text>
-              <Text style={styles.locationAddress}>123 Brew Street, KL</Text>
+        {/* ── Location / Address Details ── */}
+        {fulfillment === 'pickup' ? (
+          <View style={styles.locationCard}>
+            <View style={styles.locationHeader}>
+              <View>
+                <Text style={styles.locationName}>Ember Coffee Co. — Flagship Store</Text>
+                <Text style={styles.locationAddress}>45 Peradeniya Road</Text>
+                <Text style={styles.locationAddress}>Kandy, 20000</Text>
+                <Text style={styles.locationAddress}>Sri Lanka</Text>
+              </View>
             </View>
-            <TouchableOpacity>
-              <Text style={styles.changeLink}>Change</Text>
-            </TouchableOpacity>
+            {/* Map placeholder */}
+            <View style={styles.mapPlaceholder}>
+              <Text style={styles.mapPin}>📍</Text>
+            </View>
           </View>
-          {/* Map placeholder */}
-          <View style={styles.mapPlaceholder}>
-            <Text style={styles.mapPin}>📍</Text>
+        ) : (
+          <View style={styles.locationCard}>
+            <Text style={styles.sectionTitle}>Delivery Address</Text>
+            <TextInput
+              style={styles.addressInput}
+              placeholder="Enter your delivery address..."
+              value={deliveryAddress}
+              onChangeText={setDeliveryAddress}
+              multiline
+              numberOfLines={3}
+            />
           </View>
-        </View>
+        )}
 
         {/* ── Payment Method ── */}
         <Text style={styles.sectionTitle}>Payment Method</Text>
         <View style={styles.paymentCard}>
-          <PaymentRow
-            icon="🍎"
-            label="Apple Pay"
-            selected={paymentMethod === 'apple'}
-            onPress={() => setPaymentMethod('apple')}
-          />
-          <View style={styles.paymentDivider} />
-          <PaymentRow
-            icon="💳"
-            label="Credit Card"
-            selected={paymentMethod === 'credit'}
-            onPress={() => setPaymentMethod('credit')}
-          />
+          {fulfillment === 'pickup' ? (
+            <>
+              <PaymentRow
+                icon="💵"
+                label="Cash"
+                selected={paymentMethod === 'cash'}
+                onPress={() => setPaymentMethod('cash')}
+              />
+              <View style={styles.paymentDivider} />
+              <PaymentRow
+                icon="💳"
+                label="Card Payment"
+                selected={paymentMethod === 'credit'}
+                onPress={() => setPaymentMethod('credit')}
+              />
+            </>
+          ) : (
+            <>
+              <PaymentRow
+                icon="💵"
+                label="Cash on Delivery"
+                selected={paymentMethod === 'cod'}
+                onPress={() => setPaymentMethod('cod')}
+              />
+              <View style={styles.paymentDivider} />
+              <PaymentRow
+                icon="💳"
+                label="Card Payment"
+                selected={paymentMethod === 'credit'}
+                onPress={() => {
+                  setPaymentMethod('credit');
+                  Alert.alert('Coming Soon!', 'Card payment for delivery is not available yet.');
+                }}
+              />
+              <View style={styles.paymentDivider} />
+              <PaymentRow
+                icon="🏦"
+                label="Bank transfer"
+                selected={paymentMethod === 'bank'}
+                onPress={() => setPaymentMethod('bank')}
+              />
+            </>
+          )}
         </View>
 
-        {/* ── Upload Payment Screenshot ── */}
-        <TouchableOpacity
-          style={styles.uploadBtn}
-          onPress={handlePickScreenshot}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.uploadIcon}>📤</Text>
-          <View>
-            <Text style={styles.uploadLabel}>Upload Payment Screenshot</Text>
-            <Text style={styles.uploadSubtitle}>For bank transfer proof</Text>
+        {/* ── Bank Transfer Details & Upload ── */}
+        {fulfillment === 'delivery' && paymentMethod === 'bank' && (
+          <View style={styles.bankNotesCard}>
+            <Text style={styles.bankNotesTitle}>Account Details</Text>
+            <Text style={styles.bankNotesText}>Bank: Bank of Ceylon</Text>
+            <Text style={styles.bankNotesText}>Account Name: Ember Coffee</Text>
+            <Text style={styles.bankNotesText}>Account No: 123456789</Text>
+
+            <TouchableOpacity
+              style={[styles.uploadBtn, { marginTop: spacing.md }]}
+              onPress={handlePickScreenshot}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.uploadIcon}>📤</Text>
+              <View>
+                <Text style={styles.uploadLabel}>Upload Payment Screenshot</Text>
+                <Text style={styles.uploadSubtitle}>For bank transfer proof</Text>
+              </View>
+            </TouchableOpacity>
+            {screenshot && (
+              <Image
+                source={{ uri: screenshot.uri }}
+                style={styles.screenshotPreview}
+                resizeMode="cover"
+              />
+            )}
           </View>
-        </TouchableOpacity>
-        {screenshot && (
-          <Image
-            source={{ uri: screenshot.uri }}
-            style={styles.screenshotPreview}
-            resizeMode="cover"
-          />
         )}
 
         {/* ── Order Summary Card ── */}
@@ -348,10 +429,13 @@ export default function CheckoutScreen({ navigation, route }) {
 
           {/* Place Order button */}
           <TouchableOpacity
-            style={[styles.placeOrderBtn, placing && styles.placeOrderBtnDisabled]}
+            style={[
+              styles.placeOrderBtn, 
+              (placing || (fulfillment === 'delivery' && paymentMethod === 'bank' && !screenshot) || (fulfillment === 'delivery' && paymentMethod === 'credit')) && styles.placeOrderBtnDisabled
+            ]}
             onPress={handlePlaceOrder}
             activeOpacity={0.85}
-            disabled={placing}
+            disabled={placing || (fulfillment === 'delivery' && paymentMethod === 'bank' && !screenshot) || (fulfillment === 'delivery' && paymentMethod === 'credit')}
           >
             {placing ? (
               <ActivityIndicator size="small" color="#fff" />
@@ -520,6 +604,43 @@ const styles = StyleSheet.create({
   },
   mapPin: {
     fontSize: 32,
+  },
+  addressInput: {
+    borderWidth: 1,
+    borderColor: colors.accent,
+    borderRadius: borderRadius.card,
+    padding: spacing.md,
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.base,
+    color: colors.dark,
+    minHeight: 80,
+    textAlignVertical: 'top',
+    backgroundColor: '#FAFAFA',
+    marginTop: spacing.sm,
+  },
+  bankNotesCard: {
+    backgroundColor: '#fff',
+    borderRadius: borderRadius.cardLg,
+    padding: spacing.md,
+    marginBottom: spacing.md,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.07,
+    shadowRadius: 4,
+  },
+  bankNotesTitle: {
+    fontFamily: fonts.bold,
+    fontSize: fontSizes.base,
+    color: colors.dark,
+    marginBottom: spacing.xs,
+  },
+  bankNotesText: {
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.sm,
+    color: colors.dark,
+    opacity: 0.8,
+    marginBottom: 2,
   },
 
   // ── Payment Card ──

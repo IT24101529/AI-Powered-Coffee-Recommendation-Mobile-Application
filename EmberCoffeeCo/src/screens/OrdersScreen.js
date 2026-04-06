@@ -200,10 +200,6 @@ export default function OrdersScreen() {
               </TouchableOpacity>
             </View>
 
-            {storeReviews.slice(0, 3).map((review) => (
-              <ReviewCard key={review._id} review={review} />
-            ))}
-
             <TouchableOpacity
               style={styles.writeReviewBtn}
               onPress={() => navigation.navigate('ReviewsFeed')}
@@ -211,6 +207,10 @@ export default function OrdersScreen() {
             >
               <Text style={styles.writeReviewBtnText}>✍️  Write a Review</Text>
             </TouchableOpacity>
+
+            {storeReviews.slice(0, 3).map((review) => (
+              <ReviewCard key={review._id} review={review} />
+            ))}
           </View>
 
           <View style={{ height: 80 }} />
