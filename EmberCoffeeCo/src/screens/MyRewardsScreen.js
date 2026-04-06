@@ -276,7 +276,7 @@ export default function MyRewardsScreen() {
               const res = await axios.post(`${BASE_URL}/api/rewards/${reward._id}/redeem`);
               setTotalPoints(res.data.totalPoints);
               fetchData();
-              Alert.alert('Redeemed!', `You redeemed "${reward.rewardName}".`);
+              Alert.alert('Redeemed!', `You redeemed "${reward.rewardName}". Please visit our shop to collect your reward.`);
             } catch (err) {
               Alert.alert('Error', err?.response?.data?.message || 'Redemption failed.');
             } finally {
