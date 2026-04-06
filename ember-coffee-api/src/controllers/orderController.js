@@ -40,7 +40,7 @@ function normalizeFulfillmentMethod(body) {
 
 export const createOrder = async (req, res, next) => {
   try {
-    const { items, totalAmount, promoCode } = req.body;
+    const { items, totalAmount, promoCode, paymentMethod, deliveryAddress } = req.body;
     if (!items || items.length === 0) {
       return res.status(400).json({ message: 'items array must not be empty' });
     }
@@ -51,6 +51,8 @@ export const createOrder = async (req, res, next) => {
       totalAmount,
       orderStatus: 'Pending',
       fulfillmentMethod,
+      paymentMethod,
+      deliveryAddress: deliveryAddress || '',
       promoCode: promoCode || '',
     });
     const populated = await Order.findById(order._id).populate(
@@ -122,6 +124,16 @@ export const updateOrderStatus = async (req, res, next) => {
       const err = new Error('Order not found');
       err.status = 404;
       return next(err);
+    }
+
+    if (req.body.orderStatus === 'Cancelled') {
+      order.orderStatus = 'Cancelled';
+      order.completedAt = new Date();
+      await order.save();
+      const populated = await Order.findById(order._id)
+        .populate('userId', 'name email profileImageUrl')
+        .populate('items.productId', 'productName productImageUrl');
+      return res.json(populated);
     }
 
     const sequence = statusSequenceForOrder(order);

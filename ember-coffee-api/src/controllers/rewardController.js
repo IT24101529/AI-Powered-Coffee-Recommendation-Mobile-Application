@@ -11,6 +11,17 @@ export const getRewards = async (req, res, next) => {
   }
 };
 
+export const getMyRedemptions = async (req, res, next) => {
+  try {
+    const redemptions = await Redemption.find({ userId: req.user.id })
+      .populate('rewardId')
+      .sort({ createdAt: -1 });
+    res.json(redemptions);
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const createReward = async (req, res, next) => {
   try {
     const { rewardName, pointsRequired } = req.body;

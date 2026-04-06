@@ -33,6 +33,7 @@ export default function ProductDetailScreen({ route, navigation }) {
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [reviewCount, setReviewCount] = useState(0);
   const [avgRating, setAvgRating] = useState(0);
+  const [quantity, setQuantity] = useState(1);
 
   // Review overlay
   const [overlayVisible, setOverlayVisible] = useState(false);
@@ -76,8 +77,8 @@ export default function ProductDetailScreen({ route, navigation }) {
 
   const handleAddToCart = () => {
     const cartItem = { ...product, _id: product._id, _productId: product._id };
-    addItem(cartItem);
-    Alert.alert('Added to cart', `${product.productName} added.`);
+    addItem(cartItem, quantity);
+    Alert.alert('Added to cart', `${quantity} × ${product.productName} added.`);
   };
 
   const handleReviewSuccess = () => {
@@ -171,6 +172,26 @@ export default function ProductDetailScreen({ route, navigation }) {
           {product.description ? (
             <Text style={styles.description}>{product.description}</Text>
           ) : null}
+
+          {/* ── Quantity Selector ── */}
+          <View style={styles.quantityRow}>
+            <Text style={styles.quantityLabel}>Quantity</Text>
+            <View style={styles.stepperControl}>
+              <TouchableOpacity 
+                onPress={() => setQuantity(Math.max(1, quantity - 1))} 
+                style={styles.stepperBtn}
+              >
+                <Text style={styles.stepperBtnText}>−</Text>
+              </TouchableOpacity>
+              <Text style={styles.stepperCount}>{quantity}</Text>
+              <TouchableOpacity 
+                onPress={() => setQuantity(quantity + 1)} 
+                style={styles.stepperBtn}
+              >
+                <Text style={styles.stepperBtnText}>+</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
 
         {/* ── Review Feed Section ── */}
@@ -196,7 +217,7 @@ export default function ProductDetailScreen({ route, navigation }) {
       <View style={[styles.actionBar, { paddingBottom: insets.bottom + spacing.sm }]}>
         <View style={styles.actionPrice}>
           <Text style={styles.actionPriceLabel}>Total</Text>
-          <Text style={styles.actionPriceValue}>Rs. {Number(product.price).toFixed(2)}</Text>
+          <Text style={styles.actionPriceValue}>Rs. {Number(product.price * quantity).toFixed(2)}</Text>
         </View>
         <TouchableOpacity
           style={[styles.addToCartBtn, isUnavailable && styles.addToCartBtnDisabled]}
@@ -358,6 +379,57 @@ const styles = StyleSheet.create({
     color: colors.dark,
     opacity: 0.75,
     lineHeight: 24,
+    marginBottom: spacing.md,
+  },
+
+  // ── Quantity Selector ──
+  quantityRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: spacing.md,
+    paddingTop: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.accent,
+  },
+  quantityLabel: {
+    fontFamily: fonts.bold,
+    fontSize: fontSizes.lg,
+    color: colors.dark,
+  },
+  stepperControl: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.accent,
+    borderRadius: borderRadius.pill,
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+  },
+  stepperBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  stepperBtnText: {
+    fontFamily: fonts.bold,
+    fontSize: fontSizes.lg,
+    color: colors.dark,
+    marginTop: -2,
+  },
+  stepperCount: {
+    fontFamily: fonts.bold,
+    fontSize: fontSizes.lg,
+    color: colors.dark,
+    width: 40,
+    textAlign: 'center',
   },
 
   // ── Review Section ──

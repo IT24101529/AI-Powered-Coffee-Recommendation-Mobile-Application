@@ -17,7 +17,7 @@ import { useAuth } from '../context/AuthContext';
 import { BASE_URL } from '../config/api';
 import colors from '../theme/colors';
 import spacing, { borderRadius } from '../theme/spacing';
-import { fontSizes } from '../theme/typography';
+import { fonts, fontSizes } from '../theme/typography';
 import { effectiveLoyaltyPoints, getRewardsTierInfo } from '../utils/loyaltyTier';
 
 // ─── Circular Progress ────────────────────────────────────────────────────────
@@ -183,12 +183,39 @@ function RewardCard({ reward, userPoints, onRedeem, redeeming }) {
   );
 }
 
+// ─── History Card ─────────────────────────────────────────────────────────────
+
+function HistoryCard({ item }) {
+  const reward = item.rewardId;
+  const date = new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return (
+    <View style={styles.card}>
+      {reward?.rewardImageUrl ? (
+        <Image source={{ uri: reward.rewardImageUrl }} style={styles.rewardImage} />
+      ) : (
+        <View style={[styles.rewardImage, styles.imagePlaceholder]}>
+          <Text style={styles.imagePlaceholderText}>🎁</Text>
+        </View>
+      )}
+      <View style={styles.cardBody}>
+        <Text style={styles.rewardName}>{reward?.rewardName || 'Unknown Reward'}</Text>
+        <Text style={styles.rewardDesc}>{date}</Text>
+      </View>
+      <View style={[styles.redeemBtn, { backgroundColor: '#E0E0E0' }]}>
+        <Text style={[styles.redeemBtnText, { color: colors.dark }]}>-{item.pointsUsed} pts</Text>
+      </View>
+    </View>
+  );
+}
+
 // ─── Main Screen ──────────────────────────────────────────────────────────────
 
 export default function MyRewardsScreen() {
   const { user } = useAuth();
 
   const [rewards, setRewards]     = useState([]);
+  const [history, setHistory]     = useState([]);
+  const [activeTab, setActiveTab] = useState('available');
   const [totalPoints, setTotalPoints] = useState(user?.totalPoints ?? 0);
   const [loading, setLoading]     = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -198,12 +225,29 @@ export default function MyRewardsScreen() {
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
     try {
-      const [rewardsRes, profileRes] = await Promise.all([
+      const [rewardsRes, profileRes, historyRes] = await Promise.allSettled([
         axios.get(`${BASE_URL}/api/rewards`),
         axios.get(`${BASE_URL}/api/auth/profile`),
+        axios.get(`${BASE_URL}/api/rewards/history`),
       ]);
-      setRewards(rewardsRes.data);
-      setTotalPoints(profileRes.data.totalPoints ?? 0);
+      
+      if (rewardsRes.status === 'fulfilled') {
+        setRewards(rewardsRes.value.data);
+      } else {
+        throw new Error('Rewards failed to load');
+      }
+      
+      if (profileRes.status === 'fulfilled') {
+        setTotalPoints(profileRes.value.data.totalPoints ?? 0);
+      }
+      
+      if (historyRes.status === 'fulfilled') {
+        setHistory(historyRes.value.data);
+      } else {
+        console.warn('History failed to load. Are backend updates deployed?');
+        setHistory([]);
+      }
+      
     } catch (err) {
       Alert.alert('Error', err?.response?.data?.message || 'Failed to load rewards.');
     } finally {
@@ -231,6 +275,7 @@ export default function MyRewardsScreen() {
             try {
               const res = await axios.post(`${BASE_URL}/api/rewards/${reward._id}/redeem`);
               setTotalPoints(res.data.totalPoints);
+              fetchData();
               Alert.alert('Redeemed!', `You redeemed "${reward.rewardName}".`);
             } catch (err) {
               Alert.alert('Error', err?.response?.data?.message || 'Redemption failed.');
@@ -257,15 +302,19 @@ export default function MyRewardsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
-        data={rewards}
+        data={activeTab === 'available' ? rewards : history}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
-          <RewardCard
-            reward={item}
-            userPoints={cappedPoints}
-            onRedeem={handleRedeem}
-            redeeming={redeeming}
-          />
+          activeTab === 'available' ? (
+            <RewardCard
+              reward={item}
+              userPoints={cappedPoints}
+              onRedeem={handleRedeem}
+              redeeming={redeeming}
+            />
+          ) : (
+            <HistoryCard item={item} />
+          )
         )}
         contentContainerStyle={styles.listContent}
         ListHeaderComponent={
@@ -273,10 +322,19 @@ export default function MyRewardsScreen() {
             <Text style={styles.headerTitle}>My Rewards</Text>
             <CircularProgress progress={tierRing.progress} displayPoints={cappedPoints} />
             <Text style={styles.pointsSubtitle}>loyalty points</Text>
+            
+            <View style={styles.tabContainer}>
+              <TouchableOpacity style={[styles.tabBtn, activeTab === 'available' && styles.tabBtnActive]} onPress={() => setActiveTab('available')}>
+                <Text style={[styles.tabText, activeTab === 'available' && styles.tabTextActive]}>Available</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.tabBtn, activeTab === 'history' && styles.tabBtnActive]} onPress={() => setActiveTab('history')}>
+                <Text style={[styles.tabText, activeTab === 'history' && styles.tabTextActive]}>View History</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         }
         ListEmptyComponent={
-          <Text style={styles.empty}>No rewards available right now.</Text>
+          <Text style={styles.empty}>{activeTab === 'available' ? 'No rewards available right now.' : 'No redeemed items yet.'}</Text>
         }
         refreshControl={
           <RefreshControl
@@ -326,6 +384,33 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     textTransform: 'uppercase',
     letterSpacing: 1,
+  },
+  tabContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#F0EBE6',
+    borderRadius: borderRadius.pill,
+    padding: 4,
+    marginTop: spacing.md,
+    width: '100%',
+  },
+  tabBtn: {
+    flex: 1,
+    paddingVertical: spacing.sm,
+    alignItems: 'center',
+    borderRadius: borderRadius.pill,
+  },
+  tabBtnActive: {
+    backgroundColor: colors.primary,
+  },
+  tabText: {
+    fontSize: fontSizes.sm,
+    fontFamily: fonts.semiBold,
+    color: colors.dark,
+    opacity: 0.7,
+  },
+  tabTextActive: {
+    color: '#fff',
+    opacity: 1,
   },
 
   // ── Reward Card ──
