@@ -262,14 +262,29 @@ export default function RewardsScreen({ navigation }) {
     setLoading(true);
     try {
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const [rewardsRes, profileRes] = await Promise.allSettled([
+      const [rewardsRes, profileRes, historyRes] = await Promise.allSettled([
         axios.get(`${BASE_URL}/api/rewards`),
         axios.get(`${BASE_URL}/api/auth/profile`, { headers }),
+        axios.get(`${BASE_URL}/api/rewards/history`, { headers }),
       ]);
+
+      let historyData = [];
+      if (historyRes.status === 'fulfilled') {
+        historyData = historyRes.value.data;
+      }
+      
+      const twoMonthsAgo = new Date();
+      twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+      
+      const recentRedeemedSet = new Set(
+        historyData
+          .filter(h => new Date(h.createdAt) > twoMonthsAgo)
+          .map(h => h.rewardId?._id || h.rewardId)
+      );
 
       if (rewardsRes.status === 'fulfilled') {
         const data = rewardsRes.value.data;
-        setRewards(Array.isArray(data) ? data.filter((r) => r.isAvailable !== false) : []);
+        setRewards(Array.isArray(data) ? data.filter((r) => r.isAvailable !== false && !recentRedeemedSet.has(r._id)) : []);
       }
 
       if (profileRes.status === 'fulfilled') {
@@ -310,7 +325,7 @@ export default function RewardsScreen({ navigation }) {
                 { headers: { Authorization: `Bearer ${token}` } },
               );
               setTotalPoints(res.data.totalPoints ?? totalPoints);
-              Alert.alert('🎉 Redeemed!', `You redeemed "${reward.rewardName || reward.name}" successfully.`);
+              Alert.alert('🎉 Redeemed!', `You redeemed "${reward.rewardName || reward.name}" successfully. Please visit our nearest Ember Coffee Co. shop to collect your reward.`);
             } catch (err) {
               const status = err?.response?.status;
               if (status === 400) {

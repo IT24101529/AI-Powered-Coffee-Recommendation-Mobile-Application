@@ -176,13 +176,18 @@ export default function CartScreen({ navigation }) {
           </Text>
           <TouchableOpacity
             style={styles.browseBtn}
-            onPress={() => navigation.navigate('Menu')}
+            onPress={() => navigation.navigate('Menu', { screen: 'MenuScreen' })}
             activeOpacity={0.8}
           >
             <Text style={styles.browseBtnText}>Browse Menu</Text>
           </TouchableOpacity>
         </View>
-        <BottomNavBar activeTab="Orders" onTabPress={(tab) => navigation.navigate(tab)} />
+        <BottomNavBar activeTab="Cart" onTabPress={(tab) => {
+          if (tab === 'Menu') navigation.navigate('Menu', { screen: 'MenuScreen' });
+          else if (tab === 'Home') navigation.navigate('Home', { screen: 'HomeScreen' });
+          else if (tab === 'Orders') navigation.navigate('Orders', { screen: 'OrdersScreen' });
+          else navigation.navigate(tab);
+        }} />
       </SafeAreaView>
     );
   }
@@ -314,7 +319,12 @@ export default function CartScreen({ navigation }) {
       </View>
 
       {/* ── Bottom Nav ── */}
-      <BottomNavBar activeTab="Orders" onTabPress={(tab) => navigation.navigate(tab)} />
+      <BottomNavBar activeTab="Cart" onTabPress={(tab) => {
+        if (tab === 'Menu') navigation.navigate('Menu', { screen: 'MenuScreen' });
+        else if (tab === 'Home') navigation.navigate('Home', { screen: 'HomeScreen' });
+        else if (tab === 'Orders') navigation.navigate('Orders', { screen: 'OrdersScreen' });
+        else navigation.navigate(tab);
+      }} />
     </SafeAreaView>
   );
 }

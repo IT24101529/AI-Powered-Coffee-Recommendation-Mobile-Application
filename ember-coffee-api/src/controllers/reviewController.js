@@ -81,7 +81,7 @@ export const deleteReview = async (req, res, next) => {
       err.status = 404;
       return next(err);
     }
-    if (!review.userId.equals(req.user.id)) {
+    if (!review.userId.equals(req.user.id) && req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Not authorised to delete this review' });
     }
     await review.deleteOne();

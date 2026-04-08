@@ -11,10 +11,12 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  RefreshControl,
 } from 'react-native';
 import axios from 'axios';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../context/AuthContext';
 import { BASE_URL } from '../config/api';
 import TopAppBar from '../components/ui/TopAppBar';
@@ -37,6 +39,8 @@ export default function ProfileScreen() {
 
   const [ordersCount, setOrdersCount] = useState(0);
   const [editVisible, setEditVisible] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Edit form state
   const [nameValue, setNameValue]             = useState('');
@@ -76,10 +80,19 @@ export default function ProfileScreen() {
     } catch (_) { setOrdersCount(0); }
   }, [token]);
 
-  useEffect(() => {
-    fetchProfile();
-    fetchOrders();
-  }, []);
+  const loadData = useCallback(async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true);
+    else setLoading(true);
+    await Promise.all([fetchProfile(), fetchOrders()]);
+    setLoading(false);
+    setRefreshing(false);
+  }, [fetchProfile, fetchOrders]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [loadData])
+  );
 
   const openEdit = () => {
     setNameValue(user?.name || '');
@@ -123,11 +136,6 @@ export default function ProfileScreen() {
 
   // ── Image picker ───────────────────────────────────────────────────────────
   const handlePickImage = async () => {
-    let ImagePicker;
-    try { ImagePicker = require('expo-image-picker'); } catch {
-      Alert.alert('Missing dependency', 'Install expo-image-picker to upload a profile photo.');
-      return;
-    }
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Permission required', 'Allow access to your photo library.');
@@ -213,7 +221,19 @@ export default function ProfileScreen() {
       <View style={styles.root}>
         <TopAppBar title="Profile" />
 
-        <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <ScrollView 
+          style={styles.scroll} 
+          contentContainerStyle={styles.scrollContent} 
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => loadData(true)}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
+            />
+          }
+        >
           {/* Avatar */}
           <View style={styles.avatarSection}>
             <View style={styles.avatarWrapper}>

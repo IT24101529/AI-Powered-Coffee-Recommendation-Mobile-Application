@@ -62,19 +62,48 @@ export default function ReviewOverlay({ visible, product, onClose, onSuccess }) 
       Alert.alert('Missing dependency', 'Install expo-image-picker to attach photos.');
       return;
     }
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission required', 'Allow access to your photo library.');
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      quality: 0.8,
-    });
-    if (!result.canceled) {
-      setPhotoUris((prev) => [...prev, result.assets[0].uri]);
-    }
+    Alert.alert(
+      'Add a Photo',
+      'Choose the photo source',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Camera',
+          onPress: async () => {
+            const { status } = await ImagePicker.requestCameraPermissionsAsync();
+            if (status !== 'granted') {
+              Alert.alert('Permission required', 'Allow access to your camera.');
+              return;
+            }
+            const result = await ImagePicker.launchCameraAsync({
+              allowsEditing: true,
+              quality: 0.8,
+            });
+            if (!result.canceled) {
+              setPhotoUris((prev) => [...prev, result.assets[0].uri]);
+            }
+          }
+        },
+        {
+          text: 'Gallery',
+          onPress: async () => {
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+              Alert.alert('Permission required', 'Allow access to your photo library.');
+              return;
+            }
+            const result = await ImagePicker.launchImageLibraryAsync({
+              mediaTypes: ['images'],
+              allowsEditing: true,
+              quality: 0.8,
+            });
+            if (!result.canceled) {
+              setPhotoUris((prev) => [...prev, result.assets[0].uri]);
+            }
+          }
+        }
+      ]
+    );
   };
 
   const removePhoto = (index) => {
@@ -94,6 +123,10 @@ export default function ReviewOverlay({ visible, product, onClose, onSuccess }) 
   const handleSubmit = async () => {
     if (rating === 0) {
       Alert.alert('Rating required', 'Please select a star rating.');
+      return;
+    }
+    if (comment.trim().length === 0) {
+      Alert.alert('Comment required', 'Please write a brief comment for your review.');
       return;
     }
     setSubmitting(true);

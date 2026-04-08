@@ -232,7 +232,21 @@ export default function MyRewardsScreen() {
       ]);
       
       if (rewardsRes.status === 'fulfilled') {
-        setRewards(rewardsRes.value.data);
+        const data = rewardsRes.value.data;
+        
+        let historyData = [];
+        if (historyRes.status === 'fulfilled') historyData = historyRes.value.data;
+
+        const twoMonthsAgo = new Date();
+        twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+        
+        const recentRedeemedSet = new Set(
+          historyData
+            .filter(h => new Date(h.createdAt) > twoMonthsAgo)
+            .map(h => h.rewardId?._id || h.rewardId)
+        );
+
+        setRewards(Array.isArray(data) ? data.filter(r => r.isAvailable !== false && !recentRedeemedSet.has(r._id)) : []);
       } else {
         throw new Error('Rewards failed to load');
       }
@@ -276,7 +290,7 @@ export default function MyRewardsScreen() {
               const res = await axios.post(`${BASE_URL}/api/rewards/${reward._id}/redeem`);
               setTotalPoints(res.data.totalPoints);
               fetchData();
-              Alert.alert('Redeemed!', `You redeemed "${reward.rewardName}". Please visit our shop to collect your reward.`);
+              Alert.alert('Redeemed!', `You redeemed "${reward.rewardName}". Please visit our nearest Ember Coffee Co. shop to collect your reward.`);
             } catch (err) {
               Alert.alert('Error', err?.response?.data?.message || 'Redemption failed.');
             } finally {

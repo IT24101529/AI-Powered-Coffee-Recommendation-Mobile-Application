@@ -367,6 +367,9 @@ export default function AdminDashboardScreen({ navigation }) {
                   <Text style={styles.reviewerName}>{review.userId?.name || 'Anonymous'}</Text>
                   <Text style={styles.reviewRating}>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</Text>
                   {review.comment ? <Text style={styles.reviewComment} numberOfLines={2}>{review.comment}</Text> : null}
+                  {review.reviewImageUrl ? (
+                    <Image source={{ uri: review.reviewImageUrl }} style={styles.reviewListImage} />
+                  ) : null}
                 </View>
                 <TouchableOpacity style={styles.deleteReviewBtn} onPress={() => handleDeleteStoreReview(review._id)} activeOpacity={0.7}>
                   <Text style={styles.deleteReviewIcon}>🗑️</Text>
@@ -394,6 +397,9 @@ export default function AdminDashboardScreen({ navigation }) {
                   ) : null}
                   <Text style={styles.reviewRating}>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</Text>
                   {review.comment ? <Text style={styles.reviewComment} numberOfLines={2}>{review.comment}</Text> : null}
+                  {review.reviewImageUrl ? (
+                    <Image source={{ uri: review.reviewImageUrl }} style={styles.reviewListImage} />
+                  ) : null}
                 </View>
                 <TouchableOpacity style={styles.deleteReviewBtn} onPress={() => handleDeleteProductReview(review._id)} activeOpacity={0.7}>
                   <Text style={styles.deleteReviewIcon}>🗑️</Text>
@@ -863,6 +869,12 @@ const styles = StyleSheet.create({
     color: '#6B5E57',
     marginTop: 2,
     lineHeight: 16,
+  },
+  reviewListImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    marginTop: 8,
   },
   deleteReviewBtn: {
     width: 32,

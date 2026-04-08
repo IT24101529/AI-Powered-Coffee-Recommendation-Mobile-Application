@@ -25,7 +25,7 @@ import spacing, { borderRadius } from '../theme/spacing';
 import { fonts, fontSizes } from '../theme/typography';
 
 const PAGE_SIZE = 10;
-const FILTERS = ['All', '5 Stars', '4 Stars', 'With Photos'];
+const FILTERS = ['All', '5 Stars', '4 Stars', '3 Stars', '2 Stars', '1 Star', 'With Photos'];
 
 // ─── Helper: initials avatar ────────────────────────────────────────────────
 function InitialsAvatar({ name }) {
@@ -65,6 +65,16 @@ function ReviewArticle({ review }) {
           ) : null}
           <Text style={styles.reviewDate}>{date}</Text>
         </View>
+        {review.onEdit && review.onDelete && (
+          <View style={{ flexDirection: 'row', gap: 12, alignItems: 'center' }}>
+            <TouchableOpacity onPress={() => review.onEdit(review)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <Text style={{ color: colors.primary, fontFamily: fonts.bold, fontSize: 13 }}>Edit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => review.onDelete(review)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <Text style={{ color: '#e74c3c', fontFamily: fonts.bold, fontSize: 13 }}>Delete</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
       <StarRating rating={review.rating} size="small" />
       {review.comment ? (
@@ -100,6 +110,7 @@ export default function ReviewsFeedScreen({ navigation, route }) {
   const [comment, setComment] = useState('');
   const [photo, setPhoto] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [editingId, setEditingId] = useState(null);
 
   // ── Fetch reviews ──────────────────────────────────────────────────────────
   const fetchReviews = useCallback(async () => {
@@ -130,6 +141,9 @@ export default function ReviewsFeedScreen({ navigation, route }) {
   const filtered = allReviews.filter((r) => {
     if (activeFilter === '5 Stars') return r.rating === 5;
     if (activeFilter === '4 Stars') return r.rating === 4;
+    if (activeFilter === '3 Stars') return r.rating === 3;
+    if (activeFilter === '2 Stars') return r.rating === 2;
+    if (activeFilter === '1 Star')  return r.rating === 1;
     if (activeFilter === 'With Photos') return !!r.reviewImageUrl;
     return true;
   });
@@ -164,15 +178,24 @@ export default function ReviewsFeedScreen({ navigation, route }) {
       Alert.alert('Rating required', 'Please select a star rating.');
       return;
     }
+    if (comment.trim().length === 0) {
+      Alert.alert('Comment required', 'Please write a brief comment.');
+      return;
+    }
     try {
       setSubmitting(true);
-      const url = productId ? `${BASE_URL}/api/reviews` : `${BASE_URL}/api/store-reviews`;
-      const payload = productId ? { productId, rating, comment } : { rating, comment };
-      
-      const res = await axios.post(url, payload, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const reviewId = res.data._id;
+      let reviewId;
+      if (editingId) {
+        const url = productId ? `${BASE_URL}/api/reviews/${editingId}` : `${BASE_URL}/api/store-reviews/${editingId}`;
+        const payload = { rating, comment: comment.trim() };
+        await axios.put(url, payload, { headers: { Authorization: `Bearer ${token}` } });
+        reviewId = editingId;
+      } else {
+        const url = productId ? `${BASE_URL}/api/reviews` : `${BASE_URL}/api/store-reviews`;
+        const payload = productId ? { productId, rating, comment: comment.trim() } : { rating, comment: comment.trim() };
+        const res = await axios.post(url, payload, { headers: { Authorization: `Bearer ${token}` } });
+        reviewId = res.data._id;
+      }
       
       if (photo) {
         const form = new FormData();
@@ -195,14 +218,37 @@ export default function ReviewsFeedScreen({ navigation, route }) {
       setRating(0);
       setComment('');
       setPhoto(null);
+      setEditingId(null);
       setPage(1);
       fetchReviews();
     } catch (err) {
-      const msg = err.response?.data?.message || 'Could not submit review.';
+      const msg = err.response?.data?.message || 'Could not save review.';
       Alert.alert('Error', msg);
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleEdit = (review) => {
+    setEditingId(review._id);
+    setRating(review.rating);
+    setComment(review.comment || '');
+  };
+
+  const handleDelete = (review) => {
+    Alert.alert('Delete Review', 'Are you sure you want to delete this review?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: async () => {
+        try {
+          const url = productId ? `${BASE_URL}/api/reviews/${review._id}` : `${BASE_URL}/api/store-reviews/${review._id}`;
+          await axios.delete(url, { headers: { Authorization: `Bearer ${token}` } });
+          setPage(1);
+          fetchReviews();
+        } catch {
+          Alert.alert('Error', 'Could not delete review.');
+        }
+      }}
+    ]);
   };
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -239,7 +285,12 @@ export default function ReviewsFeedScreen({ navigation, route }) {
 
         {/* Submission Card */}
         <View style={styles.submissionCard}>
-          <Text style={styles.submissionHeading}>Leave a Review</Text>
+          <Text style={styles.submissionHeading}>{editingId ? 'Edit Review' : 'Leave a Review'}</Text>
+          {editingId && (
+            <TouchableOpacity onPress={() => { setEditingId(null); setRating(0); setComment(''); }} style={{ position: 'absolute', top: spacing.lg, right: spacing.lg }}>
+              <Text style={{ color: colors.primary, fontSize: fontSizes.sm, fontFamily: fonts.semiBold }}>Cancel Edit</Text>
+            </TouchableOpacity>
+          )}
           <Text style={styles.submissionLabel}>Your Rating</Text>
           <StarRating rating={rating} onRate={setRating} size="large" />
           <TextInput
@@ -304,9 +355,19 @@ export default function ReviewsFeedScreen({ navigation, route }) {
             </Text>
           </View>
         ) : (
-          displayed.map((review) => (
-            <ReviewArticle key={review._id} review={review} />
-          ))
+          displayed.map((review) => {
+            const isMine = review.userId?._id === user?._id;
+            return (
+              <ReviewArticle
+                key={review._id}
+                review={{
+                  ...review,
+                  onEdit: isMine ? handleEdit : undefined,
+                  onDelete: isMine ? handleDelete : undefined,
+                }}
+              />
+            );
+          })
         )}
 
         {/* Load More */}
