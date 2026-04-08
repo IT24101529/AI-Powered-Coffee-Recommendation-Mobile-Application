@@ -139,7 +139,10 @@ export default function LoginScreen({ navigation }) {
                     </TouchableOpacity>
                   }
                 />
-                <TouchableOpacity style={styles.forgotRow} onPress={() => {}}>
+                <TouchableOpacity
+                  style={styles.forgotRow}
+                  onPress={() => Alert.alert('Forgot Password', 'Please contact an Admin or visit our nearest shop.')}
+                >
                   <Text style={styles.forgotText}>Forgot password?</Text>
                 </TouchableOpacity>
               </View>

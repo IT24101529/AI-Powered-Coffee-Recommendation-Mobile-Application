@@ -89,6 +89,7 @@ export default function RegisterScreen({ navigation }) {
         name: name.trim(),
         email: email.trim(),
         password,
+        role: 'customer' // Explicitly define user role to fix "role not defined" error
       });
       // Auto-login after successful registration
       const { data } = await axios.post(`${BASE_URL}/api/auth/login`, {
