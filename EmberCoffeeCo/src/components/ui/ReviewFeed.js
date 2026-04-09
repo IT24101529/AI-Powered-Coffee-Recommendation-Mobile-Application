@@ -1,15 +1,9 @@
 import React, { useEffect, useState, forwardRef, useImperativeHandle } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  Image,
-  StyleSheet,
-  ActivityIndicator,
-} from 'react-native';
+import { Alert, View, Text, FlatList, Image, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { BASE_URL } from '../../config/api';
 import StarRating from './StarRating';
+import { useAuth } from '../../context/AuthContext';
 import colors from '../../theme/colors';
 import spacing, { borderRadius } from '../../theme/spacing';
 import { fonts, fontSizes } from '../../theme/typography';
@@ -30,7 +24,8 @@ function reviewerFromReview(item) {
  * - productId: string — fetches GET /api/reviews/product/:productId on mount
  * - Exposes a `refresh()` method via ref so parent can trigger a reload
  */
-const ReviewFeed = forwardRef(function ReviewFeed({ productId }, ref) {
+const ReviewFeed = forwardRef(function ReviewFeed({ productId, onEditPreview }, ref) {
+  const { user, token } = useAuth();
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -54,6 +49,20 @@ const ReviewFeed = forwardRef(function ReviewFeed({ productId }, ref) {
 
   // Expose refresh() to parent via ref
   useImperativeHandle(ref, () => ({ refresh: fetchReviews }));
+
+  const handleDelete = (review) => {
+    Alert.alert('Delete Review', 'Are you sure you want to delete this review?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: async () => {
+        try {
+          await axios.delete(`${BASE_URL}/api/reviews/${review._id}`, { headers: { Authorization: `Bearer ${token}` } });
+          fetchReviews();
+        } catch {
+          Alert.alert('Error', 'Could not delete review.');
+        }
+      }}
+    ]);
+  };
 
   if (loading) {
     return (
@@ -114,6 +123,17 @@ const ReviewFeed = forwardRef(function ReviewFeed({ productId }, ref) {
               resizeMode="cover"
             />
           ) : null}
+
+          {user && (user._id === (item.userId._id || item.userId)) && (
+            <View style={styles.actionsRow}>
+              <TouchableOpacity onPress={() => onEditPreview && onEditPreview(item)} style={styles.actionBtn}>
+                <Text style={styles.actionText}>Edit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleDelete(item)} style={styles.actionBtn}>
+                <Text style={[styles.actionText, { color: colors.error || '#D32F2F' }]}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
         );
       }}
@@ -189,5 +209,22 @@ const styles = StyleSheet.create({
     height: 160,
     borderRadius: borderRadius.input,
     marginTop: spacing.xs,
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: spacing.md,
+    marginTop: spacing.sm,
+  },
+  actionBtn: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 4,
+    backgroundColor: '#F5F5F5',
+  },
+  actionText: {
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.xs,
+    color: colors.primary,
   },
 });

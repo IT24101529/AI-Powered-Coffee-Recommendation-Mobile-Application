@@ -365,9 +365,8 @@ export default function OrderTrackingScreen({ navigation, route }) {
   }
 
   const statusMetaMap = statusMetaForOrder(displayOrder);
-  const meta =
-    statusMetaMap[displayOrder.orderStatus] ||
-    statusMetaMap.Pending;
+  const CANCELLED_META = { icon: '❌', label: 'Cancelled', message: 'This order was cancelled.', color: '#E74C3C' };
+  const meta = displayOrder.orderStatus === 'Cancelled' ? CANCELLED_META : (statusMetaMap[displayOrder.orderStatus] || statusMetaMap.Pending);
   const orderNum  = String(displayOrder._id).slice(-6).toUpperCase();
   const estTime   = estimatedTimeForOrder(displayOrder);
   const fulfillmentMethod = displayOrder.fulfillmentMethod === 'Delivery' ? 'Delivery' : 'Pickup';
@@ -425,6 +424,40 @@ export default function OrderTrackingScreen({ navigation, route }) {
             <Text style={styles.interactionLabel}>Open in Maps</Text>
           </TouchableOpacity>
         </View>
+
+        {/* ── Cancel Order Button ── */}
+        {displayOrder.orderStatus === 'Pending' && (
+          <TouchableOpacity 
+            style={[styles.interactionBtn, { marginTop: spacing.md, backgroundColor: '#FFEBEE' }]} 
+            onPress={() => {
+              Alert.alert('Cancel Order', 'Are you sure you want to cancel this order?', [
+                { text: 'Keep Order', style: 'cancel' },
+                { 
+                  text: 'Cancel Order', 
+                  style: 'destructive', 
+                  onPress: async () => {
+                    try {
+                      await axios.put(`${BASE_URL}/api/orders/my/order/${displayOrder._id}/cancel`, {});
+                      Alert.alert('Order Cancelled', 'Your order has been cancelled.');
+                      fetchOrders(true);
+                      if (archivedFetchKeyRef.current) {
+                        setArchivedOrder(null);
+                        archivedFetchKeyRef.current = null;
+                        onRefresh();
+                      }
+                    } catch (err) {
+                      Alert.alert('Error', err.response?.data?.message || 'Could not cancel order.');
+                    }
+                  } 
+                }
+              ]);
+            }}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.interactionIcon, { fontSize: 20 }]}>❌</Text>
+            <Text style={[styles.interactionLabel, { color: '#D32F2F' }]}>Cancel Order</Text>
+          </TouchableOpacity>
+        )}
 
         {/* ── Flagship store details ── */}
         <View style={styles.storeDetailsCard}>

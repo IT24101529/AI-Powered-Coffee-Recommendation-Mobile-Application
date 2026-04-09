@@ -9,6 +9,7 @@ import {
   getAllOrders,
   updateOrderStatus,
   uploadPaymentScreenshot,
+  cancelOrder,
 } from '../controllers/orderController.js';
 
 const router = Router();
@@ -16,6 +17,7 @@ const router = Router();
 router.post('/',           protect,              createOrder);
 router.get('/my/history',  protect,              getMyOrderHistory);
 router.get('/my/order/:id', protect,             getMyOrderById);
+router.put('/my/order/:id/cancel', protect,    cancelOrder);
 router.get('/my',          protect,              getMyOrders);
 router.get('/',            protect, managerOrAdmin, getAllOrders);
 router.put('/:id/status',  protect, managerOrAdmin, updateOrderStatus);
