@@ -32,6 +32,7 @@ const STATUS_COLORS = {
   Ready: '#2E7D32',
   Delivering: '#5E35B1',
   Delivered: '#1B5E20',
+  Cancelled: '#D32F2F',
 };
 
 const STATUS_BG = {
@@ -40,6 +41,7 @@ const STATUS_BG = {
   Ready: 'rgba(46,125,50,0.12)',
   Delivering: 'rgba(94,53,177,0.12)',
   Delivered: 'rgba(27,94,32,0.12)',
+  Cancelled: 'rgba(211,47,47,0.12)',
 };
 
 const STATUS_ICONS = {
@@ -49,9 +51,10 @@ const STATUS_ICONS = {
   Ready: '✅',
   Delivering: '🚚',
   Delivered: '📦',
+  Cancelled: '❌',
 };
 
-const FILTER_TABS = ['All', 'Pending', 'Brewing', 'Ready', 'Delivering', 'Delivered'];
+const FILTER_TABS = ['All', 'Pending', 'Brewing', 'Ready', 'Delivering', 'Delivered', 'Cancelled'];
 
 const ADMIN_TABS = [
   {
@@ -405,7 +408,13 @@ function OrderCard({ order, onStatusUpdate, updating }) {
         </View>
       )}
 
-      {isTerminal && (
+      {order.orderStatus === 'Cancelled' && (
+        <View style={[cardStyles.completedRow, { backgroundColor: 'rgba(211,47,47,0.08)' }]}>
+          <Text style={[cardStyles.completedText, { color: '#D32F2F' }]}>❌ Order Cancelled</Text>
+        </View>
+      )}
+
+      {isTerminal && order.orderStatus !== 'Cancelled' && (
         <View style={cardStyles.completedRow}>
           <Text style={cardStyles.completedText}>✅ Order complete</Text>
         </View>
@@ -591,6 +600,7 @@ export default function AdminOrdersScreen({ navigation }) {
     Ready: orders.filter((o) => o.orderStatus === 'Ready').length,
     Delivering: orders.filter((o) => o.orderStatus === 'Delivering').length,
     Delivered: orders.filter((o) => o.orderStatus === 'Delivered').length,
+    Cancelled: orders.filter((o) => o.orderStatus === 'Cancelled').length,
   }), [orders]);
 
   // ── Admin tab navigation ──────────────────────────────────────────────────

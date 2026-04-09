@@ -37,6 +37,7 @@ export default function ProductDetailScreen({ route, navigation }) {
 
   // Review overlay
   const [overlayVisible, setOverlayVisible] = useState(false);
+  const [editingReview, setEditingReview] = useState(null);
 
   const reviewFeedRef = useRef(null);
 
@@ -208,7 +209,14 @@ export default function ProductDetailScreen({ route, navigation }) {
           {reviewsLoading ? (
             <ActivityIndicator color={colors.primary} style={{ marginVertical: spacing.lg }} />
           ) : (
-            <ReviewFeed ref={reviewFeedRef} productId={initialProduct._id} />
+            <ReviewFeed 
+              ref={reviewFeedRef} 
+              productId={initialProduct._id} 
+              onEditPreview={(review) => {
+                setEditingReview(review);
+                setOverlayVisible(true);
+              }}
+            />
           )}
         </View>
       </ScrollView>
@@ -228,12 +236,19 @@ export default function ProductDetailScreen({ route, navigation }) {
         </TouchableOpacity>
       </View>
 
-      {/* ── Review Overlay ── */}
       <ReviewOverlay
         visible={overlayVisible}
         product={product}
-        onClose={() => setOverlayVisible(false)}
-        onSuccess={handleReviewSuccess}
+        initialReview={editingReview}
+        onClose={() => {
+          setOverlayVisible(false);
+          setEditingReview(null);
+        }}
+        onSuccess={() => {
+          setEditingReview(null);
+          handleReviewSuccess();
+          if (reviewFeedRef.current) reviewFeedRef.current.refresh();
+        }}
       />
     </View>
   );

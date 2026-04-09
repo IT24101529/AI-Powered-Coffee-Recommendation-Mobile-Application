@@ -105,6 +105,33 @@ export const getMyOrderById = async (req, res, next) => {
   }
 };
 
+export const cancelOrder = async (req, res, next) => {
+  try {
+    const order = await Order.findOne({
+      _id: req.params.id,
+      userId: req.user.id,
+    });
+    if (!order) {
+      const err = new Error('Order not found');
+      err.status = 404;
+      return next(err);
+    }
+    if (order.orderStatus !== 'Pending') {
+      return res.status(400).json({ message: 'Order cannot be cancelled at this stage' });
+    }
+    
+    order.orderStatus = 'Cancelled';
+    order.completedAt = new Date();
+    await order.save();
+
+    const populated = await Order.findById(order._id)
+      .populate('items.productId', 'productName productImageUrl');
+    res.json(populated);
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const getAllOrders = async (req, res, next) => {
   try {
     const orders = await Order.find()

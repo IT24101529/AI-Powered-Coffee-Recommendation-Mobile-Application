@@ -30,13 +30,27 @@ import { fonts, fontSizes } from '../../theme/typography';
  *   onClose   () => void
  *   onSuccess () => void  — called after successful submission
  */
-export default function ReviewOverlay({ visible, product, onClose, onSuccess }) {
+export default function ReviewOverlay({ visible, product, initialReview, onClose, onSuccess }) {
   const { token } = useAuth();
 
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [photoUris, setPhotoUris] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+
+  React.useEffect(() => {
+    if (visible) {
+      if (initialReview) {
+        setRating(initialReview.rating || 0);
+        setComment(initialReview.comment || '');
+        setPhotoUris([]);
+      } else {
+        setRating(0);
+        setComment('');
+        setPhotoUris([]);
+      }
+    }
+  }, [visible, initialReview]);
 
   const reset = () => {
     setRating(0);
@@ -131,16 +145,28 @@ export default function ReviewOverlay({ visible, product, onClose, onSuccess }) 
     }
     setSubmitting(true);
     try {
-      const { data } = await axios.post(
-        `${BASE_URL}/api/reviews`,
-        { productId: product._id, rating, comment: comment.trim() },
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
+      let dataId;
+
+      if (initialReview) {
+        const { data } = await axios.put(
+          `${BASE_URL}/api/reviews/${initialReview._id}`,
+          { rating, comment: comment.trim() },
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
+        dataId = data._id;
+      } else {
+        const { data } = await axios.post(
+          `${BASE_URL}/api/reviews`,
+          { productId: product._id, rating, comment: comment.trim() },
+          { headers: { Authorization: `Bearer ${token}` } },
+        );
+        dataId = data._id;
+      }
 
       // Upload photos sequentially
       for (const uri of photoUris) {
         try {
-          await uploadPhoto(data._id, uri);
+          await uploadPhoto(dataId, uri);
         } catch {
           // non-fatal — review already saved
         }
@@ -262,7 +288,7 @@ export default function ReviewOverlay({ visible, product, onClose, onSuccess }) 
                 {submitting ? (
                   <ActivityIndicator color="#fff" />
                 ) : (
-                  <Text style={styles.submitText}>Submit Review</Text>
+                  <Text style={styles.submitText}>{initialReview ? 'Update Review' : 'Submit Review'}</Text>
                 )}
               </TouchableOpacity>
             </ScrollView>
