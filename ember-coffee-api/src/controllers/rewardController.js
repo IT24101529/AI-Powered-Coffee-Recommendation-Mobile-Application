@@ -89,6 +89,23 @@ export const redeemReward = async (req, res, next) => {
     }
 
     const userId = req.user.id;
+
+    // Check for recent redemption (2 months / 60 days)
+    const twoMonthsAgo = new Date();
+    twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+    
+    const recentRedemption = await Redemption.findOne({
+      userId,
+      rewardId: reward._id,
+      createdAt: { $gt: twoMonthsAgo }
+    });
+    
+    if (recentRedemption) {
+      const err = new Error('You have already redeemed this reward within the last 60 days');
+      err.status = 400;
+      return next(err);
+    }
+
     const user = await User.findById(userId);
 
     if (user.totalPoints < reward.pointsRequired) {
