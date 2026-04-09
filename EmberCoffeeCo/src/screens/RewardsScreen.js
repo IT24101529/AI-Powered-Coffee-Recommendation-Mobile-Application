@@ -164,7 +164,8 @@ function TierInfoCard({ tierInfo, onViewHistory }) {
 // ─── Reward Card ─────────────────────────────────────────────────────────────
 
 function RewardCard({ reward, userPoints, onRedeem, redeeming, featured = false }) {
-  const canRedeem = userPoints >= (reward.pointsRequired || 0);
+  const isLocked = reward.locked;
+  const canRedeem = userPoints >= (reward.pointsRequired || 0) && !isLocked;
   const isRedeeming = redeeming === reward._id;
 
   return (
@@ -206,16 +207,16 @@ function RewardCard({ reward, userPoints, onRedeem, redeeming, featured = false 
         </Text>
 
         <TouchableOpacity
-          style={[styles.redeemBtn, !canRedeem && styles.redeemBtnDisabled]}
+          style={[styles.redeemBtn, (!canRedeem || isLocked) && styles.redeemBtnDisabled]}
           onPress={() => canRedeem && onRedeem(reward)}
-          disabled={!canRedeem || isRedeeming}
+          disabled={!canRedeem || isRedeeming || isLocked}
           activeOpacity={0.8}
         >
           {isRedeeming ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (
-            <Text style={[styles.redeemBtnText, !canRedeem && styles.redeemBtnTextDisabled]}>
-              {canRedeem ? 'Redeem' : 'Not enough stars'}
+            <Text style={[styles.redeemBtnText, (!canRedeem || isLocked) && styles.redeemBtnTextDisabled]}>
+              {isLocked ? 'Wait 60 Days' : (userPoints >= (reward.pointsRequired || 0) ? 'Redeem' : 'Not enough stars')}
             </Text>
           )}
         </TouchableOpacity>
@@ -278,13 +279,20 @@ export default function RewardsScreen({ navigation }) {
       
       const recentRedeemedSet = new Set(
         historyData
-          .filter(h => new Date(h.createdAt) > twoMonthsAgo)
-          .map(h => h.rewardId?._id || h.rewardId)
+          .filter(h => new Date(h.redeemedAt || h.createdAt) > twoMonthsAgo)
+          .map(h => String(h.rewardId?._id || h.rewardId))
       );
 
       if (rewardsRes.status === 'fulfilled') {
         const data = rewardsRes.value.data;
-        setRewards(Array.isArray(data) ? data.filter((r) => r.isAvailable !== false && !recentRedeemedSet.has(r._id)) : []);
+        setRewards(
+          Array.isArray(data)
+            ? data.filter(r => r.isAvailable !== false).map(r => ({
+                ...r,
+                locked: recentRedeemedSet.has(String(r._id)),
+              }))
+            : []
+        );
       }
 
       if (profileRes.status === 'fulfilled') {
