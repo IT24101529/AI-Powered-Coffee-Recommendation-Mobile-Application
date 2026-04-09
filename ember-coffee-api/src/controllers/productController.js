@@ -41,16 +41,21 @@ export const createProduct = async (req, res, next) => {
 
 export const updateProduct = async (req, res, next) => {
   try {
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
+    const product = await Product.findById(req.params.id);
     if (!product) {
       const err = new Error('Product not found');
       err.status = 404;
       return next(err);
     }
+
+    if (req.body.productName !== undefined) product.productName = req.body.productName;
+    if (req.body.category !== undefined) product.category = req.body.category;
+    if (req.body.price !== undefined) product.price = req.body.price;
+    if (req.body.description !== undefined) product.description = req.body.description;
+    if (req.body.isAvailable !== undefined) product.isAvailable = req.body.isAvailable;
+    if (req.body.productImageUrl !== undefined) product.productImageUrl = req.body.productImageUrl;
+
+    await product.save();
     res.json(product);
   } catch (err) {
     if (err.name === 'ValidationError') {
@@ -79,16 +84,15 @@ export const uploadProductImage = async (req, res, next) => {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      { productImageUrl: req.file.path },
-      { new: true }
-    );
+    const product = await Product.findById(req.params.id);
     if (!product) {
       const err = new Error('Product not found');
       err.status = 404;
       return next(err);
     }
+    
+    product.productImageUrl = req.file.path;
+    await product.save();
     res.json(product);
   } catch (err) {
     next(err);
