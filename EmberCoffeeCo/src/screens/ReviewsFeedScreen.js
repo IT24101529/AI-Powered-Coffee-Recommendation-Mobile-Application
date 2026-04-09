@@ -158,18 +158,48 @@ export default function ReviewsFeedScreen({ navigation, route }) {
 
   // ── Photo picker ───────────────────────────────────────────────────────────
   const pickPhoto = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission required', 'Please allow photo access.');
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      quality: 0.8,
-    });
-    if (!result.canceled && result.assets?.length > 0) {
-      setPhoto(result.assets[0]);
-    }
+    Alert.alert(
+      'Add a Photo',
+      'Choose the photo source',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Camera',
+          onPress: async () => {
+            const { status } = await ImagePicker.requestCameraPermissionsAsync();
+            if (status !== 'granted') {
+              Alert.alert('Permission required', 'Please allow camera access.');
+              return;
+            }
+            const result = await ImagePicker.launchCameraAsync({
+              allowsEditing: true,
+              quality: 0.8,
+            });
+            if (!result.canceled && result.assets?.length > 0) {
+              setPhoto(result.assets[0]);
+            }
+          }
+        },
+        {
+          text: 'Gallery',
+          onPress: async () => {
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+              Alert.alert('Permission required', 'Please allow photo access.');
+              return;
+            }
+            const result = await ImagePicker.launchImageLibraryAsync({
+              mediaTypes: ['images'],
+              allowsEditing: true,
+              quality: 0.8,
+            });
+            if (!result.canceled && result.assets?.length > 0) {
+              setPhoto(result.assets[0]);
+            }
+          }
+        }
+      ]
+    );
   };
 
   // ── Submit review ──────────────────────────────────────────────────────────
