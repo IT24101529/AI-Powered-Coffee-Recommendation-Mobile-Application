@@ -15,7 +15,7 @@ export const getMyRedemptions = async (req, res, next) => {
   try {
     const redemptions = await Redemption.find({ userId: req.user.id })
       .populate('rewardId')
-      .sort({ createdAt: -1 });
+      .sort({ redeemedAt: -1 });
     res.json(redemptions);
   } catch (err) {
     next(err);
@@ -97,7 +97,7 @@ export const redeemReward = async (req, res, next) => {
     const recentRedemption = await Redemption.findOne({
       userId,
       rewardId: reward._id,
-      createdAt: { $gt: twoMonthsAgo }
+      redeemedAt: { $gt: twoMonthsAgo }
     });
     
     if (recentRedemption) {

@@ -149,7 +149,8 @@ const cp = StyleSheet.create({
 // ─── Reward Card ──────────────────────────────────────────────────────────────
 
 function RewardCard({ reward, userPoints, onRedeem, redeeming }) {
-  const canRedeem = userPoints >= reward.pointsRequired;
+  const isLocked = reward.locked;
+  const canRedeem = userPoints >= reward.pointsRequired && !isLocked;
 
   return (
     <View style={styles.card}>
@@ -168,15 +169,17 @@ function RewardCard({ reward, userPoints, onRedeem, redeeming }) {
         <Text style={styles.pointsRequired}>{reward.pointsRequired} pts required</Text>
       </View>
       <TouchableOpacity
-        style={[styles.redeemBtn, !canRedeem && styles.redeemBtnDisabled]}
+        style={[styles.redeemBtn, (!canRedeem || isLocked) && styles.redeemBtnDisabled]}
         onPress={() => canRedeem && onRedeem(reward)}
-        disabled={!canRedeem || redeeming === reward._id}
+        disabled={!canRedeem || redeeming === reward._id || isLocked}
         activeOpacity={0.8}
       >
         {redeeming === reward._id ? (
           <ActivityIndicator color="#fff" size="small" />
         ) : (
-          <Text style={styles.redeemBtnText}>{canRedeem ? 'Redeem' : 'Need more pts'}</Text>
+          <Text style={styles.redeemBtnText}>
+            {isLocked ? 'Cooldown' : (userPoints >= reward.pointsRequired ? 'Redeem' : 'Need more pts')}
+          </Text>
         )}
       </TouchableOpacity>
     </View>
@@ -187,7 +190,7 @@ function RewardCard({ reward, userPoints, onRedeem, redeeming }) {
 
 function HistoryCard({ item }) {
   const reward = item.rewardId;
-  const date = new Date(item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const date = new Date(item.redeemedAt || item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   return (
     <View style={styles.card}>
       {reward?.rewardImageUrl ? (
@@ -242,11 +245,18 @@ export default function MyRewardsScreen() {
         
         const recentRedeemedSet = new Set(
           historyData
-            .filter(h => new Date(h.createdAt) > twoMonthsAgo)
-            .map(h => h.rewardId?._id || h.rewardId)
+            .filter(h => new Date(h.redeemedAt || h.createdAt) > twoMonthsAgo)
+            .map(h => String(h.rewardId?._id || h.rewardId))
         );
 
-        setRewards(Array.isArray(data) ? data.filter(r => r.isAvailable !== false && !recentRedeemedSet.has(r._id)) : []);
+        setRewards(
+          Array.isArray(data)
+            ? data.filter(r => r.isAvailable !== false).map(r => ({
+                ...r,
+                locked: recentRedeemedSet.has(String(r._id)),
+              }))
+            : []
+        );
       } else {
         throw new Error('Rewards failed to load');
       }
