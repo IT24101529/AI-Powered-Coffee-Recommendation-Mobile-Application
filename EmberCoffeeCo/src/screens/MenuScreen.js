@@ -50,7 +50,7 @@ export default function MenuScreen({ navigation }) {
     try {
       const res = await axios.get(`${BASE_URL}/api/products`);
       const data = Array.isArray(res.data) ? res.data : [];
-      setAllProducts(data.filter((p) => p.isAvailable !== false));
+      setAllProducts(data);
     } catch (_) {
       setAllProducts([]);
     } finally {
@@ -282,8 +282,10 @@ function LargeFeatureCard({ product, isEditorsPick, onPress, onAddToCart }) {
   const name = product?.productName || product?.name || 'Signature Brew';
   const description = product?.description || 'A carefully crafted signature blend.';
   const price = product?.price != null ? `Rs. ${Number(product.price).toFixed(2)}` : '';
+  const unavailable = product?.isAvailable === false;
 
   const handleAdd = () => {
+    if (unavailable) return;
     onAddToCart(product);
     setAdded(true);
     setTimeout(() => setAdded(false), 1200);
@@ -301,6 +303,7 @@ function LargeFeatureCard({ product, isEditorsPick, onPress, onAddToCart }) {
         : <View style={largeFeatureStyles.image} />
       }
       <View style={largeFeatureStyles.overlay} />
+      {unavailable && <View style={largeFeatureStyles.unavailableOverlay}><Text style={largeFeatureStyles.unavailableText}>Unavailable</Text></View>}
 
       {/* Content */}
       <View style={largeFeatureStyles.content}>
@@ -314,9 +317,10 @@ function LargeFeatureCard({ product, isEditorsPick, onPress, onAddToCart }) {
         <View style={largeFeatureStyles.footer}>
           <Text style={largeFeatureStyles.price}>{price}</Text>
           <TouchableOpacity
-            style={[largeFeatureStyles.addBtn, added && largeFeatureStyles.addBtnAdded]}
+            style={[largeFeatureStyles.addBtn, (added || unavailable) && largeFeatureStyles.addBtnAdded, unavailable && largeFeatureStyles.addBtnDisabled]}
             onPress={handleAdd}
             activeOpacity={0.8}
+            disabled={unavailable}
           >
             <Text style={largeFeatureStyles.addBtnText}>{added ? '✓ Added' : '+ Add'}</Text>
           </TouchableOpacity>
@@ -390,6 +394,23 @@ const largeFeatureStyles = StyleSheet.create({
     fontSize: fontSizes.sm,
     color: colors.dark,
   },
+  addBtnDisabled: {
+    backgroundColor: '#ccc',
+  },
+  unavailableOverlay: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    backgroundColor: 'rgba(198,40,40,0.85)',
+    borderRadius: borderRadius.pill,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+  },
+  unavailableText: {
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.sm,
+    color: '#fff',
+  },
 });
 
 // ─── Small Feature Card (Winter Roast style) ──────────────────────────────────
@@ -397,8 +418,10 @@ function SmallFeatureCard({ product, onPress, onAddToCart }) {
   const [added, setAdded] = useState(false);
   const name = product?.productName || product?.name || 'Winter Roast';
   const price = product?.price != null ? `Rs. ${Number(product.price).toFixed(2)}` : '';
+  const unavailable = product?.isAvailable === false;
 
   const handleAdd = () => {
+    if (unavailable) return;
     onAddToCart(product);
     setAdded(true);
     setTimeout(() => setAdded(false), 1200);
@@ -419,6 +442,7 @@ function SmallFeatureCard({ product, onPress, onAddToCart }) {
         ? <Image source={{ uri: product.productImageUrl }} style={smallFeatureStyles.image} resizeMode="cover" />
         : <View style={smallFeatureStyles.image} />
       }
+      {unavailable && <View style={smallFeatureStyles.unavailableOverlay}><Text style={smallFeatureStyles.unavailableText}>Unavailable</Text></View>}
 
       {/* Info */}
       <View style={smallFeatureStyles.info}>
@@ -426,9 +450,10 @@ function SmallFeatureCard({ product, onPress, onAddToCart }) {
         <View style={smallFeatureStyles.row}>
           <Text style={smallFeatureStyles.price}>{price}</Text>
           <TouchableOpacity
-            style={[smallFeatureStyles.addBtn, added && smallFeatureStyles.addBtnAdded]}
+            style={[smallFeatureStyles.addBtn, (added || unavailable) && smallFeatureStyles.addBtnAdded, unavailable && smallFeatureStyles.addBtnDisabled]}
             onPress={handleAdd}
             activeOpacity={0.8}
+            disabled={unavailable}
           >
             <Text style={smallFeatureStyles.addBtnText}>{added ? '✓' : '+'}</Text>
           </TouchableOpacity>
@@ -513,10 +538,27 @@ const smallFeatureStyles = StyleSheet.create({
   addBtnAdded: {
     backgroundColor: '#38A169',
   },
+  addBtnDisabled: {
+    backgroundColor: '#ccc',
+  },
   addBtnText: {
     fontFamily: fonts.bold,
     fontSize: fontSizes.base,
     color: '#FFFFFF',
+  },
+  unavailableOverlay: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    backgroundColor: 'rgba(198,40,40,0.85)',
+    borderRadius: borderRadius.pill,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  unavailableText: {
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.xs,
+    color: '#fff',
   },
 });
 
@@ -717,8 +759,10 @@ function PastryListItem({ product, onPress, onAddToCart }) {
   const name = product?.productName || product?.name || 'Pastry';
   const description = product?.description || 'Freshly baked daily.';
   const price = product?.price != null ? `Rs. ${Number(product.price).toFixed(2)}` : '';
+  const unavailable = product?.isAvailable === false;
 
   const handleAdd = () => {
+    if (unavailable) return;
     onAddToCart(product);
     setQty((q) => q + 1);
   };
@@ -726,10 +770,13 @@ function PastryListItem({ product, onPress, onAddToCart }) {
   return (
     <TouchableOpacity style={pastryItemStyles.item} onPress={onPress} activeOpacity={0.85}>
       {/* Thumbnail */}
-      {product?.productImageUrl
-        ? <Image source={{ uri: product.productImageUrl }} style={pastryItemStyles.thumbnail} resizeMode="cover" />
-        : <View style={pastryItemStyles.thumbnail} />
-      }
+      <View>
+        {product?.productImageUrl
+          ? <Image source={{ uri: product.productImageUrl }} style={pastryItemStyles.thumbnail} resizeMode="cover" />
+          : <View style={pastryItemStyles.thumbnail} />
+        }
+        {unavailable && <View style={pastryItemStyles.unavailableOverlay}><Text style={pastryItemStyles.unavailableText}>Out</Text></View>}
+      </View>
 
       {/* Info */}
       <View style={pastryItemStyles.info}>
@@ -746,9 +793,10 @@ function PastryListItem({ product, onPress, onAddToCart }) {
           </View>
         )}
         <TouchableOpacity
-          style={pastryItemStyles.addBtn}
+          style={[pastryItemStyles.addBtn, unavailable && pastryItemStyles.addBtnDisabled]}
           onPress={handleAdd}
           activeOpacity={0.8}
+          disabled={unavailable}
         >
           <Text style={pastryItemStyles.addBtnText}>+</Text>
         </TouchableOpacity>
@@ -844,6 +892,23 @@ const pastryItemStyles = StyleSheet.create({
     fontSize: fontSizes.lg,
     color: '#FFFFFF',
     lineHeight: 22,
+  },
+  addBtnDisabled: {
+    backgroundColor: '#ccc',
+  },
+  unavailableOverlay: {
+    position: 'absolute',
+    top: 4,
+    left: 4,
+    backgroundColor: 'rgba(198,40,40,0.85)',
+    borderRadius: borderRadius.pill,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  unavailableText: {
+    fontFamily: fonts.semiBold,
+    fontSize: 10,
+    color: '#fff',
   },
 });
 
