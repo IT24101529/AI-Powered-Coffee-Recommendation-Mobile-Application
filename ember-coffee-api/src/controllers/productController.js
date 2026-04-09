@@ -41,7 +41,14 @@ export const createProduct = async (req, res, next) => {
 
 export const updateProduct = async (req, res, next) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const { id } = req.params;
+    if (!id || id === 'undefined') {
+      return res.status(400).json({ message: 'Invalid product ID' });
+    }
+
+    console.log('[updateProduct] id:', id, '| body:', JSON.stringify(req.body));
+
+    const product = await Product.findById(id);
     if (!product) {
       const err = new Error('Product not found');
       err.status = 404;
@@ -52,13 +59,13 @@ export const updateProduct = async (req, res, next) => {
     if (req.body.category !== undefined) product.category = req.body.category;
     if (req.body.price !== undefined) product.price = req.body.price;
     if (req.body.description !== undefined) product.description = req.body.description;
-    if (req.body.isAvailable !== undefined) product.isAvailable = req.body.isAvailable;
+    if (req.body.isAvailable !== undefined) product.isAvailable = Boolean(req.body.isAvailable);
     if (req.body.productImageUrl !== undefined) product.productImageUrl = req.body.productImageUrl;
 
     await product.save();
     res.json(product);
   } catch (err) {
-    if (err.name === 'ValidationError') {
+    if (err.name === 'ValidationError' || err.name === 'CastError') {
       err.status = 400;
     }
     next(err);

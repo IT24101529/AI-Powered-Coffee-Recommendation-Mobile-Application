@@ -347,6 +347,12 @@ export default function AdminAddProductScreen({ navigation, route }) {
 
       let savedProduct;
       if (isEditMode) {
+        if (!editProduct?._id) {
+          Alert.alert('Error', 'Cannot update: product ID is missing.');
+          setSaving(false);
+          return;
+        }
+        console.log('[AdminAddProduct] PUT /api/products/' + editProduct._id, payload);
         const res = await axios.put(`${BASE_URL}/api/products/${editProduct._id}`, payload, authHeader);
         savedProduct = res.data;
       } else {
