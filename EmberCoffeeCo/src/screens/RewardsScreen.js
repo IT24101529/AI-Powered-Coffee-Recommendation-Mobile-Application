@@ -325,11 +325,13 @@ export default function RewardsScreen({ navigation }) {
                 { headers: { Authorization: `Bearer ${token}` } },
               );
               setTotalPoints(res.data.totalPoints ?? totalPoints);
+              fetchData();
               Alert.alert('🎉 Redeemed!', `You redeemed "${reward.rewardName || reward.name}" successfully. Please visit our nearest Ember Coffee Co. shop to collect your reward.`);
             } catch (err) {
               const status = err?.response?.status;
+              const msg = err?.response?.data?.message;
               if (status === 400) {
-                Alert.alert('Not enough stars', err?.response?.data?.message || 'You do not have enough stars for this reward.');
+                Alert.alert(msg && msg.includes('60 days') ? 'Already Redeemed' : 'Not enough stars', msg || 'You do not have enough stars for this reward.');
               } else {
                 Alert.alert('Error', err?.response?.data?.message || 'Redemption failed. Please try again.');
               }

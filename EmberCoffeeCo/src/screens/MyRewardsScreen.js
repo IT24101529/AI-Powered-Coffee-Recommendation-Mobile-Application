@@ -292,7 +292,8 @@ export default function MyRewardsScreen() {
               fetchData();
               Alert.alert('Redeemed!', `You redeemed "${reward.rewardName}". Please visit our nearest Ember Coffee Co. shop to collect your reward.`);
             } catch (err) {
-              Alert.alert('Error', err?.response?.data?.message || 'Redemption failed.');
+              const msg = err?.response?.data?.message;
+              Alert.alert('Error', msg || 'Redemption failed.');
             } finally {
               setRedeeming(null);
             }
