@@ -202,6 +202,12 @@ export default function AdminDashboardScreen({ navigation }) {
   const [products, setProducts]           = useState([]);
   const [loading, setLoading]             = useState(true);
 
+  // Review filter state: 'store' (default) or 'product'
+  const [reviewFilter, setReviewFilter]   = useState('store');
+  // Product name filter for product reviews
+  const [productFilter, setProductFilter] = useState('All');
+  const [productDropdownOpen, setProductDropdownOpen] = useState(false);
+
   // Guard: non-admin
   if (!user || user.role !== 'admin') {
     return (
@@ -352,61 +358,154 @@ export default function AdminDashboardScreen({ navigation }) {
           )}
         </View>
 
-        {/* Store Reviews Card */}
+        {/* ── Customer Reviews Section ── */}
         <View style={styles.sectionCard}>
           <View style={styles.sectionCardHeader}>
-            <Text style={styles.sectionCardTitle}>⭐  Store Reviews</Text>
-            <Text style={styles.sectionCardCount}>{storeReviews.length} total</Text>
+            <Text style={styles.sectionCardTitle}>📝  Customer Reviews</Text>
+            <Text style={styles.sectionCardCount}>
+              {reviewFilter === 'store' ? storeReviews.length : productReviews.length} total
+            </Text>
           </View>
-          {storeReviews.length === 0 ? (
-            <Text style={styles.emptyText}>No store reviews yet.</Text>
-          ) : (
-            storeReviews.slice(0, 5).map((review) => (
-              <View key={review._id} style={styles.reviewRow}>
-                <View style={styles.reviewInfo}>
-                  <Text style={styles.reviewerName}>{review.userId?.name || 'Anonymous'}</Text>
-                  <Text style={styles.reviewRating}>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</Text>
-                  {review.comment ? <Text style={styles.reviewComment} numberOfLines={2}>{review.comment}</Text> : null}
-                  {review.reviewImageUrl ? (
-                    <Image source={{ uri: review.reviewImageUrl }} style={styles.reviewListImage} />
-                  ) : null}
-                </View>
-                <TouchableOpacity style={styles.deleteReviewBtn} onPress={() => handleDeleteStoreReview(review._id)} activeOpacity={0.7}>
-                  <Text style={styles.deleteReviewIcon}>🗑️</Text>
-                </TouchableOpacity>
-              </View>
-            ))
-          )}
-        </View>
 
-        {/* Product Reviews Card */}
-        <View style={styles.sectionCard}>
-          <View style={styles.sectionCardHeader}>
-            <Text style={styles.sectionCardTitle}>☕  Product Reviews</Text>
-            <Text style={styles.sectionCardCount}>{productReviews.length} total</Text>
+          {/* ── Quick Filter Tabs ── */}
+          <View style={styles.reviewFilterRow}>
+            <TouchableOpacity
+              style={[
+                styles.reviewFilterTab,
+                reviewFilter === 'store' && styles.reviewFilterTabActive,
+              ]}
+              onPress={() => { setReviewFilter('store'); setProductFilter('All'); setProductDropdownOpen(false); }}
+              activeOpacity={0.8}
+            >
+              <Text style={[
+                styles.reviewFilterTabText,
+                reviewFilter === 'store' && styles.reviewFilterTabTextActive,
+              ]}>⭐ Store Reviews</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.reviewFilterTab,
+                reviewFilter === 'product' && styles.reviewFilterTabActive,
+              ]}
+              onPress={() => { setReviewFilter('product'); setProductDropdownOpen(false); }}
+              activeOpacity={0.8}
+            >
+              <Text style={[
+                styles.reviewFilterTabText,
+                reviewFilter === 'product' && styles.reviewFilterTabTextActive,
+              ]}>☕ Product Reviews</Text>
+            </TouchableOpacity>
           </View>
-          {productReviews.length === 0 ? (
-            <Text style={styles.emptyText}>No product reviews yet.</Text>
-          ) : (
-            productReviews.slice(0, 5).map((review) => (
-              <View key={review._id} style={styles.reviewRow}>
-                <View style={styles.reviewInfo}>
-                  <Text style={styles.reviewerName}>{review.userId?.name || 'Anonymous'}</Text>
-                  {review.productId?.productName ? (
-                    <Text style={styles.reviewProduct}>{review.productId.productName}</Text>
-                  ) : null}
-                  <Text style={styles.reviewRating}>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</Text>
-                  {review.comment ? <Text style={styles.reviewComment} numberOfLines={2}>{review.comment}</Text> : null}
-                  {review.reviewImageUrl ? (
-                    <Image source={{ uri: review.reviewImageUrl }} style={styles.reviewListImage} />
-                  ) : null}
-                </View>
-                <TouchableOpacity style={styles.deleteReviewBtn} onPress={() => handleDeleteProductReview(review._id)} activeOpacity={0.7}>
-                  <Text style={styles.deleteReviewIcon}>🗑️</Text>
+
+          {/* ── Product Name Dropdown (only when product filter active) ── */}
+          {reviewFilter === 'product' && (() => {
+            const reviewedProductNames = [...new Set(
+              productReviews
+                .map(r => r.productId?.productName)
+                .filter(Boolean)
+            )].sort();
+            const dropdownOptions = ['All', ...reviewedProductNames];
+            return (
+              <View style={styles.productDropdownWrap}>
+                <TouchableOpacity
+                  style={styles.productDropdownTrigger}
+                  onPress={() => setProductDropdownOpen(o => !o)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.productDropdownTriggerText}>
+                    {productFilter === 'All' ? 'All Products' : productFilter}
+                  </Text>
+                  <Text style={styles.productDropdownChevron}>
+                    {productDropdownOpen ? '▲' : '▼'}
+                  </Text>
                 </TouchableOpacity>
+                {productDropdownOpen && (
+                  <View style={styles.productDropdownMenu}>
+                    {dropdownOptions.map((opt) => (
+                      <TouchableOpacity
+                        key={opt}
+                        style={[
+                          styles.productDropdownOption,
+                          productFilter === opt && styles.productDropdownOptionActive,
+                        ]}
+                        onPress={() => { setProductFilter(opt); setProductDropdownOpen(false); }}
+                        activeOpacity={0.8}
+                      >
+                        <Text style={[
+                          styles.productDropdownOptionText,
+                          productFilter === opt && styles.productDropdownOptionTextActive,
+                        ]}>
+                          {opt === 'All' ? 'All Products' : opt}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                )}
               </View>
-            ))
+            );
+          })()}
+
+          {/* ── Store Reviews List ── */}
+          {reviewFilter === 'store' && (
+            storeReviews.length === 0 ? (
+              <Text style={styles.emptyText}>No store reviews yet.</Text>
+            ) : (
+              storeReviews.map((review) => (
+                <View key={review._id} style={styles.reviewRow}>
+                  <View style={styles.reviewInfo}>
+                    <Text style={styles.reviewerName}>{review.userId?.name || 'Anonymous'}</Text>
+                    <Text style={styles.reviewRating}>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</Text>
+                    {review.comment ? <Text style={styles.reviewComment} numberOfLines={2}>{review.comment}</Text> : null}
+                    {review.reviewImageUrl ? (
+                      <Image source={{ uri: review.reviewImageUrl }} style={styles.reviewListImage} />
+                    ) : null}
+                  </View>
+                  <TouchableOpacity style={styles.deleteReviewBtn} onPress={() => handleDeleteStoreReview(review._id)} activeOpacity={0.7}>
+                    <Text style={styles.deleteReviewIcon}>🗑️</Text>
+                  </TouchableOpacity>
+                </View>
+              ))
+            )
           )}
+
+          {/* ── Product Reviews List ── */}
+          {reviewFilter === 'product' && (() => {
+            const filteredProductReviews = productFilter === 'All'
+              ? productReviews
+              : productReviews.filter(r => r.productId?.productName === productFilter);
+            return filteredProductReviews.length === 0 ? (
+              <Text style={styles.emptyText}>
+                {productFilter === 'All' ? 'No product reviews yet.' : `No reviews for "${productFilter}".`}
+              </Text>
+            ) : (
+              filteredProductReviews.map((review) => (
+                <View key={review._id} style={styles.reviewRow}>
+                  <View style={styles.reviewInfo}>
+                    <View style={styles.reviewHeaderRow}>
+                      <Text style={styles.reviewerName}>{review.userId?.name || 'Anonymous'}</Text>
+                      <Text style={styles.reviewRating}>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</Text>
+                    </View>
+                    {review.productId?.productName ? (
+                      <View style={styles.reviewProductBadge}>
+                        <Text style={styles.reviewProductBadgeText}>☕ {review.productId.productName}</Text>
+                      </View>
+                    ) : (
+                      <View style={[styles.reviewProductBadge, styles.reviewProductBadgeUnknown]}>
+                        <Text style={styles.reviewProductBadgeText}>Unknown Product</Text>
+                      </View>
+                    )}
+                    {review.comment ? <Text style={styles.reviewComment} numberOfLines={2}>{review.comment}</Text> : null}
+                    {review.reviewImageUrl ? (
+                      <Image source={{ uri: review.reviewImageUrl }} style={styles.reviewListImage} />
+                    ) : null}
+                  </View>
+                  <TouchableOpacity style={styles.deleteReviewBtn} onPress={() => handleDeleteProductReview(review._id)} activeOpacity={0.7}>
+                    <Text style={styles.deleteReviewIcon}>🗑️</Text>
+                  </TouchableOpacity>
+                </View>
+              ))
+            );
+          })()}
         </View>
 
         <View style={{ height: 100 }} />
@@ -837,7 +936,92 @@ const styles = StyleSheet.create({
     fontSize: fontSizes.xs,
     color: '#A0856E',
   },
-  // Review rows
+  // ── Review Filter Tabs ──
+  reviewFilterRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  reviewFilterTab: {
+    flex: 1,
+    paddingVertical: spacing.sm,
+    borderRadius: borderRadius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#F5EDE6',
+    borderWidth: 1,
+    borderColor: 'rgba(98,55,30,0.12)',
+  },
+  reviewFilterTabActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  reviewFilterTabText: {
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.sm,
+    color: colors.dark,
+  },
+  reviewFilterTabTextActive: {
+    color: '#FFFFFF',
+  },
+
+  // ── Product Name Dropdown ──
+  productDropdownWrap: {
+    marginBottom: spacing.md,
+    zIndex: 10,
+  },
+  productDropdownTrigger: {
+    height: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#F5EDE6',
+    borderRadius: borderRadius.input,
+    borderWidth: 1,
+    borderColor: 'rgba(98,55,30,0.15)',
+    paddingHorizontal: spacing.md,
+  },
+  productDropdownTriggerText: {
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.sm,
+    color: colors.dark,
+  },
+  productDropdownChevron: {
+    fontSize: 11,
+    color: colors.primary,
+  },
+  productDropdownMenu: {
+    backgroundColor: '#fff',
+    borderRadius: borderRadius.input,
+    borderWidth: 1,
+    borderColor: 'rgba(98,55,30,0.12)',
+    marginTop: 4,
+    overflow: 'hidden',
+    shadowColor: colors.dark,
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  productDropdownOption: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm + 2,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(98,55,30,0.06)',
+  },
+  productDropdownOptionActive: {
+    backgroundColor: colors.accent,
+  },
+  productDropdownOptionText: {
+    fontFamily: fonts.regular,
+    fontSize: fontSizes.sm,
+    color: colors.dark,
+  },
+  productDropdownOptionTextActive: {
+    fontFamily: fonts.semiBold,
+    color: colors.primary,
+  },
+
+  // ── Review rows ──
   reviewRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -847,16 +1031,33 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   reviewInfo: { flex: 1 },
+  reviewHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 2,
+  },
   reviewerName: {
     fontFamily: fonts.semiBold,
     fontSize: fontSizes.sm,
     color: colors.dark,
   },
-  reviewProduct: {
-    fontFamily: fonts.regular,
+  reviewProductBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.accent,
+    borderRadius: borderRadius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    marginTop: 3,
+    marginBottom: 2,
+  },
+  reviewProductBadgeUnknown: {
+    backgroundColor: 'rgba(0,0,0,0.06)',
+  },
+  reviewProductBadgeText: {
+    fontFamily: fonts.semiBold,
     fontSize: fontSizes.xs,
     color: colors.primary,
-    marginTop: 1,
   },
   reviewRating: {
     fontSize: 12,

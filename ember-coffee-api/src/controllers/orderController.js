@@ -6,7 +6,7 @@ import { capTotalPoints } from '../utils/loyaltyPoints.js';
 const ACTIVE_TERMINAL_MS = 12 * 60 * 60 * 1000;
 
 function isTerminalCustomerStatus(status) {
-  return status === 'Ready' || status === 'Delivered';
+  return status === 'Ready' || status === 'Delivered' || status === 'Cancelled';
 }
 
 function terminalCompletedAt(order) {

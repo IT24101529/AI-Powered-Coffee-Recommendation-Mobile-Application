@@ -156,14 +156,17 @@ function StatusFilterTabs({ activeFilter, onFilterChange, counts }) {
             onPress={() => onFilterChange(tab)}
             activeOpacity={0.8}
           >
-            <Text style={[tabStyles.tabLabel, isActive && tabStyles.tabLabelActive]}>
-              {tab}
-            </Text>
             <View style={[tabStyles.badge, isActive && tabStyles.badgeActive]}>
               <Text style={[tabStyles.badgeText, isActive && tabStyles.badgeTextActive]}>
                 {count}
               </Text>
             </View>
+            <Text
+              style={[tabStyles.tabLabel, isActive && tabStyles.tabLabelActive]}
+              numberOfLines={1}
+            >
+              {tab}
+            </Text>
           </TouchableOpacity>
         );
       })}
@@ -173,20 +176,18 @@ function StatusFilterTabs({ activeFilter, onFilterChange, counts }) {
 
 const tabStyles = StyleSheet.create({
   scrollOuter: {
-    maxHeight: 52,
+    flexGrow: 0,
     backgroundColor: colors.cream,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(98,55,30,0.06)',
   },
   scrollContent: {
     flexDirection: 'row',
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.md,
     gap: spacing.sm,
     alignItems: 'center',
   },
   tab: {
-    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.md,
@@ -195,34 +196,35 @@ const tabStyles = StyleSheet.create({
     backgroundColor: '#fff',
     borderWidth: 1,
     borderColor: 'rgba(98,55,30,0.15)',
-    gap: 4,
+    minWidth: 64,
+    gap: 3,
   },
   tabActive: {
     backgroundColor: colors.primary,
     borderColor: colors.primary,
   },
   tabLabel: {
-    fontSize: fontSizes.sm,
-    fontWeight: '700',
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.xs,
     color: '#2E1500',
   },
-  tabLabelActive: { color: '#FFFFFF', fontWeight: '700' },
+  tabLabelActive: { color: '#FFFFFF' },
   badge: {
-    minWidth: 18,
-    height: 18,
-    borderRadius: 9,
+    minWidth: 22,
+    height: 22,
+    borderRadius: 11,
     backgroundColor: 'rgba(98,55,30,0.1)',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 3,
+    paddingHorizontal: 5,
   },
   badgeActive: { backgroundColor: 'rgba(255,255,255,0.25)' },
   badgeText: {
-    fontSize: 11,
-    fontWeight: '700',
+    fontFamily: fonts.bold,
+    fontSize: fontSizes.xs,
     color: colors.primary,
   },
-  badgeTextActive: { color: '#FFFFFF', fontWeight: '700' },
+  badgeTextActive: { color: '#FFFFFF' },
 });
 
 // ─── Status Dropdown (only valid next step for this order) ────────────────────
@@ -318,7 +320,7 @@ const dropStyles = StyleSheet.create({
 });
 
 // ─── Order Card ───────────────────────────────────────────────────────────────
-function OrderCard({ order, onStatusUpdate, updating }) {
+function OrderCard({ order, onStatusUpdate, onCancel, updating }) {
   const [selectedStatus, setSelectedStatus] = useState(order.orderStatus);
   const seq = statusSequenceForOrder(order);
   const statusIndex = seq.indexOf(order.orderStatus);
@@ -380,6 +382,28 @@ function OrderCard({ order, onStatusUpdate, updating }) {
         </Text>
       </View>
 
+      {/* Payment screenshot */}
+      {order.paymentScreenshotUrl ? (
+        <View style={cardStyles.paymentSlipSection}>
+          <View style={cardStyles.paymentSlipHeader}>
+            <Text style={cardStyles.paymentSlipIcon}>🧾</Text>
+            <Text style={cardStyles.paymentSlipLabel}>Payment Slip Attached</Text>
+            {order.paymentMethod ? (
+              <View style={cardStyles.paymentMethodBadge}>
+                <Text style={cardStyles.paymentMethodText}>{order.paymentMethod}</Text>
+              </View>
+            ) : null}
+          </View>
+          <TouchableOpacity activeOpacity={0.85}>
+            <Image
+              source={{ uri: order.paymentScreenshotUrl }}
+              style={cardStyles.paymentSlipImage}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
+        </View>
+      ) : null}
+
       {/* Status dropdown + action button */}
       {!isTerminal && (
         <View style={cardStyles.actionsRow}>
@@ -406,6 +430,18 @@ function OrderCard({ order, onStatusUpdate, updating }) {
             )}
           </TouchableOpacity>
         </View>
+      )}
+
+      {/* Cancel button for non-terminal orders */}
+      {!isTerminal && order.orderStatus !== 'Cancelled' && (
+        <TouchableOpacity
+          style={[cardStyles.cancelBtn, updating && cardStyles.markBtnDisabled]}
+          onPress={() => onCancel && onCancel(order)}
+          activeOpacity={0.8}
+          disabled={updating}
+        >
+          <Text style={cardStyles.cancelBtnText}>❌ Cancel Order</Text>
+        </TouchableOpacity>
       )}
 
       {order.orderStatus === 'Cancelled' && (
@@ -531,6 +567,60 @@ const cardStyles = StyleSheet.create({
     fontSize: fontSizes.sm,
     color: '#2E7D32',
   },
+  // Payment slip
+  paymentSlipSection: {
+    marginBottom: spacing.md,
+    backgroundColor: 'rgba(46,125,50,0.05)',
+    borderRadius: borderRadius.card,
+    padding: spacing.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(46,125,50,0.12)',
+  },
+  paymentSlipHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+    gap: spacing.xs,
+  },
+  paymentSlipIcon: {
+    fontSize: 14,
+  },
+  paymentSlipLabel: {
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.xs,
+    color: '#2E7D32',
+    flex: 1,
+  },
+  paymentMethodBadge: {
+    backgroundColor: 'rgba(98,55,30,0.1)',
+    borderRadius: borderRadius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+  },
+  paymentMethodText: {
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.xs - 1,
+    color: colors.primary,
+  },
+  cancelBtn: {
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+    marginTop: spacing.xs,
+    borderRadius: borderRadius.pill,
+    backgroundColor: 'rgba(211,47,47,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(211,47,47,0.2)',
+  },
+  cancelBtnText: {
+    fontFamily: fonts.semiBold,
+    fontSize: fontSizes.sm,
+    color: '#D32F2F',
+  },
+  paymentSlipImage: {
+    width: '100%',
+    height: 160,
+    borderRadius: borderRadius.input,
+  },
 });
 
 // ─── Main Screen ──────────────────────────────────────────────────────────────
@@ -585,6 +675,23 @@ export default function AdminOrdersScreen({ navigation }) {
     } finally {
       setUpdatingId(null);
     }
+  };
+
+  // ── Cancel order ──────────────────────────────────────────────────────────
+  const handleCancelOrder = (order) => {
+    const orderNum = order._id?.slice(-6).toUpperCase() ?? '------';
+    Alert.alert(
+      'Cancel Order',
+      `Are you sure you want to cancel order #${orderNum}? This cannot be undone.`,
+      [
+        { text: 'Keep Order', style: 'cancel' },
+        {
+          text: 'Cancel Order',
+          style: 'destructive',
+          onPress: () => handleStatusUpdate(order._id, 'Cancelled'),
+        },
+      ],
+    );
   };
 
   // ── Filtered orders ───────────────────────────────────────────────────────
@@ -700,6 +807,7 @@ export default function AdminOrdersScreen({ navigation }) {
                 <OrderCard
                   order={item}
                   onStatusUpdate={handleStatusUpdate}
+                  onCancel={handleCancelOrder}
                   updating={updatingId === item._id}
                 />
               </View>
