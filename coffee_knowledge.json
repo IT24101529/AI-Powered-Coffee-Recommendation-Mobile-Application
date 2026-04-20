@@ -1,0 +1,50 @@
+{
+    "brewing_methods": [
+        {
+            "name": "V60 Pour-Over",
+            "description": "A manual pour-over method using a conical dripper. It emphasizes clarity of flavor and highlights subtle acidic notes.",
+            "tech_details": "Requires a paper filter. Grind size: Medium-Fine. Water temp: 92-94C."
+        },
+        {
+            "name": "French Press",
+            "description": "An immersion brewing method that produces a heavy, full-bodied cup with rich texture.",
+            "tech_details": "Metal mesh filter allows more oils into the cup. Grind size: Coarse. Steeping time: 4 minutes."
+        },
+        {
+            "name": "AeroPress",
+            "description": "A versatile pressure-based brewer that can make anything from espresso-style concentrates to clean filter-like coffee.",
+            "tech_details": "Highly portable. Grind size: Fine to Medium. Fast brew time (90 seconds)."
+        },
+        {
+            "name": "Cold Brew",
+            "description": "Coffee grounds steeped in cold water for a long period (12-24 hours). Results in low acidity and high sweetness.",
+            "tech_details": "Concentrated caffeine. Best served over ice."
+        }
+    ],
+    "coffee_science": [
+        {
+            "topic": "Caffeine Metabolism",
+            "facts": "Caffeine blocks adenosine receptors in the brain. Peak effects occur within 30-60 minutes.",
+            "low_caffeine_tips": "Swiss Water process decaf removes 99.9% of caffeine without chemicals."
+        },
+        {
+            "topic": "Sugar and Flavor",
+            "facts": "Medium-roasted arabica beans have natural sweetness. Adding dairy can mask bitterness due to lactose and fat content.",
+            "health_tip": "For low calories, try oat milk or drinking coffee black to enjoy the origin notes."
+        }
+    ],
+    "coffee_origins": [
+        {
+            "region": "Ethiopia",
+            "profile": "Floral, berry-like, and highly acidic. Often considered the birthplace of coffee."
+        },
+        {
+            "region": "Colombia",
+            "profile": "Well-balanced, nutty, and chocolatey. Versatile for both black and milk-based drinks."
+        },
+        {
+            "region": "Sumatra",
+            "profile": "Earthy, spicy, and very low acidity. Heavy body."
+        }
+    ]
+}
