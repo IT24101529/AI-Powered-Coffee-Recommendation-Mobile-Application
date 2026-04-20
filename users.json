@@ -1,110 +1,276 @@
 [
   {
-    "_id": "660000000000000000000001",
-    "name": "Ranasinghe R.M.N.K.",
-    "email": "admin1@ember.com",
-    "passwordHash": "password123",
-    "role": "admin",
-    "profileImageUrl": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80",
-    "totalPoints": 0
-  },
-  {
-    "_id": "660000000000000000000002",
-    "name": "Jane Doe",
-    "email": "admin2@ember.com",
-    "passwordHash": "password123",
-    "role": "admin",
-    "profileImageUrl": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80",
-    "totalPoints": 0
-  },
-  {
-    "_id": "660000000000000000000101",
-    "name": "Alex Johnson",
-    "email": "alex@example.com",
-    "passwordHash": "password123",
-    "role": "customer",
-    "profileImageUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80",
-    "totalPoints": 150
-  },
-  {
-    "_id": "660000000000000000000102",
-    "name": "Brian Smith",
-    "email": "brian@example.com",
-    "passwordHash": "password123",
-    "role": "customer",
-    "profileImageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80",
-    "totalPoints": 45
-  },
-  {
-    "_id": "660000000000000000000103",
-    "name": "Chloe Adams",
-    "email": "chloe@example.com",
-    "passwordHash": "password123",
-    "role": "customer",
-    "profileImageUrl": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&q=80",
-    "totalPoints": 300
-  },
-  {
-    "_id": "660000000000000000000104",
-    "name": "David Clark",
-    "email": "david@example.com",
-    "passwordHash": "password123",
-    "role": "customer",
-    "profileImageUrl": "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=400&q=80",
-    "totalPoints": 0
-  },
-  {
-    "_id": "660000000000000000000105",
-    "name": "Emma Wilson",
-    "email": "emma@example.com",
-    "passwordHash": "password123",
-    "role": "customer",
-    "profileImageUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80",
-    "totalPoints": 120
-  },
-  {
-    "_id": "660000000000000000000106",
-    "name": "Frank Thomas",
+    "_id": {
+      "$oid": "660000000000000000000106"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-04-02T13:16:16.292Z"
+    },
     "email": "frank@example.com",
-    "passwordHash": "password123",
-    "role": "customer",
+    "name": "Frank Thomas",
+    "passwordHash": "$2a$10$2SD/ur0oFCm1EELYsfevFuSmTlO3hLFcNvmDKWTUzAwUEHjIGk92K",
     "profileImageUrl": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&q=80",
-    "totalPoints": 80
+    "role": "customer",
+    "totalPoints": 80,
+    "updatedAt": {
+      "$date": "2026-04-02T13:16:16.292Z"
+    }
   },
   {
-    "_id": "660000000000000000000107",
-    "name": "Grace Lee",
+    "_id": {
+      "$oid": "660000000000000000000107"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-04-02T13:16:16.298Z"
+    },
     "email": "grace@example.com",
-    "passwordHash": "password123",
-    "role": "customer",
+    "name": "Grace Lee",
+    "passwordHash": "$2a$10$CHWUm0vM3BLH19vO.ayPjuTAGro5cKTppAR.Rrdq/2cLWft1xP20O",
     "profileImageUrl": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&q=80",
-    "totalPoints": 210
+    "role": "customer",
+    "totalPoints": 210,
+    "updatedAt": {
+      "$date": "2026-04-02T13:16:16.298Z"
+    }
   },
   {
-    "_id": "660000000000000000000108",
-    "name": "Henry White",
+    "_id": {
+      "$oid": "660000000000000000000101"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-04-02T13:16:16.260Z"
+    },
+    "email": "alex@example.com",
+    "name": "Alex Johnson",
+    "passwordHash": "$2a$10$qFYKVqBfA.PaTfY/ec4vke5d2LhlsQdHMkRtelJVhIXfRmXlRRoaG",
+    "profileImageUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80",
+    "role": "customer",
+    "totalPoints": 150,
+    "updatedAt": {
+      "$date": "2026-04-02T13:16:16.260Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "660000000000000000000002"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-04-02T13:16:16.254Z"
+    },
+    "email": "janedoe@ember.com",
+    "name": "Jane Doe",
+    "passwordHash": "$2a$10$uV7zDoGFEQU3YK5lE6rf2Oa4EcswkTp7i1mXvnUV/5GyqMpr8cgCu",
+    "profileImageUrl": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80",
+    "role": "admin",
+    "totalPoints": 8511,
+    "updatedAt": {
+      "$date": "2026-04-12T15:50:43.269Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "660000000000000000000108"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-04-02T13:16:16.303Z"
+    },
     "email": "henry@example.com",
-    "passwordHash": "password123",
-    "role": "customer",
+    "name": "Henry White",
+    "passwordHash": "$2a$10$98OGSgH.1HRrU6iJWgZfge3jA7DQxU28ojEoprXzUf3mfL9kncsfW",
     "profileImageUrl": "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=400&q=80",
-    "totalPoints": 10
+    "role": "customer",
+    "totalPoints": 10,
+    "updatedAt": {
+      "$date": "2026-04-02T13:16:16.303Z"
+    }
   },
   {
-    "_id": "660000000000000000000109",
-    "name": "Isabella Martinez",
+    "_id": {
+      "$oid": "660000000000000000000103"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-04-02T13:16:16.273Z"
+    },
+    "email": "chloe@example.com",
+    "name": "Chloe Adams",
+    "passwordHash": "$2a$10$DRqSdNuo0Ar3q7.4vfRSe.sBQWCN5xy8E6LtKs1oLJhJXjrrRjUVu",
+    "profileImageUrl": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&q=80",
+    "role": "customer",
+    "totalPoints": 300,
+    "updatedAt": {
+      "$date": "2026-04-02T13:16:16.273Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "660000000000000000000001"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-04-02T13:16:15.931Z"
+    },
+    "email": "nkranasinghe27@gmail.com",
+    "name": "Nalina Ranasinghe",
+    "passwordHash": "$2a$10$TjUEwHinnQg8hbdjDovAnOk3UCo1zBOsTXvOzpFcSbXkkqHTaI/1q",
+    "profileImageUrl": "https://res.cloudinary.com/dqjzgnghk/image/upload/v1775145004/ember-coffee-co/edadjhfw0zr7r3wvlgua.jpg",
+    "role": "admin",
+    "totalPoints": 6000,
+    "updatedAt": {
+      "$date": "2026-04-09T05:45:53.497Z"
+    },
+    "passwordResetExpires": {
+      "$date": "2026-04-03T07:31:21.244Z"
+    },
+    "passwordResetOtp": "$2a$10$kEa4i5NpZNYsT9EUV/1gkeCsa9yzBJgOzikDiErAa3J34hi57rsxm"
+  },
+  {
+    "_id": {
+      "$oid": "660000000000000000000102"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-04-02T13:16:16.266Z"
+    },
+    "email": "brian@example.com",
+    "name": "Brian Smith",
+    "passwordHash": "$2a$10$2H4ML6xFFWrz/LhkNQx2Y.QVfbYqlmUZT.O0XBWSKP515/w00z3bC",
+    "profileImageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80",
+    "role": "customer",
+    "totalPoints": 45,
+    "updatedAt": {
+      "$date": "2026-04-02T13:16:16.266Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "660000000000000000000105"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-04-02T13:16:16.285Z"
+    },
+    "email": "emma@example.com",
+    "name": "Emma Wilson",
+    "passwordHash": "$2a$10$mR2m.gOQMJT3R4/MZ8/7wO0080X./O0i3qR9gg0Gk02L6SRe5w/3.",
+    "profileImageUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80",
+    "role": "customer",
+    "totalPoints": 120,
+    "updatedAt": {
+      "$date": "2026-04-02T13:16:16.285Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "660000000000000000000104"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-04-02T13:16:16.280Z"
+    },
+    "email": "david@example.com",
+    "name": "David Clark",
+    "passwordHash": "$2a$10$Y8HzP7vjzU19fFyQTqIDROEvr4HchAvlnfSNcpENpoYwnRgRxJ32W",
+    "profileImageUrl": "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=400&q=80",
+    "role": "customer",
+    "totalPoints": 0,
+    "updatedAt": {
+      "$date": "2026-04-02T13:16:16.280Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "660000000000000000000109"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-04-02T13:16:16.311Z"
+    },
     "email": "isabella@example.com",
-    "passwordHash": "password123",
-    "role": "customer",
+    "name": "Isabella Martinez",
+    "passwordHash": "$2a$10$8vz3iOGhDnWMc6iuz3pg3epu4FJQ1KlDHk2SFkk5nOjuA0rRANHY6",
     "profileImageUrl": "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&q=80",
-    "totalPoints": 500
+    "role": "customer",
+    "totalPoints": 500,
+    "updatedAt": {
+      "$date": "2026-04-02T13:16:16.311Z"
+    }
   },
   {
-    "_id": "660000000000000000000110",
-    "name": "Jack Taylor",
+    "_id": {
+      "$oid": "660000000000000000000110"
+    },
+    "__v": 0,
+    "createdAt": {
+      "$date": "2026-04-02T13:16:16.316Z"
+    },
     "email": "jack@example.com",
-    "passwordHash": "password123",
-    "role": "customer",
+    "name": "Jack Taylor",
+    "passwordHash": "$2a$10$RerDO3nyXfW1BclSM53xyuc/lI1E7eGpnO8djNwCwCRBBlPR05WVy",
     "profileImageUrl": "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=400&q=80",
-    "totalPoints": 65
+    "role": "customer",
+    "totalPoints": 65,
+    "updatedAt": {
+      "$date": "2026-04-02T13:16:16.316Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "69cf6051a02dd540a6addbc0"
+    },
+    "name": "Hiran Pasindu",
+    "email": "hiranndharmarathna@gmail.com",
+    "passwordHash": "$2a$10$IGLGTI9fh0RUO0lCxSGq0.0BiRqcRKryQGcmU1D.jWlP/OvII/yHK",
+    "role": "manager",
+    "profileImageUrl": "https://res.cloudinary.com/dqjzgnghk/image/upload/v1775198425/ember-coffee-co/r6owtapkprylnxj6v5fh.jpg",
+    "totalPoints": 0,
+    "createdAt": {
+      "$date": "2026-04-03T06:38:09.771Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-04T13:32:44.628Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69d723d33ce8319ee4634286"
+    },
+    "name": "Test User",
+    "email": "testuser001@ember.com",
+    "passwordHash": "$2a$10$Jw0KdhirZP5AcDjWKq7HnevBl.uId.yY7.ivaHRDJ..hVsSDSvvQ2",
+    "role": "customer",
+    "profileImageUrl": "",
+    "totalPoints": 0,
+    "createdAt": {
+      "$date": "2026-04-09T03:58:11.382Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-09T03:58:11.382Z"
+    },
+    "__v": 0
+  },
+  {
+    "_id": {
+      "$oid": "69dbbc5b7661624060a7ce81"
+    },
+    "name": "Test User2",
+    "email": "testuser002@ember.com",
+    "passwordHash": "$2a$10$n.aN9vOw8ZHJWocmHF83yeAymbUqPW1xt5XW1jL3UJzSgI6smL94G",
+    "role": "customer",
+    "profileImageUrl": "",
+    "totalPoints": 0,
+    "createdAt": {
+      "$date": "2026-04-12T15:38:03.325Z"
+    },
+    "updatedAt": {
+      "$date": "2026-04-12T15:48:28.843Z"
+    },
+    "__v": 0
   }
 ]

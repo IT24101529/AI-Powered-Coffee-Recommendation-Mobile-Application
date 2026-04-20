@@ -23,6 +23,7 @@ import OrderTrackingScreen from '../screens/OrderTrackingScreen';
 import OrderHistoryScreen from '../screens/OrderHistoryScreen';
 import CheckoutScreen from '../screens/CheckoutScreen';
 import CartScreen from '../screens/CartScreen';
+import ChatbotScreen from '../screens/ChatbotScreen';
 
 // Admin screens
 import ReviewsFeedScreen from '../screens/ReviewsFeedScreen';
@@ -61,6 +62,7 @@ function HomeStack() {
       <Stack.Screen name="Cart" component={CartScreen} />
       <Stack.Screen name="Checkout" component={CheckoutScreen} />
       <Stack.Screen name="OrderTracking" component={OrderTrackingScreen} />
+      <Stack.Screen name="Chatbot" component={ChatbotScreen} />
     </Stack.Navigator>
   );
 }
@@ -74,6 +76,7 @@ function MenuStack() {
       <Stack.Screen name="Cart" component={CartScreen} />
       <Stack.Screen name="Checkout" component={CheckoutScreen} />
       <Stack.Screen name="OrderTracking" component={OrderTrackingScreen} />
+      <Stack.Screen name="Chatbot" component={ChatbotScreen} />
     </Stack.Navigator>
   );
 }

@@ -10,6 +10,7 @@ import {
   StatusBar,
   Image,
   RefreshControl,
+  Animated,
 } from 'react-native';
 import axios from 'axios';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -172,6 +173,9 @@ export default function HomeScreen({ navigation }) {
               onOrderNow={() => navigateTo('Menu')}
               onProductPress={(product) => navigateTo('ProductDetail', { product })}
             />
+
+            {/* AI-Powered Chatbot Banner */}
+            <AIBanner onPress={() => navigateTo('Chatbot')} />
 
             {/* Rewards Tracker */}
             <RewardsTracker profile={profile} />
@@ -727,4 +731,59 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: colors.dark,
   },
+});
+
+// ─── AI Banner Component ───────────────────────────────────────────────────────
+function AIBanner({ onPress }) {
+  const scaleValue = useRef(new Animated.Value(1)).current;
+  const opacityValue = useRef(new Animated.Value(0)).current;
+
+  const handlePress = () => {
+    Animated.sequence([
+      Animated.timing(scaleValue, { toValue: 1.05, duration: 200, useNativeDriver: true }),
+      Animated.timing(opacityValue, { toValue: 1, duration: 100, useNativeDriver: true }),
+      Animated.timing(opacityValue, { toValue: 0, duration: 150, useNativeDriver: true }),
+      Animated.timing(scaleValue, { toValue: 1, duration: 150, useNativeDriver: true })
+    ]).start(() => {
+      onPress();
+    });
+  };
+
+  return (
+    <TouchableOpacity activeOpacity={1} onPress={handlePress} style={aiBannerStyles.wrapper}>
+      <Animated.View style={[aiBannerStyles.card, { transform: [{ scale: scaleValue }] }]}>
+        <Image 
+          source={{ uri: 'https://res.cloudinary.com/dqjzgnghk/image/upload/v1776147025/Chatbot_Banner_mledg7.jpg' }} 
+          style={aiBannerStyles.image} 
+          resizeMode="cover" 
+        />
+        <Animated.View style={[aiBannerStyles.flashOverlay, { opacity: opacityValue }]} />
+      </Animated.View>
+    </TouchableOpacity>
+  );
+}
+
+const aiBannerStyles = StyleSheet.create({
+  wrapper: {
+    marginHorizontal: HORIZONTAL_MARGIN,
+    marginTop: spacing.xl,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  card: {
+    height: 140,
+    borderRadius: borderRadius.card,
+    overflow: 'hidden',
+    backgroundColor: colors.dark,
+  },
+  image: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  flashOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#FFFFFF',
+  }
 });

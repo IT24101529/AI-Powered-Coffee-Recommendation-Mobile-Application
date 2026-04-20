@@ -1,0 +1,302 @@
+[
+  {
+    "model": "Agentic Intent Dispatcher",
+    "service": "coffee_chatbot_backend",
+    "accuracy": 0.9953,
+    "accuracy_std": 0.0009,
+    "macro_f1": 0.9953,
+    "cv_folds": 5,
+    "samples": 27032,
+    "class_distribution": {
+      "Greeting": 20,
+      "Order": 3013,
+      "Suggest": 20,
+      "Question": 19903,
+      "Complaint": 1020,
+      "Feedback": 1017,
+      "Browse": 2019,
+      "Goodbye": 20
+    },
+    "top_features": {
+      "Browse": [
+        "person",
+        "agent",
+        "somebody",
+        "contact",
+        "customer"
+      ],
+      "Complaint": [
+        "claim",
+        "reclamation",
+        "complaint",
+        "file",
+        "lodge"
+      ],
+      "Feedback": [
+        "feedback",
+        "leave",
+        "comment",
+        "review",
+        "to send"
+      ],
+      "Goodbye": [
+        "that",
+        "see you",
+        "today",
+        "off",
+        "is it"
+      ],
+      "Greeting": [
+        "hi",
+        "hello",
+        "hey",
+        "morning",
+        "evening"
+      ],
+      "Order": [
+        "order",
+        "purchase",
+        "something",
+        "article",
+        "buy"
+      ],
+      "Question": [
+        "account",
+        "status",
+        "address",
+        "my",
+        "delivery"
+      ],
+      "Suggest": [
+        "me",
+        "what",
+        "fit",
+        "suggest",
+        "recommendation"
+      ]
+    },
+    "algorithm": "Agentic Hybrid Dispatcher (LinearSVC Fallback + Gemini 1.5 Flash Reasoning)",
+    "dataset": "Bitext_Sample_Customer_Support_Training_Dataset_27K_responses-v11.csv + training_data.py",
+    "ok": true
+  },
+  {
+    "model": "Unified Context-Aware NLU",
+    "service": "coffee_chatbot_backend",
+    "accuracy_note": "Multi-modal Context (Weather + Mood + Time) Reasoning",
+    "passed_validation": true,
+    "scenarios": [
+      {
+        "input": "I want a low sugar drink",
+        "extracted": {
+          "sweetness": 2.0
+        },
+        "success": true
+      },
+      {
+        "input": "decaf latte please",
+        "extracted": {
+          "caffeine_level": 0.0
+        },
+        "success": true
+      },
+      {
+        "input": "something healthy and low cal",
+        "extracted": {
+          "richness": 3.0
+        },
+        "success": true
+      },
+      {
+        "input": "i'm stressed and tired",
+        "extracted": {},
+        "success": false
+      }
+    ],
+    "algorithm": "Unified Agentic Reasoning (Gemini 1.5 Flash)",
+    "features": [
+      "sweetness",
+      "caffeine",
+      "calories",
+      "weather",
+      "mood"
+    ],
+    "ok": true
+  },
+  {
+    "model": "RAG Knowledge Base (Dense Vector Retrieval)",
+    "service": "coffee_chatbot_backend",
+    "retrieval_success": 0.9556,
+    "context_relevance": 0.9,
+    "samples": 45,
+    "algorithm": "Top-3 Dense Vector Semantic Search (all-MiniLM-L6-v2)",
+    "knowledge_source": "coffee_knowledge.json (Brewing, Science, Origins)",
+    "ok": true
+  },
+  {
+    "model": "Emotion ML Classifier",
+    "service": "coffee_sentiment_service",
+    "accuracy": 0.5815,
+    "accuracy_std": 0.008,
+    "macro_f1": 0.5815,
+    "cv_folds": 5,
+    "samples": 22459,
+    "class_distribution": {
+      "Sad": 6265,
+      "Stressed": 2993,
+      "Excited": 2520,
+      "Anxious": 2652,
+      "Happy": 7029,
+      "Tired": 400,
+      "Calm": 600
+    },
+    "top_global_keywords": [
+      "feel",
+      "to",
+      "feeling",
+      "am",
+      "am exhausted",
+      "the",
+      "day",
+      "just",
+      "today",
+      "normal"
+    ],
+    "algorithm": "RandomForestClassifier (5-Fold CV, max_depth=10, min_samples_leaf=5)",
+    "dataset": "Emotion_final.csv + hand-crafted Tired/Calm",
+    "overfitting_controls": [
+      "max_depth=10",
+      "min_samples_leaf=5",
+      "class_weight=balanced"
+    ],
+    "ok": true
+  },
+  {
+    "model": "Context Decision Tree",
+    "service": "coffee_context_service",
+    "accuracy": 0.9444,
+    "accuracy_std": 0.0248,
+    "cv_folds": 5,
+    "samples": 360,
+    "class_distribution": {
+      "Iced/Refreshing": 70,
+      "Decaf/Light": 70,
+      "Balanced/Latte": 80,
+      "Comfort/Warm": 90,
+      "Rich/Hot": 50
+    },
+    "output_classes": [
+      "Balanced/Latte",
+      "Comfort/Warm",
+      "Decaf/Light",
+      "Iced/Refreshing",
+      "Rich/Hot"
+    ],
+    "algorithm": "RandomForestClassifier (5-Fold CV, n_estimators=100)",
+    "features": [
+      "temperature_tag",
+      "condition_tag",
+      "time_of_day"
+    ],
+    "ok": true
+  },
+  {
+    "model": "Trending Engine",
+    "service": "coffee_trend_service",
+    "validation_results": [
+      {
+        "scenario": "Viral Product",
+        "sales_24h": 10,
+        "sales_7d": 7,
+        "velocity": 10.0,
+        "passed": true
+      },
+      {
+        "scenario": "Steady Seller",
+        "sales_24h": 10,
+        "sales_7d": 70,
+        "velocity": 1.0,
+        "passed": true
+      },
+      {
+        "scenario": "Static Product",
+        "sales_24h": 1,
+        "sales_7d": 7,
+        "velocity": 1.0,
+        "passed": true
+      }
+    ],
+    "ranking_ok": true,
+    "algorithm": "Sales Velocity Ratio (24h / DailyAvg_7d)",
+    "metric": "Velocity Score (Hotness Index)",
+    "ok": true
+  },
+  {
+    "model": "Contextual MAB",
+    "service": "coffee_feedback_service",
+    "error": "column \"strategy_name\" does not exist\nLINE 1: SELECT strategy_name, total_attempts, total_accepted FROM st...\n               ^\n",
+    "ok": true
+  },
+  {
+    "model": "Product Content Matcher",
+    "service": "coffee_product_service",
+    "context_logic_bias": [
+      {
+        "context": "Tired in Cold",
+        "max_weight": 2.5,
+        "bias": {
+          "caffeine": 2.5,
+          "warmth": 2.0,
+          "richness": 1.5
+        },
+        "l2_normalized_magnitude": 1.0,
+        "scores_bounded": true
+      },
+      {
+        "context": "Anxious in Hot",
+        "max_weight": 1.0,
+        "bias": {
+          "caffeine": 0.3,
+          "warmth": 0.2
+        },
+        "l2_normalized_magnitude": 1.0,
+        "scores_bounded": true
+      },
+      {
+        "context": "Happy in Rainy",
+        "max_weight": 2.0,
+        "bias": {
+          "warmth": 2.0,
+          "sweetness": 1.8
+        },
+        "l2_normalized_magnitude": 1.0,
+        "scores_bounded": true
+      },
+      {
+        "context": "Stressed in Warm",
+        "max_weight": 1.5,
+        "bias": {
+          "caffeine": 0.5,
+          "warmth": 1.5,
+          "sweetness": 1.5
+        },
+        "l2_normalized_magnitude": 1.0,
+        "scores_bounded": true
+      },
+      {
+        "context": "Sad in Cold",
+        "max_weight": 2.0,
+        "bias": {
+          "warmth": 2.0,
+          "sweetness": 2.0
+        },
+        "l2_normalized_magnitude": 1.0,
+        "scores_bounded": true
+      }
+    ],
+    "algorithm": "Cosine Similarity (L2-Normalized, Context-Weighted)",
+    "normalization": "L2 (sklearn.preprocessing.normalize)",
+    "score_range": "[0.0, 1.0] guaranteed",
+    "metric": "Cosine Similarity with unit-length vectors",
+    "ok": true
+  }
+]
