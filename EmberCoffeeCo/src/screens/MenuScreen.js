@@ -199,6 +199,19 @@ export default function MenuScreen({ navigation }) {
         </ScrollView>
       )}
 
+      {/* Floating Chat Bubble */}
+      <TouchableOpacity 
+        style={styles.chatBubble} 
+        activeOpacity={0.8}
+        onPress={() => navigation?.navigate('Chatbot')}
+      >
+        <Image 
+          source={{ uri: 'https://res.cloudinary.com/dqjzgnghk/image/upload/v1776147025/chatbot_icon_yrcgxu.png' }} 
+          style={styles.chatIcon} 
+          resizeMode="contain" 
+        />
+      </TouchableOpacity>
+
       <BottomNavBar activeTab="Menu" onTabPress={handleTabPress} />
     </SafeAreaView>
   );
@@ -1106,5 +1119,27 @@ const styles = StyleSheet.create({
   },
   chipTextActive: {
     color: '#FFFFFF',
+  },
+  // Floating chat bubble
+  chatBubble: {
+    position: 'absolute',
+    bottom: 80,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#FFFFFF',
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 999,
+  },
+  chatIcon: {
+    width: 32,
+    height: 32,
   },
 });
