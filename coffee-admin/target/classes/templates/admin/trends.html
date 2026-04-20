@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Trend Analysis — Coffee Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body class="app-layout">
+
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <span class="brand-icon">☕</span>
+        <div><div class="brand-name">Coffee Admin</div><div class="brand-sub">Analytics Dashboard</div></div>
+    </div>
+    <nav class="sidebar-nav">
+        <a th:href="@{/admin/dashboard}" class="nav-item"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+        <a th:href="@{/admin/trends}"    class="nav-item"><span class="nav-icon">📈</span><span>Trend Analysis</span></a>
+        <a th:href="@{/admin/apriori}"   class="nav-item active"><span class="nav-icon">📦</span><span>Apriori Algorithm</span></a>
+        <a th:href="@{/admin/knn}"       class="nav-item"><span class="nav-icon">🔵</span><span>KNN Filtering</span></a>
+        <a th:href="@{/admin/products}"  class="nav-item"><span class="nav-icon">🛍️</span><span>Products</span></a>
+        <a th:href="@{/admin/chatbot}"   class="nav-item"><span class="nav-icon">🤖</span><span>Analytics Chatbot</span></a>
+        <a th:href="@{/admin/sessions}"  class="nav-item"><span class="nav-icon">📋</span><span>Session History</span></a>
+    </nav>
+    <div class="sidebar-footer">
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="btn-logout">🚪 Sign Out</button>
+        </form>
+    </div>
+</aside>
+
+<main class="main-content">
+    <header class="topbar">
+        <div>
+            <h1 class="page-title">📈 Trend Analysis</h1>
+            <p class="page-subtitle">Product popularity scoring &amp; tier classification (FR5.2–FR5.4)</p>
+        </div>
+        <div class="topbar-right">
+            <button class="btn-recalculate" id="recalcBtn" onclick="recalculate()">🔄 Recalculate Trends</button>
+            <span class="admin-badge">👤 Admin</span>
+        </div>
+    </header>
+
+    <div class="content-area">
+
+        <!-- Score formula banner -->
+        <div class="formula-banner">
+            <strong>Trend Score Formula (FR5):</strong>
+            <code>trend_score = (recent_sales × 0.5) + (growth_rate × 0.3) + (rating × 0.2)</code>
+        </div>
+
+        <!-- Top 10 chart -->
+        <div class="chart-card" style="margin-bottom:24px">
+            <h3 class="chart-title">🏆 Top 10 by Trend Score</h3>
+            <canvas id="top10Chart" height="60"></canvas>
+        </div>
+
+        <!-- Filter buttons -->
+        <div class="filter-bar">
+            <a th:href="@{/admin/trends(filter='all')}"        class="filter-btn" th:classappend="${filter=='all'}        ? 'active' : ''">All</a>
+            <a th:href="@{/admin/trends(filter='bestseller')}" class="filter-btn" th:classappend="${filter=='bestseller'} ? 'active' : ''">⭐ Bestsellers</a>
+            <a th:href="@{/admin/trends(filter='trending')}"   class="filter-btn" th:classappend="${filter=='trending'}   ? 'active' : ''">📈 Trending Up</a>
+            <a th:href="@{/admin/trends(filter='hidden_gem')}" class="filter-btn" th:classappend="${filter=='hidden_gem'} ? 'active' : ''">💎 Hidden Gems</a>
+        </div>
+
+        <!-- Trend table -->
+        <div class="table-card">
+            <div th:if="${#lists.isEmpty(trends)}" class="empty-state">
+                <p>No trend data yet. Click <strong>Recalculate Trends</strong> to compute scores.</p>
+            </div>
+            <table class="data-table" th:unless="${#lists.isEmpty(trends)}">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th>7d Sales</th>
+                        <th>30d Sales</th>
+                        <th>WoW Growth</th>
+                        <th>Trend Score</th>
+                        <th>Tier</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="t, stat : ${trends}">
+                        <td th:text="${stat.index + 1}">1</td>
+                        <td th:text="${t.productName}">Product</td>
+                        <td th:text="${t.productCategory}">Category</td>
+                        <td th:text="${t.salesLast7d}">0</td>
+                        <td th:text="${t.salesLast30d}">0</td>
+                        <td>
+                            <span th:class="${t.growthRate >= 0} ? 'growth-pos' : 'growth-neg'"
+                                  th:text="${(t.growthRate >= 0 ? '+' : '') + #numbers.formatDecimal(t.growthRate, 1, 1) + '%'}">0%</span>
+                        </td>
+                        <td>
+                            <div class="score-bar">
+                                <div class="score-fill" th:style="'width:' + ${t.trendScore} + '%'"></div>
+                                <span th:text="${#numbers.formatDecimal(t.trendScore, 1, 1)}">0</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="tier-badge" th:classappend="' ' + ${t.tierBadgeClass}" th:text="${t.tierLabel}">Normal</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Tier legend -->
+        <div class="tier-legend">
+            <div class="tier-item"><span class="tier-badge badge-bestseller">⭐ Bestseller</span> — Top 10% by sales volume</div>
+            <div class="tier-item"><span class="tier-badge badge-trending">📈 Trending Up</span> — 30%+ week-over-week growth</div>
+            <div class="tier-item"><span class="tier-badge badge-gem">💎 Hidden Gem</span> — High potential, low visibility</div>
+            <div class="tier-item"><span class="tier-badge badge-seasonal">🌸 Seasonal</span> — Strong in specific periods</div>
+        </div>
+
+    </div>
+</main>
+
+<div id="toast" class="toast hidden"></div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+// Top 10 horizontal bar
+const top10 = /*[[${top10}]]*/ [];
+const labels = top10.map(t => t.productName);
+const scores = top10.map(t => t.trendScore);
+new Chart(document.getElementById('top10Chart'), {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Trend Score',
+            data: scores,
+            backgroundColor: 'rgba(139,69,19,0.75)',
+            borderColor: '#6B3A2A',
+            borderWidth: 1,
+            borderRadius: 4
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { x: { beginAtZero: true, max: 100 } }
+    }
+});
+
+// Recalculate button
+async function recalculate() {
+    const btn = document.getElementById('recalcBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Recalculating...';
+    try {
+        const token = document.cookie.match(/XSRF-TOKEN=([^;]+)/)?.[1] || '';
+        const res = await fetch('/api/trends/recalculate', {
+            method: 'POST',
+            headers: { 'X-XSRF-TOKEN': token }
+        });
+        const data = await res.json();
+        showToast(data.message || 'Done!', res.ok ? 'success' : 'error');
+        if (res.ok) setTimeout(() => location.reload(), 1200);
+    } catch (e) {
+        showToast('Request failed: ' + e.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = '🔄 Recalculate Trends';
+    }
+}
+
+function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + type;
+    setTimeout(() => t.className = 'toast hidden', 3500);
+}
+/*]]>*/
+</script>
+</body>
+</html>

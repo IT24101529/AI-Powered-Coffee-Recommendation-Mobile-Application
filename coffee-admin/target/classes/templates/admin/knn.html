@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>KNN Collaborative Filtering — Coffee Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        /* Banners & Headers */
+        .algo-banner {
+            background: linear-gradient(135deg, var(--brown-800), var(--brown-600));
+            color: #fff;
+            padding: 16px 22px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .algo-icon { font-size: 2.5rem; }
+        .algo-title { font-size: 1.1rem; font-weight: 700; }
+        .algo-desc { font-size: .85rem; color: var(--brown-200); margin-top: 3px; }
+
+        /* Score Cards Grid */
+        .score-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
+        .score-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px 16px;
+            border: 1px solid var(--brown-100);
+            box-shadow: 0 2px 8px rgba(0,0,0,.07);
+            text-align: center;
+        }
+        .score-val { font-size: 2.2rem; font-weight: 800; color: var(--brown-700); line-height: 1; }
+        .score-label {
+            font-size: .78rem;
+            color: var(--brown-400);
+            margin-top: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+        .score-sub { font-size: .72rem; color: var(--brown-300); margin-top: 3px; }
+
+        /* Process/Step Cards */
+        .step-card {
+            background: #fff;
+            border-left: 4px solid var(--brown-500);
+            border-radius: 0 10px 10px 0;
+            padding: 14px 18px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.06);
+        }
+        .step-num { font-size: 1.1rem; font-weight: 800; color: var(--brown-600); margin-bottom: 4px; }
+        .step-title { font-weight: 700; color: var(--brown-800); margin-bottom: 3px; }
+        .step-desc { font-size: .85rem; color: var(--brown-500); }
+
+        /* KNN & Similarity Components */
+        .sim-bar { display: flex; align-items: center; gap: 8px; }
+        .sim-track { flex: 1; background: var(--brown-100); border-radius: 4px; height: 8px; overflow: hidden; }
+        .sim-fill { background: linear-gradient(90deg, var(--brown-600), var(--brown-400)); height: 100%; border-radius: 4px; }
+        .sim-pct { font-size: .8rem; font-weight: 700; color: var(--brown-700); min-width: 38px; text-align: right; }
+
+        .knn-card {
+            background: #fff;
+            border: 1px solid var(--brown-100);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.06);
+        }
+        .knn-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .knn-avatar {
+            background: var(--brown-700);
+            color: #fff;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .8rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .knn-nbr {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 0;
+            border-bottom: 1px dashed var(--brown-100);
+        }
+        .knn-nbr:last-child { border-bottom: none; }
+
+        /* Gauge & Performance Bars */
+        .gauge-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .gauge-label { width: 170px; font-size: .85rem; color: var(--brown-700); font-weight: 600; }
+        .gauge-track { flex: 1; background: var(--brown-100); border-radius: 6px; height: 16px; overflow: hidden; }
+        .gauge-fill { background: linear-gradient(90deg, var(--brown-500), var(--brown-300)); height: 100%; border-radius: 6px; }
+        .gauge-num { width: 56px; font-size: .85rem; font-weight: 700; color: var(--brown-700); text-align: right; }
+
+        /* Utilities */
+        .loading { text-align: center; padding: 60px; color: var(--brown-400); }
+        .search-box {
+            padding: 8px 14px;
+            border: 1.5px solid var(--brown-200);
+            border-radius: 8px;
+            font-size: .875rem;
+            outline: none;
+            width: 260px;
+        }
+        .search-box:focus { border-color: var(--brown-400); }
+    </style>
+
+
+
+
+</head>
+<body class="app-layout">
+
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <span class="brand-icon">☕</span>
+        <div><div class="brand-name">Coffee Admin</div><div class="brand-sub">Analytics Dashboard</div></div>
+    </div>
+    <nav class="sidebar-nav">
+        <a th:href="@{/admin/dashboard}" class="nav-item"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+        <a th:href="@{/admin/trends}"    class="nav-item"><span class="nav-icon">📈</span><span>Trend Analysis</span></a>
+        <a th:href="@{/admin/apriori}"   class="nav-item active"><span class="nav-icon">📦</span><span>Apriori Algorithm</span></a>
+        <a th:href="@{/admin/knn}"       class="nav-item"><span class="nav-icon">🔵</span><span>KNN Filtering</span></a>
+        <a th:href="@{/admin/products}"  class="nav-item"><span class="nav-icon">🛍️</span><span>Products</span></a>
+        <a th:href="@{/admin/chatbot}"   class="nav-item"><span class="nav-icon">🤖</span><span>Analytics Chatbot</span></a>
+        <a th:href="@{/admin/sessions}"  class="nav-item"><span class="nav-icon">📋</span><span>Session History</span></a>
+    </nav>
+    <div class="sidebar-footer">
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="btn-logout">🚪 Sign Out</button>
+        </form>
+    </div>
+</aside>
+
+<main class="main-content">
+    <header class="topbar">
+        <div>
+            <h1 class="page-title">🔵 KNN Collaborative Filtering</h1>
+            <p class="page-subtitle">Item-based product recommendations using K-Nearest Neighbours and cosine similarity</p>
+        </div>
+        <div class="topbar-right">
+            <button class="btn-recalculate" id="runBtn" onclick="runKnn()" style="background:#1a3a5c;">▶ Run KNN</button>
+            <span class="admin-badge">👤 Admin</span>
+        </div>
+    </header>
+
+    <div class="content-area">
+
+
+        <div id="loadingMsg" class="loading">⏳ Loading KNN results...</div>
+
+        <div id="knnContent" style="display:none;">
+
+            <!-- KPI Cards -->
+            <div class="score-grid" id="statsCards"></div>
+
+            <!-- Performance gauges -->
+            <div class="charts-row" style="margin-bottom:20px;">
+                <div class="chart-card">
+                    <h3 class="chart-title">📊 Model Performance Gauges</h3>
+                    <div id="gauges" style="margin-top:14px;"></div>
+                </div>
+                <div class="chart-card wide">
+                    <h3 class="chart-title">📈 Average Similarity per Product (Top 20)</h3>
+                    <canvas id="simChart" height="120"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3 class="chart-title">🥧 Similarity Score Distribution</h3>
+                    <canvas id="distChart" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Product similarity map -->
+            <div class="table-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                    <h3 class="chart-title" style="margin:0;">🛍️ Product Similarity Map — K=5 Nearest Neighbours</h3>
+                    <input type="text" class="search-box" placeholder="🔍 Search product..."
+                           oninput="filterKnn(this.value)"/>
+                </div>
+                <div id="knnGrid"></div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<div id="toast" class="toast hidden"></div>
+
+<script>
+let ALL_RECS = [];
+
+async function load() {
+    try {
+        const res  = await fetch('/api/knn/results');
+        const data = await res.json();
+        if (data.error) { showToast(data.error, 'error'); return; }
+        document.getElementById('loadingMsg').style.display = 'none';
+        document.getElementById('knnContent').style.display = 'block';
+        renderStats(data.stats);
+        renderGauges(data.stats);
+        renderSimChart(data.recommendations);
+        renderDistChart(data.recommendations);
+        renderKnnGrid(data.recommendations);
+    } catch(e) {
+        document.getElementById('loadingMsg').textContent = '⚠️ Could not load results. Run KNN first.';
+    }
+}
+
+function renderStats(s) {
+    document.getElementById('statsCards').innerHTML = `
+        <div class="score-card"><div class="score-val">K=${s.k}</div>
+            <div class="score-label">Neighbours</div><div class="score-sub">Cosine similarity metric</div></div>
+        <div class="score-card"><div class="score-val">${s.precisionAt5Pct}%</div>
+            <div class="score-label">Precision@5</div><div class="score-sub">Same-category hits</div></div>
+        <div class="score-card"><div class="score-val">${s.intralistSimilarityPct}%</div>
+            <div class="score-label">Avg ILS</div><div class="score-sub">Intra-list similarity</div></div>
+        <div class="score-card"><div class="score-val">${s.coveragePct}%</div>
+            <div class="score-label">Coverage</div><div class="score-sub">${s.totalProducts} of 88 products</div></div>
+    `;
+}
+
+function renderGauges(s) {
+    const gauges = [
+        { label:'Precision@5',           val:s.precisionAt5Pct,           max:100, color:'#1a3a5c', suffix:'%' },
+        { label:'Intra-list Similarity',  val:s.intralistSimilarityPct,    max:100, color:'#2563a8', suffix:'%' },
+        { label:'Coverage',               val:s.coveragePct,               max:100, color:'#3b82f6', suffix:'%' },
+        { label:'Products Indexed',       val:s.totalProducts,             max:88,  color:'#1a3a5c', suffix:''  },
+        { label:'Customers in Matrix',    val:s.matrixCustomers,           max:2500,color:'#2563a8', suffix:''  },
+    ];
+    document.getElementById('gauges').innerHTML = gauges.map(g => {
+        const pct = Math.min((g.val / g.max) * 100, 100).toFixed(0);
+        return `<div class="gauge-row">
+            <div class="gauge-label">${g.label}</div>
+            <div class="gauge-track"><div class="gauge-fill" style="width:${pct}%;background:${g.color}"></div></div>
+            <div class="gauge-num">${typeof g.val === 'number' ? g.val.toLocaleString() : g.val}${g.suffix}</div>
+        </div>`;
+    }).join('');
+}
+
+function renderSimChart(recs) {
+    const top = recs.slice(0, 20);
+    const avgs = top.map(r => {
+        const avg = r.neighbours.reduce((s, n) => s + n.similarity, 0) / r.neighbours.length;
+        return Math.round(avg * 1000) / 10;
+    });
+    new Chart(document.getElementById('simChart'), {
+        type: 'bar',
+        data: {
+            labels: top.map(r => r.productName.substring(0, 18)),
+            datasets: [{
+                label: 'Avg Similarity %',
+                data: avgs,
+                backgroundColor: 'rgba(26,58,92,0.75)',
+                borderColor: '#1a3a5c',
+                borderWidth: 1,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: 'Similarity %' } } }
+        }
+    });
+}
+
+function renderDistChart(recs) {
+    const bins = [0, 0, 0, 0, 0];
+    recs.forEach(r => r.neighbours.forEach(n => {
+        bins[Math.min(Math.floor(n.similarityPct / 20), 4)]++;
+    }));
+    new Chart(document.getElementById('distChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['0–20%', '20–40%', '40–60%', '60–80%', '80–100%'],
+            datasets: [{ data: bins, backgroundColor: ['#bfdbfe','#93c5fd','#60a5fa','#2563a8','#1a3a5c'] }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+    });
+}
+
+function renderKnnGrid(recs) {
+    ALL_RECS = recs;
+    renderKnnRows(recs);
+}
+
+function renderKnnRows(recs) {
+    document.getElementById('knnGrid').innerHTML = recs.map(r => {
+        const nbrs = r.neighbours.map(n => `
+            <div class="knn-nbr">
+                <div style="flex:1;">
+                    <div style="font-size:.85rem;font-weight:600;color:var(--brown-700)">${n.productName}</div>
+                    <div style="font-size:.75rem;color:var(--brown-400)">${n.category}</div>
+                </div>
+                <div class="sim-bar" style="width:180px;">
+                    <div class="sim-track"><div class="sim-fill" style="width:${n.similarityPct}%"></div></div>
+                    <div class="sim-pct">${n.similarityPct}%</div>
+                </div>
+            </div>`).join('');
+        return `<div class="knn-card">
+            <div class="knn-card-header">
+                <div class="knn-avatar">K</div>
+                <div>
+                    <div style="font-weight:700;color:var(--brown-800)">${r.productName}</div>
+                    <div style="font-size:.78rem;color:var(--brown-400)">${r.category} — 5 nearest neighbours</div>
+                </div>
+            </div>
+            ${nbrs}
+        </div>`;
+    }).join('');
+}
+
+function filterKnn(q) {
+    const lq = q.toLowerCase();
+    renderKnnRows(ALL_RECS.filter(r =>
+        r.productName.toLowerCase().includes(lq) ||
+        r.category.toLowerCase().includes(lq)
+    ));
+}
+
+async function runKnn() {
+    const btn = document.getElementById('runBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Running...';
+    showToast('Running KNN model — please wait...', 'success');
+    try {
+        const r = await fetch('/api/knn/run', { method: 'POST' });
+        const d = await r.json();
+        showToast(r.ok ? 'KNN complete! Reloading...' : 'Error: ' + d.message, r.ok ? 'success' : 'error');
+        if (r.ok) setTimeout(() => location.reload(), 1500);
+    } catch(e) { showToast('Failed: ' + e.message, 'error'); }
+    finally { btn.disabled = false; btn.textContent = '▶ Run KNN'; }
+}
+
+function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + type;
+    setTimeout(() => t.className = 'toast hidden', 4000);
+}
+
+load();
+</script>
+</body>
+</html>

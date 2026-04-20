@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Analytics Chatbot — Coffee Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body class="app-layout">
+
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <span class="brand-icon">☕</span>
+        <div><div class="brand-name">Coffee Admin</div><div class="brand-sub">Analytics Dashboard</div></div>
+    </div>
+    <nav class="sidebar-nav">
+        <a th:href="@{/admin/dashboard}" class="nav-item"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+        <a th:href="@{/admin/trends}"    class="nav-item"><span class="nav-icon">📈</span><span>Trend Analysis</span></a>
+        <a th:href="@{/admin/apriori}"   class="nav-item active"><span class="nav-icon">📦</span><span>Apriori Algorithm</span></a>
+        <a th:href="@{/admin/knn}"       class="nav-item"><span class="nav-icon">🔵</span><span>KNN Filtering</span></a>
+        <a th:href="@{/admin/products}"  class="nav-item"><span class="nav-icon">🛍️</span><span>Products</span></a>
+        <a th:href="@{/admin/chatbot}"   class="nav-item"><span class="nav-icon">🤖</span><span>Analytics Chatbot</span></a>
+        <a th:href="@{/admin/sessions}"  class="nav-item"><span class="nav-icon">📋</span><span>Session History</span></a>
+    </nav>
+    <div class="sidebar-footer">
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="btn-logout">🚪 Sign Out</button>
+        </form>
+    </div>
+</aside>
+
+<main class="main-content">
+    <header class="topbar">
+        <div>
+            <h1 class="page-title">🤖 Analytics Chatbot</h1>
+            <p class="page-subtitle">Ask anything about sales, trends, products, and outlet performance</p>
+        </div>
+        <div class="topbar-right">
+            <button class="btn-outline" onclick="clearChat()">🗑️ Clear Chat</button>
+            <span class="admin-badge">👤 Admin</span>
+        </div>
+    </header>
+
+    <div class="content-area chatbot-layout">
+
+        <!-- Chat panel -->
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <!-- Welcome message -->
+                <div class="message bot-message">
+                    <div class="message-avatar">☕</div>
+                    <div class="message-bubble">
+                        <p>👋 Hello, Admin! I'm your <strong>Coffee Analytics Assistant</strong>.</p>
+                        <p>I can answer questions about your sales data. Try asking:</p>
+                        <ul>
+                            <li>📈 "What are the best-selling products?"</li>
+                            <li>💰 "What is the total revenue?"</li>
+                            <li>⏰ "When is the busiest hour?"</li>
+                            <li>📊 "What's trending this week?"</li>
+                            <li>💎 "Show me hidden gems"</li>
+                        </ul>
+                        <p>Type <strong>help</strong> for all options.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input area -->
+            <div class="chat-input-area">
+                <div class="chat-input-row">
+                    <input type="text" id="chatInput" class="chat-input"
+                           placeholder="Ask about sales, trends, products..."
+                           onkeydown="if(event.key==='Enter') sendMessage()"/>
+                    <button class="btn-send" onclick="sendMessage()">Send ➤</button>
+                </div>
+                <div class="quick-prompts">
+                    <span class="quick-label">Quick:</span>
+                    <button class="quick-btn" onclick="ask('What is the total revenue?')">💰 Revenue</button>
+                    <button class="quick-btn" onclick="ask('What are the best-selling products?')">🏆 Top Products</button>
+                    <button class="quick-btn" onclick="ask('What is trending?')">📈 Trending</button>
+                    <button class="quick-btn" onclick="ask('When is the busiest time?')">⏰ Peak Hours</button>
+                    <button class="quick-btn" onclick="ask('Show me hidden gems')">💎 Hidden Gems</button>
+                    <button class="quick-btn" onclick="ask('Which outlet performs best?')">🏪 Outlets</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Side info panel -->
+        <div class="chatbot-sidebar">
+            <div class="info-card">
+                <h4>💡 What I Know</h4>
+                <ul class="capability-list">
+                    <li>📊 Total revenue &amp; KPIs</li>
+                    <li>🏆 Top selling products</li>
+                    <li>📈 Trending &amp; growing items</li>
+                    <li>💎 Hidden gem products</li>
+                    <li>⏰ Peak sales hours</li>
+                    <li>🏪 Outlet performance</li>
+                    <li>👥 Customer insights</li>
+                    <li>☕ Category breakdowns</li>
+                    <li>📅 Date range details</li>
+                </ul>
+            </div>
+            <div class="info-card">
+                <h4>📂 Data Source</h4>
+                <p style="font-size:.85rem;color:var(--brown-600);">
+                    April 2019 sales dataset<br/>
+                    49,894 transaction records<br/>
+                    88 products · 3 outlets
+                </p>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+const SESSION_ID = 'admin-' + Date.now();
+
+function getCsrfToken() {
+    const meta = document.querySelector('meta[name="_csrf"]');
+    if (meta) return meta.content;
+    const cookie = document.cookie.match(/XSRF-TOKEN=([^;]+)/);
+    return cookie ? decodeURIComponent(cookie[1]) : '';
+}
+
+function ask(text) {
+    document.getElementById('chatInput').value = text;
+    sendMessage();
+}
+
+async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const msg   = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+
+    appendMessage(msg, 'admin');
+    const typing = appendTyping();
+
+    try {
+        const res = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': getCsrfToken()
+            },
+            body: JSON.stringify({ message: msg, sessionId: SESSION_ID })
+        });
+        const data = await res.json();
+        typing.remove();
+        appendMessage(data.reply, 'bot');
+    } catch (e) {
+        typing.remove();
+        appendMessage('⚠️ Connection error. Please try again.', 'bot');
+    }
+}
+
+function appendMessage(text, sender) {
+    const container = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'message ' + (sender === 'bot' ? 'bot-message' : 'admin-message');
+
+    if (sender === 'bot') {
+        div.innerHTML = `<div class="message-avatar">☕</div><div class="message-bubble">${formatMarkdown(text)}</div>`;
+    } else {
+        div.innerHTML = `<div class="message-bubble admin-bubble">${escapeHtml(text)}</div><div class="message-avatar admin-av">👤</div>`;
+    }
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    return div;
+}
+
+function appendTyping() {
+    const container = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'message bot-message typing-indicator';
+    div.innerHTML = `<div class="message-avatar">☕</div><div class="message-bubble"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    return div;
+}
+
+async function clearChat() {
+    if (!confirm('Clear chat history?')) return;
+    await fetch('/api/chat/' + SESSION_ID, {
+        method: 'DELETE',
+        headers: { 'X-XSRF-TOKEN': getCsrfToken() }
+    });
+    document.getElementById('chatMessages').innerHTML = '';
+    appendMessage("Chat cleared! Ask me anything about your coffee sales. 😊", 'bot');
+}
+
+function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function formatMarkdown(text) {
+    return text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/_(.*?)_/g, '<em>$1</em>')
+        .replace(/\n• /g, '</p><p>• ')
+        .replace(/\n(\d+\.)/g, '</p><p>$1')
+        .replace(/\n/g, '<br/>')
+        .replace(/^/, '<p>').replace(/$/, '</p>');
+}
+/*]]>*/
+</script>
+</body>
+</html>

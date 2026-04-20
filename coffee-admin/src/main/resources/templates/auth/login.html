@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Admin Login — Coffee Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <style>
+        body { background: var(--brown-800); display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; }
+        .login-card { background:#fff; border-radius:16px; padding:48px 40px; width:100%; max-width:420px; box-shadow:0 20px 60px rgba(0,0,0,0.35); }
+        .login-logo { text-align:center; margin-bottom:32px; }
+        .login-logo .cup { font-size:56px; display:block; }
+        .login-logo h1 { font-size:1.6rem; color:var(--brown-800); font-weight:700; margin:8px 0 4px; }
+        .login-logo p { color:var(--brown-400); font-size:.875rem; margin:0; }
+        .form-group { margin-bottom:20px; }
+        .form-group label { display:block; font-weight:600; color:var(--brown-700); font-size:.875rem; margin-bottom:6px; }
+        .form-group input { width:100%; padding:12px 14px; border:2px solid var(--brown-200); border-radius:8px;
+                            font-size:1rem; color:var(--brown-800); box-sizing:border-box; transition:border-color .2s; outline:none; }
+        .form-group input:focus { border-color:var(--brown-500); }
+        .btn-login { width:100%; padding:14px; background:var(--brown-700); color:#fff; border:none; border-radius:8px;
+                     font-size:1rem; font-weight:700; cursor:pointer; letter-spacing:.5px; transition:background .2s; }
+        .btn-login:hover { background:var(--brown-800); }
+        .alert { padding:12px 16px; border-radius:8px; font-size:.875rem; margin-bottom:20px; }
+        .alert-error  { background:#fef2f2; color:#dc2626; border:1px solid #fecaca; }
+        .alert-success { background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; }
+        .divider { border:none; border-top:1px solid var(--brown-100); margin:24px 0; }
+        .hint { text-align:center; font-size:.8rem; color:var(--brown-400); }
+    </style>
+</head>
+<body>
+<div class="login-card">
+    <div class="login-logo">
+        <span class="cup">☕</span>
+        <h1>Coffee Admin</h1>
+        <p>Sales Analytics &amp; Trend Dashboard</p>
+    </div>
+
+    <div th:if="${error}"  class="alert alert-error"   th:text="${error}"></div>
+    <div th:if="${logout}" class="alert alert-success" th:text="${logout}"></div>
+
+    <form th:action="@{/login}" method="post">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Enter admin username" required autofocus/>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter password" required/>
+        </div>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <button type="submit" class="btn-login">Sign In to Dashboard</button>
+    </form>
+
+    <hr class="divider"/>
+    <p class="hint">Coffee Recommendation System · IT2021 AIML Project</p>
+</div>
+</body>
+</html>

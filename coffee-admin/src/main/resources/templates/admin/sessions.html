@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Chat Sessions — Coffee Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body class="app-layout">
+
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <span class="brand-icon">☕</span>
+        <div><div class="brand-name">Coffee Admin</div><div class="brand-sub">Analytics Dashboard</div></div>
+    </div>
+    <nav class="sidebar-nav">
+        <a th:href="@{/admin/dashboard}" class="nav-item"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+        <a th:href="@{/admin/trends}"    class="nav-item"><span class="nav-icon">📈</span><span>Trend Analysis</span></a>
+        <a th:href="@{/admin/ml}" class="nav-item"><span class="nav-icon">🧠</span><span>ML Models</span></a>
+        <a th:href="@{/admin/products}"  class="nav-item"><span class="nav-icon">🛍️</span><span>Products</span></a>
+        <a th:href="@{/admin/chatbot}"   class="nav-item"><span class="nav-icon">🤖</span><span>Analytics Chatbot</span></a>
+        <a th:href="@{/admin/sessions}"  class="nav-item active"><span class="nav-icon">📋</span><span>Session History</span></a>
+    </nav>
+    <div class="sidebar-footer">
+        <form th:action="@{/logout}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+            <button type="submit" class="btn-logout">🚪 Sign Out</button>
+        </form>
+    </div>
+</aside>
+
+<main class="main-content">
+    <header class="topbar">
+        <div>
+            <h1 class="page-title">📋 Chat Session History</h1>
+            <p class="page-subtitle">Full conversation logs, recommendation tracking &amp; session replay</p>
+        </div>
+        <div class="topbar-right">
+            <button class="btn-outline" onclick="confirmDeleteAll()">🗑️ Clear All</button>
+            <span class="admin-badge">👤 Admin</span>
+        </div>
+    </header>
+
+    <div class="content-area">
+
+        <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px;">
+            <div class="kpi-card">
+                <div class="kpi-icon">💬</div>
+                <div class="kpi-value" th:text="${stats.totalSessions}">0</div>
+                <div class="kpi-label">Total Sessions</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">🟢</div>
+                <div class="kpi-value" th:text="${stats.openSessions}">0</div>
+                <div class="kpi-label">Open Sessions</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">✅</div>
+                <div class="kpi-value" th:text="${stats.recommendedSessions}">0</div>
+                <div class="kpi-label">Recommended</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon">🔒</div>
+                <div class="kpi-value" th:text="${stats.closedSessions}">0</div>
+                <div class="kpi-label">Closed</div>
+            </div>
+        </div>
+
+        <div class="filter-bar" style="margin-bottom:18px;">
+            <a th:href="@{/admin/sessions(filter='all')}"      class="filter-btn" th:classappend="${filter=='all'}      ? 'active' : ''">All</a>
+            <a th:href="@{/admin/sessions(filter='open')}"     class="filter-btn" th:classappend="${filter=='open'}     ? 'active' : ''">🟢 Open</a>
+            <a th:href="@{/admin/sessions(filter='closed')}"   class="filter-btn" th:classappend="${filter=='closed'}   ? 'active' : ''">🔒 Closed</a>
+            <a th:href="@{/admin/sessions(filter='archived')}" class="filter-btn" th:classappend="${filter=='archived'} ? 'active' : ''">📦 Archived</a>
+        </div>
+
+        <div class="table-card">
+            <div th:if="${#lists.isEmpty(sessions)}" class="empty-state">
+                <p>No sessions found. Sessions are created automatically when the chatbot is used.</p>
+            </div>
+            <table class="data-table" th:unless="${#lists.isEmpty(sessions)}">
+                <thead>
+                <tr>
+                    <th>Session ID</th>
+                    <th>Started</th>
+                    <th>Last Message</th>
+                    <th>Messages</th>
+                    <th>Status</th>
+                    <th>Outcome</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${sessions}">
+                    <td>
+                        <a th:href="@{/admin/sessions/{id}(id=${s.sessionId})}"
+                           style="color:var(--brown-600);font-weight:600;font-size:.82rem;"
+                           th:text="${#strings.abbreviate(s.sessionId, 20)}">session-id</a>
+                    </td>
+                    <td th:text="${#temporals.format(s.startedAt,'MMM dd, HH:mm')}">-</td>
+                    <td th:text="${s.lastMessageAt != null ? #temporals.format(s.lastMessageAt,'MMM dd, HH:mm') : '-'}">-</td>
+                    <td th:text="${s.messageCount != null ? s.messageCount : 0}">0</td>
+                    <td>
+                            <span class="status-badge"
+                                  th:classappend="${s.status == 'OPEN'} ? ' status-open' : (${s.status == 'CLOSED'} ? ' status-closed' : ' status-archived')"
+                                  th:text="${s.status}">OPEN</span>
+                    </td>
+                    <td>
+                            <span class="outcome-badge"
+                                  th:classappend="${s.outcome == 'RECOMMENDED'} ? ' outcome-recommended' : (${s.outcome == 'BROWSED'} ? ' outcome-browsed' : ' outcome-none')"
+                                  th:text="${s.outcome}">NO_ACTION</span>
+                    </td>
+                    <td>
+                        <div style="display:flex;gap:6px;">
+                            <a th:href="@{/admin/sessions/{id}(id=${s.sessionId})}" class="btn-action btn-view">View</a>
+                            <button class="btn-action btn-close"
+                                    th:data-id="${s.sessionId}"
+                                    onclick="closeSession(this.getAttribute('data-id'))"
+                                    th:disabled="${s.status == 'CLOSED' || s.status == 'ARCHIVED'}">Close</button>
+                            <button class="btn-action btn-delete"
+                                    th:data-id="${s.sessionId}"
+                                    onclick="deleteSession(this.getAttribute('data-id'))">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<div id="toast" class="toast hidden"></div>
+
+<style>
+    .status-badge,.outcome-badge{padding:3px 10px;border-radius:10px;font-size:.75rem;font-weight:700;}
+    .status-open{background:#d1fae5;color:#065f46;}
+    .status-closed{background:#fee2e2;color:#991b1b;}
+    .status-archived{background:#e0e7ff;color:#3730a3;}
+    .outcome-recommended{background:#fef3c7;color:#92400e;}
+    .outcome-browsed{background:#dbeafe;color:#1e40af;}
+    .outcome-none{background:var(--brown-100);color:var(--brown-600);}
+    .btn-action{padding:4px 10px;border-radius:6px;font-size:.78rem;font-weight:600;border:none;cursor:pointer;}
+    .btn-view{background:var(--brown-100);color:var(--brown-700);text-decoration:none;}
+    .btn-close{background:#fef3c7;color:#92400e;}
+    .btn-close:disabled{opacity:.4;cursor:not-allowed;}
+    .btn-delete{background:#fee2e2;color:#991b1b;}
+</style>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    async function closeSession(id) {
+        if (!confirm('Close this session?')) return;
+        const r = await fetch('/api/sessions/' + id + '/close', { method: 'PUT' });
+        if (r.ok) { showToast('Session closed', 'success'); setTimeout(() => location.reload(), 800); }
+        else showToast('Failed to close session', 'error');
+    }
+
+    async function deleteSession(id) {
+        if (!confirm('Delete this session and all its messages?')) return;
+        const r = await fetch('/api/sessions/' + id, { method: 'DELETE' });
+        if (r.ok) { showToast('Session deleted', 'success'); setTimeout(() => location.reload(), 800); }
+        else showToast('Failed to delete', 'error');
+    }
+
+    async function confirmDeleteAll() {
+        if (!confirm('Delete ALL sessions? This cannot be undone.')) return;
+        const r = await fetch('/api/sessions', { method: 'DELETE' });
+        if (r.ok) { showToast('All sessions deleted', 'success'); setTimeout(() => location.reload(), 800); }
+        else showToast('Failed', 'error');
+    }
+
+    function showToast(msg, type) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = 'toast ' + type;
+        setTimeout(() => t.className = 'toast hidden', 3000);
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

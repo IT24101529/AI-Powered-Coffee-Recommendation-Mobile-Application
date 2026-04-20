@@ -1,0 +1,3379 @@
+{
+  "generatedAt": "2026-04-19T11:50:42.804848",
+  "stats": {
+    "k": 5,
+    "metric": "cosine",
+    "totalProducts": 80,
+    "matrixShape": "80 \u00d7 2248",
+    "matrixProducts": 80,
+    "matrixCustomers": 2248,
+    "precisionAt5": 0.17,
+    "precisionAt5Pct": 17.0,
+    "intralistSimilarity": 0.1507,
+    "intralistSimilarityPct": 15.07,
+    "coverage": 0.9091,
+    "coveragePct": 90.91
+  },
+  "recommendations": [
+    {
+      "productId": 1,
+      "productName": "Brazilian - Organic",
+      "category": "Coffee beans",
+      "neighbours": [
+        {
+          "productId": 39,
+          "productName": "Latte Rg",
+          "category": "Coffee",
+          "similarity": 0.1262,
+          "similarityPct": 12.6
+        },
+        {
+          "productId": 6,
+          "productName": "Ethiopia",
+          "category": "Coffee beans",
+          "similarity": 0.1041,
+          "similarityPct": 10.4
+        },
+        {
+          "productId": 2,
+          "productName": "Our Old Time Diner Blend",
+          "category": "Coffee beans",
+          "similarity": 0.0929,
+          "similarityPct": 9.3
+        },
+        {
+          "productId": 24,
+          "productName": "Our Old Time Diner Blend Lg",
+          "category": "Coffee",
+          "similarity": 0.0923,
+          "similarityPct": 9.2
+        },
+        {
+          "productId": 52,
+          "productName": "Traditional Blend Chai Rg",
+          "category": "Tea",
+          "similarity": 0.0902,
+          "similarityPct": 9.0
+        }
+      ]
+    },
+    {
+      "productId": 2,
+      "productName": "Our Old Time Diner Blend",
+      "category": "Coffee beans",
+      "neighbours": [
+        {
+          "productId": 77,
+          "productName": "Oatmeal Scone",
+          "category": "Bakery",
+          "similarity": 0.127,
+          "similarityPct": 12.7
+        },
+        {
+          "productId": 87,
+          "productName": "Ouro Brasileiro shot",
+          "category": "Coffee",
+          "similarity": 0.1081,
+          "similarityPct": 10.8
+        },
+        {
+          "productId": 28,
+          "productName": "Columbian Medium Roast Sm",
+          "category": "Coffee",
+          "similarity": 0.0956,
+          "similarityPct": 9.6
+        },
+        {
+          "productId": 1,
+          "productName": "Brazilian - Organic",
+          "category": "Coffee beans",
+          "similarity": 0.0929,
+          "similarityPct": 9.3
+        },
+        {
+          "productId": 3,
+          "productName": "Espresso Roast",
+          "category": "Coffee beans",
+          "similarity": 0.0847,
+          "similarityPct": 8.5
+        }
+      ]
+    },
+    {
+      "productId": 3,
+      "productName": "Espresso Roast",
+      "category": "Coffee beans",
+      "neighbours": [
+        {
+          "productId": 32,
+          "productName": "Ethiopia Rg",
+          "category": "Coffee",
+          "similarity": 0.0893,
+          "similarityPct": 8.9
+        },
+        {
+          "productId": 2,
+          "productName": "Our Old Time Diner Blend",
+          "category": "Coffee beans",
+          "similarity": 0.0847,
+          "similarityPct": 8.5
+        },
+        {
+          "productId": 20,
+          "productName": "Sustainably Grown Organic",
+          "category": "Packaged Chocolate",
+          "similarity": 0.0811,
+          "similarityPct": 8.1
+        },
+        {
+          "productId": 79,
+          "productName": "Jumbo Savory Scone",
+          "category": "Bakery",
+          "similarity": 0.0715,
+          "similarityPct": 7.2
+        },
+        {
+          "productId": 23,
+          "productName": "Our Old Time Diner Blend Rg",
+          "category": "Coffee",
+          "similarity": 0.071,
+          "similarityPct": 7.1
+        }
+      ]
+    },
+    {
+      "productId": 4,
+      "productName": "Primo Espresso Roast",
+      "category": "Coffee beans",
+      "neighbours": [
+        {
+          "productId": 31,
+          "productName": "Ethiopia Sm",
+          "category": "Coffee",
+          "similarity": 0.0944,
+          "similarityPct": 9.4
+        },
+        {
+          "productId": 54,
+          "productName": "Morning Sunrise Chai Rg",
+          "category": "Tea",
+          "similarity": 0.0876,
+          "similarityPct": 8.8
+        },
+        {
+          "productId": 22,
+          "productName": "Our Old Time Diner Blend Sm",
+          "category": "Coffee",
+          "similarity": 0.0828,
+          "similarityPct": 8.3
+        },
+        {
+          "productId": 6,
+          "productName": "Ethiopia",
+          "category": "Coffee beans",
+          "similarity": 0.0749,
+          "similarityPct": 7.5
+        },
+        {
+          "productId": 35,
+          "productName": "Jamaican Coffee River Rg",
+          "category": "Coffee",
+          "similarity": 0.0746,
+          "similarityPct": 7.5
+        }
+      ]
+    },
+    {
+      "productId": 5,
+      "productName": "Columbian Medium Roast",
+      "category": "Coffee beans",
+      "neighbours": [
+        {
+          "productId": 32,
+          "productName": "Ethiopia Rg",
+          "category": "Coffee",
+          "similarity": 0.0789,
+          "similarityPct": 7.9
+        },
+        {
+          "productId": 61,
+          "productName": "Sustainably Grown Organic Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.0777,
+          "similarityPct": 7.8
+        },
+        {
+          "productId": 37,
+          "productName": "Espresso shot",
+          "category": "Coffee",
+          "similarity": 0.0771,
+          "similarityPct": 7.7
+        },
+        {
+          "productId": 81,
+          "productName": "I Need My Bean! T-shirt",
+          "category": "Branded",
+          "similarity": 0.0728,
+          "similarityPct": 7.3
+        },
+        {
+          "productId": 31,
+          "productName": "Ethiopia Sm",
+          "category": "Coffee",
+          "similarity": 0.0662,
+          "similarityPct": 6.6
+        }
+      ]
+    },
+    {
+      "productId": 6,
+      "productName": "Ethiopia",
+      "category": "Coffee beans",
+      "neighbours": [
+        {
+          "productId": 9,
+          "productName": "Organic Decaf Blend",
+          "category": "Coffee beans",
+          "similarity": 0.21,
+          "similarityPct": 21.0
+        },
+        {
+          "productId": 1,
+          "productName": "Brazilian - Organic",
+          "category": "Coffee beans",
+          "similarity": 0.1041,
+          "similarityPct": 10.4
+        },
+        {
+          "productId": 29,
+          "productName": "Columbian Medium Roast Rg",
+          "category": "Coffee",
+          "similarity": 0.1011,
+          "similarityPct": 10.1
+        },
+        {
+          "productId": 87,
+          "productName": "Ouro Brasileiro shot",
+          "category": "Coffee",
+          "similarity": 0.0944,
+          "similarityPct": 9.4
+        },
+        {
+          "productId": 51,
+          "productName": "Earl Grey Lg",
+          "category": "Tea",
+          "similarity": 0.0883,
+          "similarityPct": 8.8
+        }
+      ]
+    },
+    {
+      "productId": 7,
+      "productName": "Jamacian Coffee River",
+      "category": "Coffee beans",
+      "neighbours": [
+        {
+          "productId": 37,
+          "productName": "Espresso shot",
+          "category": "Coffee",
+          "similarity": 0.1309,
+          "similarityPct": 13.1
+        },
+        {
+          "productId": 84,
+          "productName": "Chocolate syrup",
+          "category": "Flavours",
+          "similarity": 0.0909,
+          "similarityPct": 9.1
+        },
+        {
+          "productId": 57,
+          "productName": "Spicy Eye Opener Chai Lg",
+          "category": "Tea",
+          "similarity": 0.0803,
+          "similarityPct": 8.0
+        },
+        {
+          "productId": 25,
+          "productName": "Brazilian Sm",
+          "category": "Coffee",
+          "similarity": 0.0686,
+          "similarityPct": 6.9
+        },
+        {
+          "productId": 75,
+          "productName": "Croissant",
+          "category": "Bakery",
+          "similarity": 0.068,
+          "similarityPct": 6.8
+        }
+      ]
+    },
+    {
+      "productId": 8,
+      "productName": "Civet Cat",
+      "category": "Coffee beans",
+      "neighbours": [
+        {
+          "productId": 20,
+          "productName": "Sustainably Grown Organic",
+          "category": "Packaged Chocolate",
+          "similarity": 0.0987,
+          "similarityPct": 9.9
+        },
+        {
+          "productId": 73,
+          "productName": "Almond Croissant",
+          "category": "Bakery",
+          "similarity": 0.0833,
+          "similarityPct": 8.3
+        },
+        {
+          "productId": 72,
+          "productName": "Ginger Scone",
+          "category": "Bakery",
+          "similarity": 0.0805,
+          "similarityPct": 8.0
+        },
+        {
+          "productId": 47,
+          "productName": "Serenity Green Tea Lg",
+          "category": "Tea",
+          "similarity": 0.077,
+          "similarityPct": 7.7
+        },
+        {
+          "productId": 33,
+          "productName": "Ethiopia Lg",
+          "category": "Coffee",
+          "similarity": 0.0712,
+          "similarityPct": 7.1
+        }
+      ]
+    },
+    {
+      "productId": 9,
+      "productName": "Organic Decaf Blend",
+      "category": "Coffee beans",
+      "neighbours": [
+        {
+          "productId": 6,
+          "productName": "Ethiopia",
+          "category": "Coffee beans",
+          "similarity": 0.21,
+          "similarityPct": 21.0
+        },
+        {
+          "productId": 84,
+          "productName": "Chocolate syrup",
+          "category": "Flavours",
+          "similarity": 0.1191,
+          "similarityPct": 11.9
+        },
+        {
+          "productId": 41,
+          "productName": "Cappuccino Lg",
+          "category": "Coffee",
+          "similarity": 0.1011,
+          "similarityPct": 10.1
+        },
+        {
+          "productId": 30,
+          "productName": "Columbian Medium Roast Lg",
+          "category": "Coffee",
+          "similarity": 0.0851,
+          "similarityPct": 8.5
+        },
+        {
+          "productId": 42,
+          "productName": "Lemon Grass Rg",
+          "category": "Tea",
+          "similarity": 0.0837,
+          "similarityPct": 8.4
+        }
+      ]
+    },
+    {
+      "productId": 10,
+      "productName": "Guatemalan Sustainably Grown",
+      "category": "Coffee beans",
+      "neighbours": [
+        {
+          "productId": 42,
+          "productName": "Lemon Grass Rg",
+          "category": "Tea",
+          "similarity": 0.0975,
+          "similarityPct": 9.8
+        },
+        {
+          "productId": 16,
+          "productName": "Traditional Blend Chai",
+          "category": "Loose Tea",
+          "similarity": 0.0955,
+          "similarityPct": 9.6
+        },
+        {
+          "productId": 46,
+          "productName": "Serenity Green Tea Rg",
+          "category": "Tea",
+          "similarity": 0.0776,
+          "similarityPct": 7.8
+        },
+        {
+          "productId": 72,
+          "productName": "Ginger Scone",
+          "category": "Bakery",
+          "similarity": 0.0763,
+          "similarityPct": 7.6
+        },
+        {
+          "productId": 51,
+          "productName": "Earl Grey Lg",
+          "category": "Tea",
+          "similarity": 0.0728,
+          "similarityPct": 7.3
+        }
+      ]
+    },
+    {
+      "productId": 11,
+      "productName": "Lemon Grass",
+      "category": "Loose Tea",
+      "neighbours": [
+        {
+          "productId": 25,
+          "productName": "Brazilian Sm",
+          "category": "Coffee",
+          "similarity": 0.1035,
+          "similarityPct": 10.4
+        },
+        {
+          "productId": 69,
+          "productName": "Hazelnut Biscotti",
+          "category": "Bakery",
+          "similarity": 0.102,
+          "similarityPct": 10.2
+        },
+        {
+          "productId": 48,
+          "productName": "English Breakfast Rg",
+          "category": "Tea",
+          "similarity": 0.0816,
+          "similarityPct": 8.2
+        },
+        {
+          "productId": 61,
+          "productName": "Sustainably Grown Organic Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.0782,
+          "similarityPct": 7.8
+        },
+        {
+          "productId": 87,
+          "productName": "Ouro Brasileiro shot",
+          "category": "Coffee",
+          "similarity": 0.0765,
+          "similarityPct": 7.6
+        }
+      ]
+    },
+    {
+      "productId": 12,
+      "productName": "Peppermint",
+      "category": "Loose Tea",
+      "neighbours": [
+        {
+          "productId": 55,
+          "productName": "Morning Sunrise Chai Lg",
+          "category": "Tea",
+          "similarity": 0.118,
+          "similarityPct": 11.8
+        },
+        {
+          "productId": 38,
+          "productName": "Latte",
+          "category": "Coffee",
+          "similarity": 0.0816,
+          "similarityPct": 8.2
+        },
+        {
+          "productId": 46,
+          "productName": "Serenity Green Tea Rg",
+          "category": "Tea",
+          "similarity": 0.0758,
+          "similarityPct": 7.6
+        },
+        {
+          "productId": 52,
+          "productName": "Traditional Blend Chai Rg",
+          "category": "Tea",
+          "similarity": 0.0637,
+          "similarityPct": 6.4
+        },
+        {
+          "productId": 51,
+          "productName": "Earl Grey Lg",
+          "category": "Tea",
+          "similarity": 0.0635,
+          "similarityPct": 6.4
+        }
+      ]
+    },
+    {
+      "productId": 13,
+      "productName": "English Breakfast",
+      "category": "Loose Tea",
+      "neighbours": [
+        {
+          "productId": 28,
+          "productName": "Columbian Medium Roast Sm",
+          "category": "Coffee",
+          "similarity": 0.0827,
+          "similarityPct": 8.3
+        },
+        {
+          "productId": 41,
+          "productName": "Cappuccino Lg",
+          "category": "Coffee",
+          "similarity": 0.0775,
+          "similarityPct": 7.8
+        },
+        {
+          "productId": 43,
+          "productName": "Lemon Grass Lg",
+          "category": "Tea",
+          "similarity": 0.0757,
+          "similarityPct": 7.6
+        },
+        {
+          "productId": 9,
+          "productName": "Organic Decaf Blend",
+          "category": "Coffee beans",
+          "similarity": 0.0704,
+          "similarityPct": 7.0
+        },
+        {
+          "productId": 51,
+          "productName": "Earl Grey Lg",
+          "category": "Tea",
+          "similarity": 0.0696,
+          "similarityPct": 7.0
+        }
+      ]
+    },
+    {
+      "productId": 14,
+      "productName": "Earl Grey",
+      "category": "Loose Tea",
+      "neighbours": [
+        {
+          "productId": 30,
+          "productName": "Columbian Medium Roast Lg",
+          "category": "Coffee",
+          "similarity": 0.0893,
+          "similarityPct": 8.9
+        },
+        {
+          "productId": 28,
+          "productName": "Columbian Medium Roast Sm",
+          "category": "Coffee",
+          "similarity": 0.0678,
+          "similarityPct": 6.8
+        },
+        {
+          "productId": 24,
+          "productName": "Our Old Time Diner Blend Lg",
+          "category": "Coffee",
+          "similarity": 0.0669,
+          "similarityPct": 6.7
+        },
+        {
+          "productId": 35,
+          "productName": "Jamaican Coffee River Rg",
+          "category": "Coffee",
+          "similarity": 0.0667,
+          "similarityPct": 6.7
+        },
+        {
+          "productId": 71,
+          "productName": "Chocolate Croissant",
+          "category": "Bakery",
+          "similarity": 0.0628,
+          "similarityPct": 6.3
+        }
+      ]
+    },
+    {
+      "productId": 15,
+      "productName": "Serenity Green Tea",
+      "category": "Loose Tea",
+      "neighbours": [
+        {
+          "productId": 41,
+          "productName": "Cappuccino Lg",
+          "category": "Coffee",
+          "similarity": 0.0945,
+          "similarityPct": 9.4
+        },
+        {
+          "productId": 64,
+          "productName": "Hazelnut syrup",
+          "category": "Flavours",
+          "similarity": 0.0907,
+          "similarityPct": 9.1
+        },
+        {
+          "productId": 78,
+          "productName": "Scottish Cream Scone ",
+          "category": "Bakery",
+          "similarity": 0.0826,
+          "similarityPct": 8.3
+        },
+        {
+          "productId": 16,
+          "productName": "Traditional Blend Chai",
+          "category": "Loose Tea",
+          "similarity": 0.077,
+          "similarityPct": 7.7
+        },
+        {
+          "productId": 40,
+          "productName": "Cappuccino",
+          "category": "Coffee",
+          "similarity": 0.0617,
+          "similarityPct": 6.2
+        }
+      ]
+    },
+    {
+      "productId": 16,
+      "productName": "Traditional Blend Chai",
+      "category": "Loose Tea",
+      "neighbours": [
+        {
+          "productId": 10,
+          "productName": "Guatemalan Sustainably Grown",
+          "category": "Coffee beans",
+          "similarity": 0.0955,
+          "similarityPct": 9.6
+        },
+        {
+          "productId": 42,
+          "productName": "Lemon Grass Rg",
+          "category": "Tea",
+          "similarity": 0.0826,
+          "similarityPct": 8.3
+        },
+        {
+          "productId": 24,
+          "productName": "Our Old Time Diner Blend Lg",
+          "category": "Coffee",
+          "similarity": 0.0819,
+          "similarityPct": 8.2
+        },
+        {
+          "productId": 47,
+          "productName": "Serenity Green Tea Lg",
+          "category": "Tea",
+          "similarity": 0.0809,
+          "similarityPct": 8.1
+        },
+        {
+          "productId": 35,
+          "productName": "Jamaican Coffee River Rg",
+          "category": "Coffee",
+          "similarity": 0.0774,
+          "similarityPct": 7.7
+        }
+      ]
+    },
+    {
+      "productId": 17,
+      "productName": "Morning Sunrise Chai",
+      "category": "Loose Tea",
+      "neighbours": [
+        {
+          "productId": 84,
+          "productName": "Chocolate syrup",
+          "category": "Flavours",
+          "similarity": 0.091,
+          "similarityPct": 9.1
+        },
+        {
+          "productId": 1,
+          "productName": "Brazilian - Organic",
+          "category": "Coffee beans",
+          "similarity": 0.0855,
+          "similarityPct": 8.6
+        },
+        {
+          "productId": 63,
+          "productName": "Carmel syrup",
+          "category": "Flavours",
+          "similarity": 0.0809,
+          "similarityPct": 8.1
+        },
+        {
+          "productId": 61,
+          "productName": "Sustainably Grown Organic Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.0791,
+          "similarityPct": 7.9
+        },
+        {
+          "productId": 28,
+          "productName": "Columbian Medium Roast Sm",
+          "category": "Coffee",
+          "similarity": 0.0708,
+          "similarityPct": 7.1
+        }
+      ]
+    },
+    {
+      "productId": 18,
+      "productName": "Spicy Eye Opener Chai",
+      "category": "Loose Tea",
+      "neighbours": [
+        {
+          "productId": 76,
+          "productName": "Chocolate Chip Biscotti",
+          "category": "Bakery",
+          "similarity": 0.1315,
+          "similarityPct": 13.2
+        },
+        {
+          "productId": 22,
+          "productName": "Our Old Time Diner Blend Sm",
+          "category": "Coffee",
+          "similarity": 0.075,
+          "similarityPct": 7.5
+        },
+        {
+          "productId": 69,
+          "productName": "Hazelnut Biscotti",
+          "category": "Bakery",
+          "similarity": 0.0737,
+          "similarityPct": 7.4
+        },
+        {
+          "productId": 48,
+          "productName": "English Breakfast Rg",
+          "category": "Tea",
+          "similarity": 0.0722,
+          "similarityPct": 7.2
+        },
+        {
+          "productId": 65,
+          "productName": "Sugar Free Vanilla syrup",
+          "category": "Flavours",
+          "similarity": 0.0684,
+          "similarityPct": 6.8
+        }
+      ]
+    },
+    {
+      "productId": 19,
+      "productName": "Dark chocolate",
+      "category": "Packaged Chocolate",
+      "neighbours": [
+        {
+          "productId": 73,
+          "productName": "Almond Croissant",
+          "category": "Bakery",
+          "similarity": 0.1496,
+          "similarityPct": 15.0
+        },
+        {
+          "productId": 72,
+          "productName": "Ginger Scone",
+          "category": "Bakery",
+          "similarity": 0.1175,
+          "similarityPct": 11.8
+        },
+        {
+          "productId": 23,
+          "productName": "Our Old Time Diner Blend Rg",
+          "category": "Coffee",
+          "similarity": 0.1005,
+          "similarityPct": 10.0
+        },
+        {
+          "productId": 44,
+          "productName": "Peppermint Rg",
+          "category": "Tea",
+          "similarity": 0.0914,
+          "similarityPct": 9.1
+        },
+        {
+          "productId": 34,
+          "productName": "Jamaican Coffee River Sm",
+          "category": "Coffee",
+          "similarity": 0.077,
+          "similarityPct": 7.7
+        }
+      ]
+    },
+    {
+      "productId": 20,
+      "productName": "Sustainably Grown Organic",
+      "category": "Packaged Chocolate",
+      "neighbours": [
+        {
+          "productId": 51,
+          "productName": "Earl Grey Lg",
+          "category": "Tea",
+          "similarity": 0.1205,
+          "similarityPct": 12.0
+        },
+        {
+          "productId": 8,
+          "productName": "Civet Cat",
+          "category": "Coffee beans",
+          "similarity": 0.0987,
+          "similarityPct": 9.9
+        },
+        {
+          "productId": 3,
+          "productName": "Espresso Roast",
+          "category": "Coffee beans",
+          "similarity": 0.0811,
+          "similarityPct": 8.1
+        },
+        {
+          "productId": 71,
+          "productName": "Chocolate Croissant",
+          "category": "Bakery",
+          "similarity": 0.0706,
+          "similarityPct": 7.1
+        },
+        {
+          "productId": 75,
+          "productName": "Croissant",
+          "category": "Bakery",
+          "similarity": 0.0689,
+          "similarityPct": 6.9
+        }
+      ]
+    },
+    {
+      "productId": 21,
+      "productName": "Chili Mayan",
+      "category": "Packaged Chocolate",
+      "neighbours": [
+        {
+          "productId": 78,
+          "productName": "Scottish Cream Scone ",
+          "category": "Bakery",
+          "similarity": 0.1217,
+          "similarityPct": 12.2
+        },
+        {
+          "productId": 70,
+          "productName": "Cranberry Scone",
+          "category": "Bakery",
+          "similarity": 0.0957,
+          "similarityPct": 9.6
+        },
+        {
+          "productId": 57,
+          "productName": "Spicy Eye Opener Chai Lg",
+          "category": "Tea",
+          "similarity": 0.0879,
+          "similarityPct": 8.8
+        },
+        {
+          "productId": 46,
+          "productName": "Serenity Green Tea Rg",
+          "category": "Tea",
+          "similarity": 0.0721,
+          "similarityPct": 7.2
+        },
+        {
+          "productId": 51,
+          "productName": "Earl Grey Lg",
+          "category": "Tea",
+          "similarity": 0.0689,
+          "similarityPct": 6.9
+        }
+      ]
+    },
+    {
+      "productId": 22,
+      "productName": "Our Old Time Diner Blend Sm",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 42,
+          "productName": "Lemon Grass Rg",
+          "category": "Tea",
+          "similarity": 0.2107,
+          "similarityPct": 21.1
+        },
+        {
+          "productId": 56,
+          "productName": "Spicy Eye Opener Chai Rg",
+          "category": "Tea",
+          "similarity": 0.2059,
+          "similarityPct": 20.6
+        },
+        {
+          "productId": 49,
+          "productName": "English Breakfast Lg",
+          "category": "Tea",
+          "similarity": 0.2015,
+          "similarityPct": 20.2
+        },
+        {
+          "productId": 59,
+          "productName": "Dark chocolate Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1987,
+          "similarityPct": 19.9
+        },
+        {
+          "productId": 31,
+          "productName": "Ethiopia Sm",
+          "category": "Coffee",
+          "similarity": 0.1952,
+          "similarityPct": 19.5
+        }
+      ]
+    },
+    {
+      "productId": 23,
+      "productName": "Our Old Time Diner Blend Rg",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 57,
+          "productName": "Spicy Eye Opener Chai Lg",
+          "category": "Tea",
+          "similarity": 0.2127,
+          "similarityPct": 21.3
+        },
+        {
+          "productId": 48,
+          "productName": "English Breakfast Rg",
+          "category": "Tea",
+          "similarity": 0.2076,
+          "similarityPct": 20.8
+        },
+        {
+          "productId": 45,
+          "productName": "Peppermint Lg",
+          "category": "Tea",
+          "similarity": 0.2075,
+          "similarityPct": 20.8
+        },
+        {
+          "productId": 55,
+          "productName": "Morning Sunrise Chai Lg",
+          "category": "Tea",
+          "similarity": 0.2014,
+          "similarityPct": 20.1
+        },
+        {
+          "productId": 46,
+          "productName": "Serenity Green Tea Rg",
+          "category": "Tea",
+          "similarity": 0.1953,
+          "similarityPct": 19.5
+        }
+      ]
+    },
+    {
+      "productId": 24,
+      "productName": "Our Old Time Diner Blend Lg",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 46,
+          "productName": "Serenity Green Tea Rg",
+          "category": "Tea",
+          "similarity": 0.2061,
+          "similarityPct": 20.6
+        },
+        {
+          "productId": 39,
+          "productName": "Latte Rg",
+          "category": "Coffee",
+          "similarity": 0.2026,
+          "similarityPct": 20.3
+        },
+        {
+          "productId": 59,
+          "productName": "Dark chocolate Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1896,
+          "similarityPct": 19.0
+        },
+        {
+          "productId": 48,
+          "productName": "English Breakfast Rg",
+          "category": "Tea",
+          "similarity": 0.1888,
+          "similarityPct": 18.9
+        },
+        {
+          "productId": 42,
+          "productName": "Lemon Grass Rg",
+          "category": "Tea",
+          "similarity": 0.1855,
+          "similarityPct": 18.6
+        }
+      ]
+    },
+    {
+      "productId": 25,
+      "productName": "Brazilian Sm",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 45,
+          "productName": "Peppermint Lg",
+          "category": "Tea",
+          "similarity": 0.215,
+          "similarityPct": 21.5
+        },
+        {
+          "productId": 79,
+          "productName": "Jumbo Savory Scone",
+          "category": "Bakery",
+          "similarity": 0.1952,
+          "similarityPct": 19.5
+        },
+        {
+          "productId": 39,
+          "productName": "Latte Rg",
+          "category": "Coffee",
+          "similarity": 0.1949,
+          "similarityPct": 19.5
+        },
+        {
+          "productId": 28,
+          "productName": "Columbian Medium Roast Sm",
+          "category": "Coffee",
+          "similarity": 0.1943,
+          "similarityPct": 19.4
+        },
+        {
+          "productId": 71,
+          "productName": "Chocolate Croissant",
+          "category": "Bakery",
+          "similarity": 0.1898,
+          "similarityPct": 19.0
+        }
+      ]
+    },
+    {
+      "productId": 26,
+      "productName": "Brazilian Rg",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 22,
+          "productName": "Our Old Time Diner Blend Sm",
+          "category": "Coffee",
+          "similarity": 0.1915,
+          "similarityPct": 19.2
+        },
+        {
+          "productId": 31,
+          "productName": "Ethiopia Sm",
+          "category": "Coffee",
+          "similarity": 0.1862,
+          "similarityPct": 18.6
+        },
+        {
+          "productId": 25,
+          "productName": "Brazilian Sm",
+          "category": "Coffee",
+          "similarity": 0.1832,
+          "similarityPct": 18.3
+        },
+        {
+          "productId": 40,
+          "productName": "Cappuccino",
+          "category": "Coffee",
+          "similarity": 0.1821,
+          "similarityPct": 18.2
+        },
+        {
+          "productId": 58,
+          "productName": "Dark chocolate Rg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1815,
+          "similarityPct": 18.2
+        }
+      ]
+    },
+    {
+      "productId": 27,
+      "productName": "Brazilian Lg",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 50,
+          "productName": "Earl Grey Rg",
+          "category": "Tea",
+          "similarity": 0.1934,
+          "similarityPct": 19.3
+        },
+        {
+          "productId": 42,
+          "productName": "Lemon Grass Rg",
+          "category": "Tea",
+          "similarity": 0.1832,
+          "similarityPct": 18.3
+        },
+        {
+          "productId": 71,
+          "productName": "Chocolate Croissant",
+          "category": "Bakery",
+          "similarity": 0.1822,
+          "similarityPct": 18.2
+        },
+        {
+          "productId": 28,
+          "productName": "Columbian Medium Roast Sm",
+          "category": "Coffee",
+          "similarity": 0.1815,
+          "similarityPct": 18.2
+        },
+        {
+          "productId": 40,
+          "productName": "Cappuccino",
+          "category": "Coffee",
+          "similarity": 0.1804,
+          "similarityPct": 18.0
+        }
+      ]
+    },
+    {
+      "productId": 28,
+      "productName": "Columbian Medium Roast Sm",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 25,
+          "productName": "Brazilian Sm",
+          "category": "Coffee",
+          "similarity": 0.1943,
+          "similarityPct": 19.4
+        },
+        {
+          "productId": 52,
+          "productName": "Traditional Blend Chai Rg",
+          "category": "Tea",
+          "similarity": 0.1875,
+          "similarityPct": 18.8
+        },
+        {
+          "productId": 54,
+          "productName": "Morning Sunrise Chai Rg",
+          "category": "Tea",
+          "similarity": 0.1864,
+          "similarityPct": 18.6
+        },
+        {
+          "productId": 27,
+          "productName": "Brazilian Lg",
+          "category": "Coffee",
+          "similarity": 0.1815,
+          "similarityPct": 18.2
+        },
+        {
+          "productId": 44,
+          "productName": "Peppermint Rg",
+          "category": "Tea",
+          "similarity": 0.1787,
+          "similarityPct": 17.9
+        }
+      ]
+    },
+    {
+      "productId": 29,
+      "productName": "Columbian Medium Roast Rg",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 71,
+          "productName": "Chocolate Croissant",
+          "category": "Bakery",
+          "similarity": 0.2034,
+          "similarityPct": 20.3
+        },
+        {
+          "productId": 60,
+          "productName": "Sustainably Grown Organic Rg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1969,
+          "similarityPct": 19.7
+        },
+        {
+          "productId": 61,
+          "productName": "Sustainably Grown Organic Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1939,
+          "similarityPct": 19.4
+        },
+        {
+          "productId": 46,
+          "productName": "Serenity Green Tea Rg",
+          "category": "Tea",
+          "similarity": 0.188,
+          "similarityPct": 18.8
+        },
+        {
+          "productId": 53,
+          "productName": "Traditional Blend Chai Lg",
+          "category": "Tea",
+          "similarity": 0.1857,
+          "similarityPct": 18.6
+        }
+      ]
+    },
+    {
+      "productId": 30,
+      "productName": "Columbian Medium Roast Lg",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 37,
+          "productName": "Espresso shot",
+          "category": "Coffee",
+          "similarity": 0.1999,
+          "similarityPct": 20.0
+        },
+        {
+          "productId": 32,
+          "productName": "Ethiopia Rg",
+          "category": "Coffee",
+          "similarity": 0.1894,
+          "similarityPct": 18.9
+        },
+        {
+          "productId": 60,
+          "productName": "Sustainably Grown Organic Rg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1891,
+          "similarityPct": 18.9
+        },
+        {
+          "productId": 57,
+          "productName": "Spicy Eye Opener Chai Lg",
+          "category": "Tea",
+          "similarity": 0.1855,
+          "similarityPct": 18.6
+        },
+        {
+          "productId": 42,
+          "productName": "Lemon Grass Rg",
+          "category": "Tea",
+          "similarity": 0.1805,
+          "similarityPct": 18.0
+        }
+      ]
+    },
+    {
+      "productId": 31,
+      "productName": "Ethiopia Sm",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 22,
+          "productName": "Our Old Time Diner Blend Sm",
+          "category": "Coffee",
+          "similarity": 0.1952,
+          "similarityPct": 19.5
+        },
+        {
+          "productId": 61,
+          "productName": "Sustainably Grown Organic Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1897,
+          "similarityPct": 19.0
+        },
+        {
+          "productId": 59,
+          "productName": "Dark chocolate Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1892,
+          "similarityPct": 18.9
+        },
+        {
+          "productId": 72,
+          "productName": "Ginger Scone",
+          "category": "Bakery",
+          "similarity": 0.1875,
+          "similarityPct": 18.8
+        },
+        {
+          "productId": 26,
+          "productName": "Brazilian Rg",
+          "category": "Coffee",
+          "similarity": 0.1862,
+          "similarityPct": 18.6
+        }
+      ]
+    },
+    {
+      "productId": 32,
+      "productName": "Ethiopia Rg",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 30,
+          "productName": "Columbian Medium Roast Lg",
+          "category": "Coffee",
+          "similarity": 0.1894,
+          "similarityPct": 18.9
+        },
+        {
+          "productId": 40,
+          "productName": "Cappuccino",
+          "category": "Coffee",
+          "similarity": 0.1888,
+          "similarityPct": 18.9
+        },
+        {
+          "productId": 47,
+          "productName": "Serenity Green Tea Lg",
+          "category": "Tea",
+          "similarity": 0.1875,
+          "similarityPct": 18.8
+        },
+        {
+          "productId": 70,
+          "productName": "Cranberry Scone",
+          "category": "Bakery",
+          "similarity": 0.1849,
+          "similarityPct": 18.5
+        },
+        {
+          "productId": 38,
+          "productName": "Latte",
+          "category": "Coffee",
+          "similarity": 0.1844,
+          "similarityPct": 18.4
+        }
+      ]
+    },
+    {
+      "productId": 33,
+      "productName": "Ethiopia Lg",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 47,
+          "productName": "Serenity Green Tea Lg",
+          "category": "Tea",
+          "similarity": 0.1936,
+          "similarityPct": 19.4
+        },
+        {
+          "productId": 35,
+          "productName": "Jamaican Coffee River Rg",
+          "category": "Coffee",
+          "similarity": 0.1923,
+          "similarityPct": 19.2
+        },
+        {
+          "productId": 56,
+          "productName": "Spicy Eye Opener Chai Rg",
+          "category": "Tea",
+          "similarity": 0.191,
+          "similarityPct": 19.1
+        },
+        {
+          "productId": 38,
+          "productName": "Latte",
+          "category": "Coffee",
+          "similarity": 0.1847,
+          "similarityPct": 18.5
+        },
+        {
+          "productId": 58,
+          "productName": "Dark chocolate Rg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1828,
+          "similarityPct": 18.3
+        }
+      ]
+    },
+    {
+      "productId": 34,
+      "productName": "Jamaican Coffee River Sm",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 36,
+          "productName": "Jamaican Coffee River Lg",
+          "category": "Coffee",
+          "similarity": 0.1958,
+          "similarityPct": 19.6
+        },
+        {
+          "productId": 44,
+          "productName": "Peppermint Rg",
+          "category": "Tea",
+          "similarity": 0.187,
+          "similarityPct": 18.7
+        },
+        {
+          "productId": 22,
+          "productName": "Our Old Time Diner Blend Sm",
+          "category": "Coffee",
+          "similarity": 0.181,
+          "similarityPct": 18.1
+        },
+        {
+          "productId": 73,
+          "productName": "Almond Croissant",
+          "category": "Bakery",
+          "similarity": 0.1753,
+          "similarityPct": 17.5
+        },
+        {
+          "productId": 52,
+          "productName": "Traditional Blend Chai Rg",
+          "category": "Tea",
+          "similarity": 0.1742,
+          "similarityPct": 17.4
+        }
+      ]
+    },
+    {
+      "productId": 35,
+      "productName": "Jamaican Coffee River Rg",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 61,
+          "productName": "Sustainably Grown Organic Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.2078,
+          "similarityPct": 20.8
+        },
+        {
+          "productId": 46,
+          "productName": "Serenity Green Tea Rg",
+          "category": "Tea",
+          "similarity": 0.2055,
+          "similarityPct": 20.5
+        },
+        {
+          "productId": 42,
+          "productName": "Lemon Grass Rg",
+          "category": "Tea",
+          "similarity": 0.2006,
+          "similarityPct": 20.1
+        },
+        {
+          "productId": 54,
+          "productName": "Morning Sunrise Chai Rg",
+          "category": "Tea",
+          "similarity": 0.1976,
+          "similarityPct": 19.8
+        },
+        {
+          "productId": 39,
+          "productName": "Latte Rg",
+          "category": "Coffee",
+          "similarity": 0.1947,
+          "similarityPct": 19.5
+        }
+      ]
+    },
+    {
+      "productId": 36,
+      "productName": "Jamaican Coffee River Lg",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 34,
+          "productName": "Jamaican Coffee River Sm",
+          "category": "Coffee",
+          "similarity": 0.1958,
+          "similarityPct": 19.6
+        },
+        {
+          "productId": 47,
+          "productName": "Serenity Green Tea Lg",
+          "category": "Tea",
+          "similarity": 0.1842,
+          "similarityPct": 18.4
+        },
+        {
+          "productId": 71,
+          "productName": "Chocolate Croissant",
+          "category": "Bakery",
+          "similarity": 0.1834,
+          "similarityPct": 18.3
+        },
+        {
+          "productId": 69,
+          "productName": "Hazelnut Biscotti",
+          "category": "Bakery",
+          "similarity": 0.1773,
+          "similarityPct": 17.7
+        },
+        {
+          "productId": 26,
+          "productName": "Brazilian Rg",
+          "category": "Coffee",
+          "similarity": 0.1773,
+          "similarityPct": 17.7
+        }
+      ]
+    },
+    {
+      "productId": 37,
+      "productName": "Espresso shot",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 65,
+          "productName": "Sugar Free Vanilla syrup",
+          "category": "Flavours",
+          "similarity": 0.2188,
+          "similarityPct": 21.9
+        },
+        {
+          "productId": 57,
+          "productName": "Spicy Eye Opener Chai Lg",
+          "category": "Tea",
+          "similarity": 0.2172,
+          "similarityPct": 21.7
+        },
+        {
+          "productId": 45,
+          "productName": "Peppermint Lg",
+          "category": "Tea",
+          "similarity": 0.2013,
+          "similarityPct": 20.1
+        },
+        {
+          "productId": 30,
+          "productName": "Columbian Medium Roast Lg",
+          "category": "Coffee",
+          "similarity": 0.1999,
+          "similarityPct": 20.0
+        },
+        {
+          "productId": 52,
+          "productName": "Traditional Blend Chai Rg",
+          "category": "Tea",
+          "similarity": 0.1984,
+          "similarityPct": 19.8
+        }
+      ]
+    },
+    {
+      "productId": 38,
+      "productName": "Latte",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 65,
+          "productName": "Sugar Free Vanilla syrup",
+          "category": "Flavours",
+          "similarity": 0.2338,
+          "similarityPct": 23.4
+        },
+        {
+          "productId": 63,
+          "productName": "Carmel syrup",
+          "category": "Flavours",
+          "similarity": 0.218,
+          "similarityPct": 21.8
+        },
+        {
+          "productId": 41,
+          "productName": "Cappuccino Lg",
+          "category": "Coffee",
+          "similarity": 0.2079,
+          "similarityPct": 20.8
+        },
+        {
+          "productId": 84,
+          "productName": "Chocolate syrup",
+          "category": "Flavours",
+          "similarity": 0.205,
+          "similarityPct": 20.5
+        },
+        {
+          "productId": 75,
+          "productName": "Croissant",
+          "category": "Bakery",
+          "similarity": 0.1977,
+          "similarityPct": 19.8
+        }
+      ]
+    },
+    {
+      "productId": 39,
+      "productName": "Latte Rg",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 65,
+          "productName": "Sugar Free Vanilla syrup",
+          "category": "Flavours",
+          "similarity": 0.2168,
+          "similarityPct": 21.7
+        },
+        {
+          "productId": 24,
+          "productName": "Our Old Time Diner Blend Lg",
+          "category": "Coffee",
+          "similarity": 0.2026,
+          "similarityPct": 20.3
+        },
+        {
+          "productId": 46,
+          "productName": "Serenity Green Tea Rg",
+          "category": "Tea",
+          "similarity": 0.1965,
+          "similarityPct": 19.7
+        },
+        {
+          "productId": 52,
+          "productName": "Traditional Blend Chai Rg",
+          "category": "Tea",
+          "similarity": 0.1956,
+          "similarityPct": 19.6
+        },
+        {
+          "productId": 25,
+          "productName": "Brazilian Sm",
+          "category": "Coffee",
+          "similarity": 0.1949,
+          "similarityPct": 19.5
+        }
+      ]
+    },
+    {
+      "productId": 40,
+      "productName": "Cappuccino",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 84,
+          "productName": "Chocolate syrup",
+          "category": "Flavours",
+          "similarity": 0.2127,
+          "similarityPct": 21.3
+        },
+        {
+          "productId": 38,
+          "productName": "Latte",
+          "category": "Coffee",
+          "similarity": 0.1959,
+          "similarityPct": 19.6
+        },
+        {
+          "productId": 32,
+          "productName": "Ethiopia Rg",
+          "category": "Coffee",
+          "similarity": 0.1888,
+          "similarityPct": 18.9
+        },
+        {
+          "productId": 65,
+          "productName": "Sugar Free Vanilla syrup",
+          "category": "Flavours",
+          "similarity": 0.1886,
+          "similarityPct": 18.9
+        },
+        {
+          "productId": 57,
+          "productName": "Spicy Eye Opener Chai Lg",
+          "category": "Tea",
+          "similarity": 0.1865,
+          "similarityPct": 18.6
+        }
+      ]
+    },
+    {
+      "productId": 41,
+      "productName": "Cappuccino Lg",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 38,
+          "productName": "Latte",
+          "category": "Coffee",
+          "similarity": 0.2079,
+          "similarityPct": 20.8
+        },
+        {
+          "productId": 52,
+          "productName": "Traditional Blend Chai Rg",
+          "category": "Tea",
+          "similarity": 0.2053,
+          "similarityPct": 20.5
+        },
+        {
+          "productId": 65,
+          "productName": "Sugar Free Vanilla syrup",
+          "category": "Flavours",
+          "similarity": 0.2049,
+          "similarityPct": 20.5
+        },
+        {
+          "productId": 79,
+          "productName": "Jumbo Savory Scone",
+          "category": "Bakery",
+          "similarity": 0.199,
+          "similarityPct": 19.9
+        },
+        {
+          "productId": 63,
+          "productName": "Carmel syrup",
+          "category": "Flavours",
+          "similarity": 0.1951,
+          "similarityPct": 19.5
+        }
+      ]
+    },
+    {
+      "productId": 42,
+      "productName": "Lemon Grass Rg",
+      "category": "Tea",
+      "neighbours": [
+        {
+          "productId": 22,
+          "productName": "Our Old Time Diner Blend Sm",
+          "category": "Coffee",
+          "similarity": 0.2107,
+          "similarityPct": 21.1
+        },
+        {
+          "productId": 35,
+          "productName": "Jamaican Coffee River Rg",
+          "category": "Coffee",
+          "similarity": 0.2006,
+          "similarityPct": 20.1
+        },
+        {
+          "productId": 71,
+          "productName": "Chocolate Croissant",
+          "category": "Bakery",
+          "similarity": 0.1998,
+          "similarityPct": 20.0
+        },
+        {
+          "productId": 38,
+          "productName": "Latte",
+          "category": "Coffee",
+          "similarity": 0.1901,
+          "similarityPct": 19.0
+        },
+        {
+          "productId": 72,
+          "productName": "Ginger Scone",
+          "category": "Bakery",
+          "similarity": 0.1901,
+          "similarityPct": 19.0
+        }
+      ]
+    },
+    {
+      "productId": 43,
+      "productName": "Lemon Grass Lg",
+      "category": "Tea",
+      "neighbours": [
+        {
+          "productId": 38,
+          "productName": "Latte",
+          "category": "Coffee",
+          "similarity": 0.1927,
+          "similarityPct": 19.3
+        },
+        {
+          "productId": 41,
+          "productName": "Cappuccino Lg",
+          "category": "Coffee",
+          "similarity": 0.189,
+          "similarityPct": 18.9
+        },
+        {
+          "productId": 69,
+          "productName": "Hazelnut Biscotti",
+          "category": "Bakery",
+          "similarity": 0.1859,
+          "similarityPct": 18.6
+        },
+        {
+          "productId": 61,
+          "productName": "Sustainably Grown Organic Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1857,
+          "similarityPct": 18.6
+        },
+        {
+          "productId": 49,
+          "productName": "English Breakfast Lg",
+          "category": "Tea",
+          "similarity": 0.1803,
+          "similarityPct": 18.0
+        }
+      ]
+    },
+    {
+      "productId": 44,
+      "productName": "Peppermint Rg",
+      "category": "Tea",
+      "neighbours": [
+        {
+          "productId": 34,
+          "productName": "Jamaican Coffee River Sm",
+          "category": "Coffee",
+          "similarity": 0.187,
+          "similarityPct": 18.7
+        },
+        {
+          "productId": 54,
+          "productName": "Morning Sunrise Chai Rg",
+          "category": "Tea",
+          "similarity": 0.185,
+          "similarityPct": 18.5
+        },
+        {
+          "productId": 71,
+          "productName": "Chocolate Croissant",
+          "category": "Bakery",
+          "similarity": 0.1821,
+          "similarityPct": 18.2
+        },
+        {
+          "productId": 25,
+          "productName": "Brazilian Sm",
+          "category": "Coffee",
+          "similarity": 0.1821,
+          "similarityPct": 18.2
+        },
+        {
+          "productId": 35,
+          "productName": "Jamaican Coffee River Rg",
+          "category": "Coffee",
+          "similarity": 0.1812,
+          "similarityPct": 18.1
+        }
+      ]
+    },
+    {
+      "productId": 45,
+      "productName": "Peppermint Lg",
+      "category": "Tea",
+      "neighbours": [
+        {
+          "productId": 25,
+          "productName": "Brazilian Sm",
+          "category": "Coffee",
+          "similarity": 0.215,
+          "similarityPct": 21.5
+        },
+        {
+          "productId": 23,
+          "productName": "Our Old Time Diner Blend Rg",
+          "category": "Coffee",
+          "similarity": 0.2075,
+          "similarityPct": 20.8
+        },
+        {
+          "productId": 37,
+          "productName": "Espresso shot",
+          "category": "Coffee",
+          "similarity": 0.2013,
+          "similarityPct": 20.1
+        },
+        {
+          "productId": 47,
+          "productName": "Serenity Green Tea Lg",
+          "category": "Tea",
+          "similarity": 0.2007,
+          "similarityPct": 20.1
+        },
+        {
+          "productId": 57,
+          "productName": "Spicy Eye Opener Chai Lg",
+          "category": "Tea",
+          "similarity": 0.1889,
+          "similarityPct": 18.9
+        }
+      ]
+    },
+    {
+      "productId": 46,
+      "productName": "Serenity Green Tea Rg",
+      "category": "Tea",
+      "neighbours": [
+        {
+          "productId": 48,
+          "productName": "English Breakfast Rg",
+          "category": "Tea",
+          "similarity": 0.2087,
+          "similarityPct": 20.9
+        },
+        {
+          "productId": 24,
+          "productName": "Our Old Time Diner Blend Lg",
+          "category": "Coffee",
+          "similarity": 0.2061,
+          "similarityPct": 20.6
+        },
+        {
+          "productId": 35,
+          "productName": "Jamaican Coffee River Rg",
+          "category": "Coffee",
+          "similarity": 0.2055,
+          "similarityPct": 20.5
+        },
+        {
+          "productId": 69,
+          "productName": "Hazelnut Biscotti",
+          "category": "Bakery",
+          "similarity": 0.2049,
+          "similarityPct": 20.5
+        },
+        {
+          "productId": 39,
+          "productName": "Latte Rg",
+          "category": "Coffee",
+          "similarity": 0.1965,
+          "similarityPct": 19.7
+        }
+      ]
+    },
+    {
+      "productId": 47,
+      "productName": "Serenity Green Tea Lg",
+      "category": "Tea",
+      "neighbours": [
+        {
+          "productId": 45,
+          "productName": "Peppermint Lg",
+          "category": "Tea",
+          "similarity": 0.2007,
+          "similarityPct": 20.1
+        },
+        {
+          "productId": 59,
+          "productName": "Dark chocolate Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1971,
+          "similarityPct": 19.7
+        },
+        {
+          "productId": 71,
+          "productName": "Chocolate Croissant",
+          "category": "Bakery",
+          "similarity": 0.1958,
+          "similarityPct": 19.6
+        },
+        {
+          "productId": 22,
+          "productName": "Our Old Time Diner Blend Sm",
+          "category": "Coffee",
+          "similarity": 0.1938,
+          "similarityPct": 19.4
+        },
+        {
+          "productId": 33,
+          "productName": "Ethiopia Lg",
+          "category": "Coffee",
+          "similarity": 0.1936,
+          "similarityPct": 19.4
+        }
+      ]
+    },
+    {
+      "productId": 48,
+      "productName": "English Breakfast Rg",
+      "category": "Tea",
+      "neighbours": [
+        {
+          "productId": 46,
+          "productName": "Serenity Green Tea Rg",
+          "category": "Tea",
+          "similarity": 0.2087,
+          "similarityPct": 20.9
+        },
+        {
+          "productId": 23,
+          "productName": "Our Old Time Diner Blend Rg",
+          "category": "Coffee",
+          "similarity": 0.2076,
+          "similarityPct": 20.8
+        },
+        {
+          "productId": 61,
+          "productName": "Sustainably Grown Organic Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.2069,
+          "similarityPct": 20.7
+        },
+        {
+          "productId": 60,
+          "productName": "Sustainably Grown Organic Rg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1938,
+          "similarityPct": 19.4
+        },
+        {
+          "productId": 71,
+          "productName": "Chocolate Croissant",
+          "category": "Bakery",
+          "similarity": 0.1928,
+          "similarityPct": 19.3
+        }
+      ]
+    },
+    {
+      "productId": 49,
+      "productName": "English Breakfast Lg",
+      "category": "Tea",
+      "neighbours": [
+        {
+          "productId": 22,
+          "productName": "Our Old Time Diner Blend Sm",
+          "category": "Coffee",
+          "similarity": 0.2015,
+          "similarityPct": 20.2
+        },
+        {
+          "productId": 55,
+          "productName": "Morning Sunrise Chai Lg",
+          "category": "Tea",
+          "similarity": 0.2003,
+          "similarityPct": 20.0
+        },
+        {
+          "productId": 60,
+          "productName": "Sustainably Grown Organic Rg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1974,
+          "similarityPct": 19.7
+        },
+        {
+          "productId": 46,
+          "productName": "Serenity Green Tea Rg",
+          "category": "Tea",
+          "similarity": 0.1943,
+          "similarityPct": 19.4
+        },
+        {
+          "productId": 23,
+          "productName": "Our Old Time Diner Blend Rg",
+          "category": "Coffee",
+          "similarity": 0.1907,
+          "similarityPct": 19.1
+        }
+      ]
+    },
+    {
+      "productId": 50,
+      "productName": "Earl Grey Rg",
+      "category": "Tea",
+      "neighbours": [
+        {
+          "productId": 57,
+          "productName": "Spicy Eye Opener Chai Lg",
+          "category": "Tea",
+          "similarity": 0.2113,
+          "similarityPct": 21.1
+        },
+        {
+          "productId": 27,
+          "productName": "Brazilian Lg",
+          "category": "Coffee",
+          "similarity": 0.1934,
+          "similarityPct": 19.3
+        },
+        {
+          "productId": 22,
+          "productName": "Our Old Time Diner Blend Sm",
+          "category": "Coffee",
+          "similarity": 0.1924,
+          "similarityPct": 19.2
+        },
+        {
+          "productId": 46,
+          "productName": "Serenity Green Tea Rg",
+          "category": "Tea",
+          "similarity": 0.1919,
+          "similarityPct": 19.2
+        },
+        {
+          "productId": 59,
+          "productName": "Dark chocolate Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1908,
+          "similarityPct": 19.1
+        }
+      ]
+    },
+    {
+      "productId": 51,
+      "productName": "Earl Grey Lg",
+      "category": "Tea",
+      "neighbours": [
+        {
+          "productId": 61,
+          "productName": "Sustainably Grown Organic Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.2005,
+          "similarityPct": 20.0
+        },
+        {
+          "productId": 71,
+          "productName": "Chocolate Croissant",
+          "category": "Bakery",
+          "similarity": 0.1993,
+          "similarityPct": 19.9
+        },
+        {
+          "productId": 57,
+          "productName": "Spicy Eye Opener Chai Lg",
+          "category": "Tea",
+          "similarity": 0.1921,
+          "similarityPct": 19.2
+        },
+        {
+          "productId": 75,
+          "productName": "Croissant",
+          "category": "Bakery",
+          "similarity": 0.1847,
+          "similarityPct": 18.5
+        },
+        {
+          "productId": 59,
+          "productName": "Dark chocolate Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1809,
+          "similarityPct": 18.1
+        }
+      ]
+    },
+    {
+      "productId": 52,
+      "productName": "Traditional Blend Chai Rg",
+      "category": "Tea",
+      "neighbours": [
+        {
+          "productId": 41,
+          "productName": "Cappuccino Lg",
+          "category": "Coffee",
+          "similarity": 0.2053,
+          "similarityPct": 20.5
+        },
+        {
+          "productId": 37,
+          "productName": "Espresso shot",
+          "category": "Coffee",
+          "similarity": 0.1984,
+          "similarityPct": 19.8
+        },
+        {
+          "productId": 39,
+          "productName": "Latte Rg",
+          "category": "Coffee",
+          "similarity": 0.1956,
+          "similarityPct": 19.6
+        },
+        {
+          "productId": 53,
+          "productName": "Traditional Blend Chai Lg",
+          "category": "Tea",
+          "similarity": 0.1897,
+          "similarityPct": 19.0
+        },
+        {
+          "productId": 71,
+          "productName": "Chocolate Croissant",
+          "category": "Bakery",
+          "similarity": 0.1876,
+          "similarityPct": 18.8
+        }
+      ]
+    },
+    {
+      "productId": 53,
+      "productName": "Traditional Blend Chai Lg",
+      "category": "Tea",
+      "neighbours": [
+        {
+          "productId": 79,
+          "productName": "Jumbo Savory Scone",
+          "category": "Bakery",
+          "similarity": 0.2217,
+          "similarityPct": 22.2
+        },
+        {
+          "productId": 52,
+          "productName": "Traditional Blend Chai Rg",
+          "category": "Tea",
+          "similarity": 0.1897,
+          "similarityPct": 19.0
+        },
+        {
+          "productId": 29,
+          "productName": "Columbian Medium Roast Rg",
+          "category": "Coffee",
+          "similarity": 0.1857,
+          "similarityPct": 18.6
+        },
+        {
+          "productId": 56,
+          "productName": "Spicy Eye Opener Chai Rg",
+          "category": "Tea",
+          "similarity": 0.1818,
+          "similarityPct": 18.2
+        },
+        {
+          "productId": 49,
+          "productName": "English Breakfast Lg",
+          "category": "Tea",
+          "similarity": 0.1814,
+          "similarityPct": 18.1
+        }
+      ]
+    },
+    {
+      "productId": 54,
+      "productName": "Morning Sunrise Chai Rg",
+      "category": "Tea",
+      "neighbours": [
+        {
+          "productId": 35,
+          "productName": "Jamaican Coffee River Rg",
+          "category": "Coffee",
+          "similarity": 0.1976,
+          "similarityPct": 19.8
+        },
+        {
+          "productId": 28,
+          "productName": "Columbian Medium Roast Sm",
+          "category": "Coffee",
+          "similarity": 0.1864,
+          "similarityPct": 18.6
+        },
+        {
+          "productId": 44,
+          "productName": "Peppermint Rg",
+          "category": "Tea",
+          "similarity": 0.185,
+          "similarityPct": 18.5
+        },
+        {
+          "productId": 70,
+          "productName": "Cranberry Scone",
+          "category": "Bakery",
+          "similarity": 0.1818,
+          "similarityPct": 18.2
+        },
+        {
+          "productId": 23,
+          "productName": "Our Old Time Diner Blend Rg",
+          "category": "Coffee",
+          "similarity": 0.1815,
+          "similarityPct": 18.2
+        }
+      ]
+    },
+    {
+      "productId": 55,
+      "productName": "Morning Sunrise Chai Lg",
+      "category": "Tea",
+      "neighbours": [
+        {
+          "productId": 23,
+          "productName": "Our Old Time Diner Blend Rg",
+          "category": "Coffee",
+          "similarity": 0.2014,
+          "similarityPct": 20.1
+        },
+        {
+          "productId": 49,
+          "productName": "English Breakfast Lg",
+          "category": "Tea",
+          "similarity": 0.2003,
+          "similarityPct": 20.0
+        },
+        {
+          "productId": 46,
+          "productName": "Serenity Green Tea Rg",
+          "category": "Tea",
+          "similarity": 0.1844,
+          "similarityPct": 18.4
+        },
+        {
+          "productId": 71,
+          "productName": "Chocolate Croissant",
+          "category": "Bakery",
+          "similarity": 0.1827,
+          "similarityPct": 18.3
+        },
+        {
+          "productId": 61,
+          "productName": "Sustainably Grown Organic Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1798,
+          "similarityPct": 18.0
+        }
+      ]
+    },
+    {
+      "productId": 56,
+      "productName": "Spicy Eye Opener Chai Rg",
+      "category": "Tea",
+      "neighbours": [
+        {
+          "productId": 22,
+          "productName": "Our Old Time Diner Blend Sm",
+          "category": "Coffee",
+          "similarity": 0.2059,
+          "similarityPct": 20.6
+        },
+        {
+          "productId": 57,
+          "productName": "Spicy Eye Opener Chai Lg",
+          "category": "Tea",
+          "similarity": 0.2003,
+          "similarityPct": 20.0
+        },
+        {
+          "productId": 33,
+          "productName": "Ethiopia Lg",
+          "category": "Coffee",
+          "similarity": 0.191,
+          "similarityPct": 19.1
+        },
+        {
+          "productId": 37,
+          "productName": "Espresso shot",
+          "category": "Coffee",
+          "similarity": 0.1882,
+          "similarityPct": 18.8
+        },
+        {
+          "productId": 46,
+          "productName": "Serenity Green Tea Rg",
+          "category": "Tea",
+          "similarity": 0.1869,
+          "similarityPct": 18.7
+        }
+      ]
+    },
+    {
+      "productId": 57,
+      "productName": "Spicy Eye Opener Chai Lg",
+      "category": "Tea",
+      "neighbours": [
+        {
+          "productId": 37,
+          "productName": "Espresso shot",
+          "category": "Coffee",
+          "similarity": 0.2172,
+          "similarityPct": 21.7
+        },
+        {
+          "productId": 23,
+          "productName": "Our Old Time Diner Blend Rg",
+          "category": "Coffee",
+          "similarity": 0.2127,
+          "similarityPct": 21.3
+        },
+        {
+          "productId": 50,
+          "productName": "Earl Grey Rg",
+          "category": "Tea",
+          "similarity": 0.2113,
+          "similarityPct": 21.1
+        },
+        {
+          "productId": 56,
+          "productName": "Spicy Eye Opener Chai Rg",
+          "category": "Tea",
+          "similarity": 0.2003,
+          "similarityPct": 20.0
+        },
+        {
+          "productId": 58,
+          "productName": "Dark chocolate Rg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1988,
+          "similarityPct": 19.9
+        }
+      ]
+    },
+    {
+      "productId": 58,
+      "productName": "Dark chocolate Rg",
+      "category": "Drinking Chocolate",
+      "neighbours": [
+        {
+          "productId": 57,
+          "productName": "Spicy Eye Opener Chai Lg",
+          "category": "Tea",
+          "similarity": 0.1988,
+          "similarityPct": 19.9
+        },
+        {
+          "productId": 71,
+          "productName": "Chocolate Croissant",
+          "category": "Bakery",
+          "similarity": 0.1928,
+          "similarityPct": 19.3
+        },
+        {
+          "productId": 35,
+          "productName": "Jamaican Coffee River Rg",
+          "category": "Coffee",
+          "similarity": 0.1906,
+          "similarityPct": 19.1
+        },
+        {
+          "productId": 59,
+          "productName": "Dark chocolate Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1875,
+          "similarityPct": 18.8
+        },
+        {
+          "productId": 40,
+          "productName": "Cappuccino",
+          "category": "Coffee",
+          "similarity": 0.1843,
+          "similarityPct": 18.4
+        }
+      ]
+    },
+    {
+      "productId": 59,
+      "productName": "Dark chocolate Lg",
+      "category": "Drinking Chocolate",
+      "neighbours": [
+        {
+          "productId": 22,
+          "productName": "Our Old Time Diner Blend Sm",
+          "category": "Coffee",
+          "similarity": 0.1987,
+          "similarityPct": 19.9
+        },
+        {
+          "productId": 47,
+          "productName": "Serenity Green Tea Lg",
+          "category": "Tea",
+          "similarity": 0.1971,
+          "similarityPct": 19.7
+        },
+        {
+          "productId": 57,
+          "productName": "Spicy Eye Opener Chai Lg",
+          "category": "Tea",
+          "similarity": 0.1926,
+          "similarityPct": 19.3
+        },
+        {
+          "productId": 70,
+          "productName": "Cranberry Scone",
+          "category": "Bakery",
+          "similarity": 0.1918,
+          "similarityPct": 19.2
+        },
+        {
+          "productId": 50,
+          "productName": "Earl Grey Rg",
+          "category": "Tea",
+          "similarity": 0.1908,
+          "similarityPct": 19.1
+        }
+      ]
+    },
+    {
+      "productId": 60,
+      "productName": "Sustainably Grown Organic Rg",
+      "category": "Drinking Chocolate",
+      "neighbours": [
+        {
+          "productId": 49,
+          "productName": "English Breakfast Lg",
+          "category": "Tea",
+          "similarity": 0.1974,
+          "similarityPct": 19.7
+        },
+        {
+          "productId": 29,
+          "productName": "Columbian Medium Roast Rg",
+          "category": "Coffee",
+          "similarity": 0.1969,
+          "similarityPct": 19.7
+        },
+        {
+          "productId": 48,
+          "productName": "English Breakfast Rg",
+          "category": "Tea",
+          "similarity": 0.1938,
+          "similarityPct": 19.4
+        },
+        {
+          "productId": 71,
+          "productName": "Chocolate Croissant",
+          "category": "Bakery",
+          "similarity": 0.1931,
+          "similarityPct": 19.3
+        },
+        {
+          "productId": 30,
+          "productName": "Columbian Medium Roast Lg",
+          "category": "Coffee",
+          "similarity": 0.1891,
+          "similarityPct": 18.9
+        }
+      ]
+    },
+    {
+      "productId": 61,
+      "productName": "Sustainably Grown Organic Lg",
+      "category": "Drinking Chocolate",
+      "neighbours": [
+        {
+          "productId": 35,
+          "productName": "Jamaican Coffee River Rg",
+          "category": "Coffee",
+          "similarity": 0.2078,
+          "similarityPct": 20.8
+        },
+        {
+          "productId": 48,
+          "productName": "English Breakfast Rg",
+          "category": "Tea",
+          "similarity": 0.2069,
+          "similarityPct": 20.7
+        },
+        {
+          "productId": 51,
+          "productName": "Earl Grey Lg",
+          "category": "Tea",
+          "similarity": 0.2005,
+          "similarityPct": 20.0
+        },
+        {
+          "productId": 57,
+          "productName": "Spicy Eye Opener Chai Lg",
+          "category": "Tea",
+          "similarity": 0.1946,
+          "similarityPct": 19.5
+        },
+        {
+          "productId": 29,
+          "productName": "Columbian Medium Roast Rg",
+          "category": "Coffee",
+          "similarity": 0.1939,
+          "similarityPct": 19.4
+        }
+      ]
+    },
+    {
+      "productId": 63,
+      "productName": "Carmel syrup",
+      "category": "Flavours",
+      "neighbours": [
+        {
+          "productId": 38,
+          "productName": "Latte",
+          "category": "Coffee",
+          "similarity": 0.218,
+          "similarityPct": 21.8
+        },
+        {
+          "productId": 37,
+          "productName": "Espresso shot",
+          "category": "Coffee",
+          "similarity": 0.1958,
+          "similarityPct": 19.6
+        },
+        {
+          "productId": 41,
+          "productName": "Cappuccino Lg",
+          "category": "Coffee",
+          "similarity": 0.1951,
+          "similarityPct": 19.5
+        },
+        {
+          "productId": 39,
+          "productName": "Latte Rg",
+          "category": "Coffee",
+          "similarity": 0.1905,
+          "similarityPct": 19.0
+        },
+        {
+          "productId": 40,
+          "productName": "Cappuccino",
+          "category": "Coffee",
+          "similarity": 0.1853,
+          "similarityPct": 18.5
+        }
+      ]
+    },
+    {
+      "productId": 64,
+      "productName": "Hazelnut syrup",
+      "category": "Flavours",
+      "neighbours": [
+        {
+          "productId": 38,
+          "productName": "Latte",
+          "category": "Coffee",
+          "similarity": 0.1976,
+          "similarityPct": 19.8
+        },
+        {
+          "productId": 39,
+          "productName": "Latte Rg",
+          "category": "Coffee",
+          "similarity": 0.1883,
+          "similarityPct": 18.8
+        },
+        {
+          "productId": 40,
+          "productName": "Cappuccino",
+          "category": "Coffee",
+          "similarity": 0.1771,
+          "similarityPct": 17.7
+        },
+        {
+          "productId": 41,
+          "productName": "Cappuccino Lg",
+          "category": "Coffee",
+          "similarity": 0.1719,
+          "similarityPct": 17.2
+        },
+        {
+          "productId": 37,
+          "productName": "Espresso shot",
+          "category": "Coffee",
+          "similarity": 0.1714,
+          "similarityPct": 17.1
+        }
+      ]
+    },
+    {
+      "productId": 65,
+      "productName": "Sugar Free Vanilla syrup",
+      "category": "Flavours",
+      "neighbours": [
+        {
+          "productId": 38,
+          "productName": "Latte",
+          "category": "Coffee",
+          "similarity": 0.2338,
+          "similarityPct": 23.4
+        },
+        {
+          "productId": 37,
+          "productName": "Espresso shot",
+          "category": "Coffee",
+          "similarity": 0.2188,
+          "similarityPct": 21.9
+        },
+        {
+          "productId": 39,
+          "productName": "Latte Rg",
+          "category": "Coffee",
+          "similarity": 0.2168,
+          "similarityPct": 21.7
+        },
+        {
+          "productId": 41,
+          "productName": "Cappuccino Lg",
+          "category": "Coffee",
+          "similarity": 0.2049,
+          "similarityPct": 20.5
+        },
+        {
+          "productId": 40,
+          "productName": "Cappuccino",
+          "category": "Coffee",
+          "similarity": 0.1886,
+          "similarityPct": 18.9
+        }
+      ]
+    },
+    {
+      "productId": 69,
+      "productName": "Hazelnut Biscotti",
+      "category": "Bakery",
+      "neighbours": [
+        {
+          "productId": 46,
+          "productName": "Serenity Green Tea Rg",
+          "category": "Tea",
+          "similarity": 0.2049,
+          "similarityPct": 20.5
+        },
+        {
+          "productId": 61,
+          "productName": "Sustainably Grown Organic Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.191,
+          "similarityPct": 19.1
+        },
+        {
+          "productId": 43,
+          "productName": "Lemon Grass Lg",
+          "category": "Tea",
+          "similarity": 0.1859,
+          "similarityPct": 18.6
+        },
+        {
+          "productId": 40,
+          "productName": "Cappuccino",
+          "category": "Coffee",
+          "similarity": 0.1852,
+          "similarityPct": 18.5
+        },
+        {
+          "productId": 47,
+          "productName": "Serenity Green Tea Lg",
+          "category": "Tea",
+          "similarity": 0.1836,
+          "similarityPct": 18.4
+        }
+      ]
+    },
+    {
+      "productId": 70,
+      "productName": "Cranberry Scone",
+      "category": "Bakery",
+      "neighbours": [
+        {
+          "productId": 48,
+          "productName": "English Breakfast Rg",
+          "category": "Tea",
+          "similarity": 0.1921,
+          "similarityPct": 19.2
+        },
+        {
+          "productId": 59,
+          "productName": "Dark chocolate Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1918,
+          "similarityPct": 19.2
+        },
+        {
+          "productId": 61,
+          "productName": "Sustainably Grown Organic Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.19,
+          "similarityPct": 19.0
+        },
+        {
+          "productId": 22,
+          "productName": "Our Old Time Diner Blend Sm",
+          "category": "Coffee",
+          "similarity": 0.1896,
+          "similarityPct": 19.0
+        },
+        {
+          "productId": 45,
+          "productName": "Peppermint Lg",
+          "category": "Tea",
+          "similarity": 0.1872,
+          "similarityPct": 18.7
+        }
+      ]
+    },
+    {
+      "productId": 71,
+      "productName": "Chocolate Croissant",
+      "category": "Bakery",
+      "neighbours": [
+        {
+          "productId": 29,
+          "productName": "Columbian Medium Roast Rg",
+          "category": "Coffee",
+          "similarity": 0.2034,
+          "similarityPct": 20.3
+        },
+        {
+          "productId": 42,
+          "productName": "Lemon Grass Rg",
+          "category": "Tea",
+          "similarity": 0.1998,
+          "similarityPct": 20.0
+        },
+        {
+          "productId": 51,
+          "productName": "Earl Grey Lg",
+          "category": "Tea",
+          "similarity": 0.1993,
+          "similarityPct": 19.9
+        },
+        {
+          "productId": 47,
+          "productName": "Serenity Green Tea Lg",
+          "category": "Tea",
+          "similarity": 0.1958,
+          "similarityPct": 19.6
+        },
+        {
+          "productId": 60,
+          "productName": "Sustainably Grown Organic Rg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1931,
+          "similarityPct": 19.3
+        }
+      ]
+    },
+    {
+      "productId": 72,
+      "productName": "Ginger Scone",
+      "category": "Bakery",
+      "neighbours": [
+        {
+          "productId": 87,
+          "productName": "Ouro Brasileiro shot",
+          "category": "Coffee",
+          "similarity": 0.3774,
+          "similarityPct": 37.7
+        },
+        {
+          "productId": 42,
+          "productName": "Lemon Grass Rg",
+          "category": "Tea",
+          "similarity": 0.1901,
+          "similarityPct": 19.0
+        },
+        {
+          "productId": 31,
+          "productName": "Ethiopia Sm",
+          "category": "Coffee",
+          "similarity": 0.1875,
+          "similarityPct": 18.8
+        },
+        {
+          "productId": 52,
+          "productName": "Traditional Blend Chai Rg",
+          "category": "Tea",
+          "similarity": 0.1782,
+          "similarityPct": 17.8
+        },
+        {
+          "productId": 54,
+          "productName": "Morning Sunrise Chai Rg",
+          "category": "Tea",
+          "similarity": 0.1779,
+          "similarityPct": 17.8
+        }
+      ]
+    },
+    {
+      "productId": 73,
+      "productName": "Almond Croissant",
+      "category": "Bakery",
+      "neighbours": [
+        {
+          "productId": 46,
+          "productName": "Serenity Green Tea Rg",
+          "category": "Tea",
+          "similarity": 0.19,
+          "similarityPct": 19.0
+        },
+        {
+          "productId": 42,
+          "productName": "Lemon Grass Rg",
+          "category": "Tea",
+          "similarity": 0.1878,
+          "similarityPct": 18.8
+        },
+        {
+          "productId": 40,
+          "productName": "Cappuccino",
+          "category": "Coffee",
+          "similarity": 0.1848,
+          "similarityPct": 18.5
+        },
+        {
+          "productId": 32,
+          "productName": "Ethiopia Rg",
+          "category": "Coffee",
+          "similarity": 0.1842,
+          "similarityPct": 18.4
+        },
+        {
+          "productId": 35,
+          "productName": "Jamaican Coffee River Rg",
+          "category": "Coffee",
+          "similarity": 0.1778,
+          "similarityPct": 17.8
+        }
+      ]
+    },
+    {
+      "productId": 74,
+      "productName": "Ginger Biscotti",
+      "category": "Bakery",
+      "neighbours": [
+        {
+          "productId": 29,
+          "productName": "Columbian Medium Roast Rg",
+          "category": "Coffee",
+          "similarity": 0.1823,
+          "similarityPct": 18.2
+        },
+        {
+          "productId": 42,
+          "productName": "Lemon Grass Rg",
+          "category": "Tea",
+          "similarity": 0.1799,
+          "similarityPct": 18.0
+        },
+        {
+          "productId": 40,
+          "productName": "Cappuccino",
+          "category": "Coffee",
+          "similarity": 0.1746,
+          "similarityPct": 17.5
+        },
+        {
+          "productId": 30,
+          "productName": "Columbian Medium Roast Lg",
+          "category": "Coffee",
+          "similarity": 0.1741,
+          "similarityPct": 17.4
+        },
+        {
+          "productId": 53,
+          "productName": "Traditional Blend Chai Lg",
+          "category": "Tea",
+          "similarity": 0.1721,
+          "similarityPct": 17.2
+        }
+      ]
+    },
+    {
+      "productId": 75,
+      "productName": "Croissant",
+      "category": "Bakery",
+      "neighbours": [
+        {
+          "productId": 38,
+          "productName": "Latte",
+          "category": "Coffee",
+          "similarity": 0.1977,
+          "similarityPct": 19.8
+        },
+        {
+          "productId": 57,
+          "productName": "Spicy Eye Opener Chai Lg",
+          "category": "Tea",
+          "similarity": 0.1873,
+          "similarityPct": 18.7
+        },
+        {
+          "productId": 51,
+          "productName": "Earl Grey Lg",
+          "category": "Tea",
+          "similarity": 0.1847,
+          "similarityPct": 18.5
+        },
+        {
+          "productId": 29,
+          "productName": "Columbian Medium Roast Rg",
+          "category": "Coffee",
+          "similarity": 0.1837,
+          "similarityPct": 18.4
+        },
+        {
+          "productId": 49,
+          "productName": "English Breakfast Lg",
+          "category": "Tea",
+          "similarity": 0.168,
+          "similarityPct": 16.8
+        }
+      ]
+    },
+    {
+      "productId": 76,
+      "productName": "Chocolate Chip Biscotti",
+      "category": "Bakery",
+      "neighbours": [
+        {
+          "productId": 25,
+          "productName": "Brazilian Sm",
+          "category": "Coffee",
+          "similarity": 0.1841,
+          "similarityPct": 18.4
+        },
+        {
+          "productId": 30,
+          "productName": "Columbian Medium Roast Lg",
+          "category": "Coffee",
+          "similarity": 0.1762,
+          "similarityPct": 17.6
+        },
+        {
+          "productId": 48,
+          "productName": "English Breakfast Rg",
+          "category": "Tea",
+          "similarity": 0.1741,
+          "similarityPct": 17.4
+        },
+        {
+          "productId": 24,
+          "productName": "Our Old Time Diner Blend Lg",
+          "category": "Coffee",
+          "similarity": 0.1714,
+          "similarityPct": 17.1
+        },
+        {
+          "productId": 58,
+          "productName": "Dark chocolate Rg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1685,
+          "similarityPct": 16.8
+        }
+      ]
+    },
+    {
+      "productId": 77,
+      "productName": "Oatmeal Scone",
+      "category": "Bakery",
+      "neighbours": [
+        {
+          "productId": 55,
+          "productName": "Morning Sunrise Chai Lg",
+          "category": "Tea",
+          "similarity": 0.1758,
+          "similarityPct": 17.6
+        },
+        {
+          "productId": 48,
+          "productName": "English Breakfast Rg",
+          "category": "Tea",
+          "similarity": 0.1722,
+          "similarityPct": 17.2
+        },
+        {
+          "productId": 46,
+          "productName": "Serenity Green Tea Rg",
+          "category": "Tea",
+          "similarity": 0.1705,
+          "similarityPct": 17.0
+        },
+        {
+          "productId": 26,
+          "productName": "Brazilian Rg",
+          "category": "Coffee",
+          "similarity": 0.1636,
+          "similarityPct": 16.4
+        },
+        {
+          "productId": 59,
+          "productName": "Dark chocolate Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1629,
+          "similarityPct": 16.3
+        }
+      ]
+    },
+    {
+      "productId": 78,
+      "productName": "Scottish Cream Scone ",
+      "category": "Bakery",
+      "neighbours": [
+        {
+          "productId": 46,
+          "productName": "Serenity Green Tea Rg",
+          "category": "Tea",
+          "similarity": 0.1844,
+          "similarityPct": 18.4
+        },
+        {
+          "productId": 60,
+          "productName": "Sustainably Grown Organic Rg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.1776,
+          "similarityPct": 17.8
+        },
+        {
+          "productId": 61,
+          "productName": "Sustainably Grown Organic Lg",
+          "category": "Drinking Chocolate",
+          "similarity": 0.176,
+          "similarityPct": 17.6
+        },
+        {
+          "productId": 52,
+          "productName": "Traditional Blend Chai Rg",
+          "category": "Tea",
+          "similarity": 0.1724,
+          "similarityPct": 17.2
+        },
+        {
+          "productId": 39,
+          "productName": "Latte Rg",
+          "category": "Coffee",
+          "similarity": 0.1711,
+          "similarityPct": 17.1
+        }
+      ]
+    },
+    {
+      "productId": 79,
+      "productName": "Jumbo Savory Scone",
+      "category": "Bakery",
+      "neighbours": [
+        {
+          "productId": 53,
+          "productName": "Traditional Blend Chai Lg",
+          "category": "Tea",
+          "similarity": 0.2217,
+          "similarityPct": 22.2
+        },
+        {
+          "productId": 41,
+          "productName": "Cappuccino Lg",
+          "category": "Coffee",
+          "similarity": 0.199,
+          "similarityPct": 19.9
+        },
+        {
+          "productId": 25,
+          "productName": "Brazilian Sm",
+          "category": "Coffee",
+          "similarity": 0.1952,
+          "similarityPct": 19.5
+        },
+        {
+          "productId": 49,
+          "productName": "English Breakfast Lg",
+          "category": "Tea",
+          "similarity": 0.1828,
+          "similarityPct": 18.3
+        },
+        {
+          "productId": 36,
+          "productName": "Jamaican Coffee River Lg",
+          "category": "Coffee",
+          "similarity": 0.1772,
+          "similarityPct": 17.7
+        }
+      ]
+    },
+    {
+      "productId": 81,
+      "productName": "I Need My Bean! T-shirt",
+      "category": "Branded",
+      "neighbours": [
+        {
+          "productId": 65,
+          "productName": "Sugar Free Vanilla syrup",
+          "category": "Flavours",
+          "similarity": 0.0869,
+          "similarityPct": 8.7
+        },
+        {
+          "productId": 24,
+          "productName": "Our Old Time Diner Blend Lg",
+          "category": "Coffee",
+          "similarity": 0.0857,
+          "similarityPct": 8.6
+        },
+        {
+          "productId": 5,
+          "productName": "Columbian Medium Roast",
+          "category": "Coffee beans",
+          "similarity": 0.0728,
+          "similarityPct": 7.3
+        },
+        {
+          "productId": 38,
+          "productName": "Latte",
+          "category": "Coffee",
+          "similarity": 0.072,
+          "similarityPct": 7.2
+        },
+        {
+          "productId": 22,
+          "productName": "Our Old Time Diner Blend Sm",
+          "category": "Coffee",
+          "similarity": 0.0574,
+          "similarityPct": 5.7
+        }
+      ]
+    },
+    {
+      "productId": 82,
+      "productName": "I Need My Bean! Diner mug",
+      "category": "Branded",
+      "neighbours": [
+        {
+          "productId": 44,
+          "productName": "Peppermint Rg",
+          "category": "Tea",
+          "similarity": 0.0944,
+          "similarityPct": 9.4
+        },
+        {
+          "productId": 45,
+          "productName": "Peppermint Lg",
+          "category": "Tea",
+          "similarity": 0.0942,
+          "similarityPct": 9.4
+        },
+        {
+          "productId": 43,
+          "productName": "Lemon Grass Lg",
+          "category": "Tea",
+          "similarity": 0.0846,
+          "similarityPct": 8.5
+        },
+        {
+          "productId": 30,
+          "productName": "Columbian Medium Roast Lg",
+          "category": "Coffee",
+          "similarity": 0.0654,
+          "similarityPct": 6.5
+        },
+        {
+          "productId": 48,
+          "productName": "English Breakfast Rg",
+          "category": "Tea",
+          "similarity": 0.0643,
+          "similarityPct": 6.4
+        }
+      ]
+    },
+    {
+      "productId": 83,
+      "productName": "I Need My Bean! Latte cup",
+      "category": "Branded",
+      "neighbours": [
+        {
+          "productId": 47,
+          "productName": "Serenity Green Tea Lg",
+          "category": "Tea",
+          "similarity": 0.1257,
+          "similarityPct": 12.6
+        },
+        {
+          "productId": 70,
+          "productName": "Cranberry Scone",
+          "category": "Bakery",
+          "similarity": 0.0937,
+          "similarityPct": 9.4
+        },
+        {
+          "productId": 72,
+          "productName": "Ginger Scone",
+          "category": "Bakery",
+          "similarity": 0.0766,
+          "similarityPct": 7.7
+        },
+        {
+          "productId": 74,
+          "productName": "Ginger Biscotti",
+          "category": "Bakery",
+          "similarity": 0.0761,
+          "similarityPct": 7.6
+        },
+        {
+          "productId": 73,
+          "productName": "Almond Croissant",
+          "category": "Bakery",
+          "similarity": 0.0741,
+          "similarityPct": 7.4
+        }
+      ]
+    },
+    {
+      "productId": 84,
+      "productName": "Chocolate syrup",
+      "category": "Flavours",
+      "neighbours": [
+        {
+          "productId": 40,
+          "productName": "Cappuccino",
+          "category": "Coffee",
+          "similarity": 0.2127,
+          "similarityPct": 21.3
+        },
+        {
+          "productId": 38,
+          "productName": "Latte",
+          "category": "Coffee",
+          "similarity": 0.205,
+          "similarityPct": 20.5
+        },
+        {
+          "productId": 41,
+          "productName": "Cappuccino Lg",
+          "category": "Coffee",
+          "similarity": 0.19,
+          "similarityPct": 19.0
+        },
+        {
+          "productId": 37,
+          "productName": "Espresso shot",
+          "category": "Coffee",
+          "similarity": 0.1662,
+          "similarityPct": 16.6
+        },
+        {
+          "productId": 33,
+          "productName": "Ethiopia Lg",
+          "category": "Coffee",
+          "similarity": 0.1643,
+          "similarityPct": 16.4
+        }
+      ]
+    },
+    {
+      "productId": 87,
+      "productName": "Ouro Brasileiro shot",
+      "category": "Coffee",
+      "neighbours": [
+        {
+          "productId": 72,
+          "productName": "Ginger Scone",
+          "category": "Bakery",
+          "similarity": 0.3774,
+          "similarityPct": 37.7
+        },
+        {
+          "productId": 54,
+          "productName": "Morning Sunrise Chai Rg",
+          "category": "Tea",
+          "similarity": 0.1787,
+          "similarityPct": 17.9
+        },
+        {
+          "productId": 23,
+          "productName": "Our Old Time Diner Blend Rg",
+          "category": "Coffee",
+          "similarity": 0.1775,
+          "similarityPct": 17.8
+        },
+        {
+          "productId": 49,
+          "productName": "English Breakfast Lg",
+          "category": "Tea",
+          "similarity": 0.1708,
+          "similarityPct": 17.1
+        },
+        {
+          "productId": 47,
+          "productName": "Serenity Green Tea Lg",
+          "category": "Tea",
+          "similarity": 0.1689,
+          "similarityPct": 16.9
+        }
+      ]
+    }
+  ]
+}
