@@ -56,6 +56,7 @@ export default function WeatherContextBadge({
   onRetry,
   onLocationPress,
   onOverridePress,
+  onResetPress,
 }) {
   // ── Loading state ──────────────────────────────────────────
   if (loading) {
@@ -138,9 +139,19 @@ export default function WeatherContextBadge({
         <TouchableOpacity style={styles.btn} onPress={onLocationPress}>
           <Text style={styles.btnText}>📍  Change Location</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.btn} onPress={onOverridePress}>
-          <Text style={styles.btnText}>🔧  Simulate</Text>
-        </TouchableOpacity>
+
+        {contextData?.is_override ? (
+          <TouchableOpacity 
+            style={[styles.btn, { backgroundColor: COLORS.warning }]} 
+            onPress={onResetPress}
+          >
+            <Text style={styles.btnText}>🔄  Reset Live</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={styles.btn} onPress={onOverridePress}>
+            <Text style={styles.btnText}>🔧  Simulate</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
     </View>

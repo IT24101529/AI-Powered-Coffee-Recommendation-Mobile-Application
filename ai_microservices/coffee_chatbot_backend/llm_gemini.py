@@ -4,13 +4,21 @@ import re
 import time
 from typing import Optional, Dict, Any
 
-import httpx
+from google import genai
 from dotenv import load_dotenv
 
 load_dotenv()
 
 _LLM_CACHE: Dict[str, Dict[str, Any]] = {}
 _RATE_LIMIT_UNTIL = 0.0
+_GENAI_CLIENT = None
+
+def _get_client():
+    global _GENAI_CLIENT
+    if _GENAI_CLIENT is None:
+        api_key = os.getenv('GEMINI_API_KEY', '').strip()
+        _GENAI_CLIENT = genai.Client(api_key=api_key)
+    return _GENAI_CLIENT
 
 def _to_bool(value: str) -> bool:
     return str(value or '').strip().lower() in {'1', 'true', 'yes', 'on'}
@@ -31,14 +39,17 @@ def _is_trivial_message(message: str) -> bool:
     msg = (message or '').strip().lower()
     if not msg:
         return True
+    # Expanded list to prevent "Hi" from triggering agentic overrides
     trivial = {
-        'hi', 'hello', 'hey', 'ok', 'okay', 'yes', 'no', 'hot', 'cold',
+        'hi', 'hello', 'hey', 'yo', 'good morning', 'good afternoon', 'good evening',
+        'ok', 'okay', 'yes', 'no', 'hot', 'cold', 'iced',
         'done', 'stop', 'cancel', 'yes, order it!', 'show me alternatives',
-        'customise this',
+        'customise this', 'help', 'menu', 'i want a coffee', 'get me a coffee',
+        'recommend something', 'surprise me'
     }
-    if msg in trivial:
+    if msg in trivial or len(msg.split()) <= 1:
         return True
-    return len(msg.split()) <= 2
+    return False
 
 def _extract_json_block(text: str) -> Optional[Dict[str, Any]]:
     if not text:
@@ -98,6 +109,9 @@ def _normalize_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
         'knowledge_query': knowledge_query,
         'should_update_mood': bool(payload.get('should_update_mood', False)),
         'confidence': confidence,
+        'agent_reply': payload.get('agent_reply'),
+        'needs_rag': bool(payload.get('needs_rag', False)),
+        'rag_query': payload.get('rag_query'),
     }
 
 def _get_api_params():
@@ -106,36 +120,51 @@ def _get_api_params():
     timeout_s = float(os.getenv('GEMINI_TIMEOUT_SECONDS', '2.5'))
     
     model_candidates = [primary_model] if primary_model else []
-    model_candidates.extend(['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-1.5-flash-latest', 'gemini-1.5-pro-latest'])
+    # 2026 Model Standard Update:
+    model_candidates.extend([
+        'gemini-3.1-flash', 
+        'gemini-3-flash', 
+        'gemini-2.5-flash',
+        'gemini-1.5-flash'  # Legacy fallback
+    ])
     seen = set()
     model_candidates = [m for m in model_candidates if not (m in seen or seen.add(m))]
     return api_key, model_candidates, timeout_s
 
-async def _call_gemini_with_fallback(body: dict, model_candidates: list, api_key: str, timeout_s: float) -> Optional[str]:
-    """Helper to try multiple models and API versions to avoid 404/429/500 errors."""
+async def _call_gemini_with_fallback(body: dict, model_candidates: list, api_key: str, timeout_s: float, system_instruction: str = None) -> Optional[str]:
+    """Helper to try multiple models via SDK to avoid 404/429/500 errors."""
     global _RATE_LIMIT_UNTIL
+    client = _get_client()
+    contents = body.get('contents', [])
+    config = body.get('generationConfig', {})
+    
+    # Inject system instruction into config if provided
+    if system_instruction:
+        config['system_instruction'] = system_instruction
+    
     for model in model_candidates:
-        for version in ['v1', 'v1beta']:
-            if time.time() < _RATE_LIMIT_UNTIL:
+        if time.time() < _RATE_LIMIT_UNTIL:
+            return None
+        
+        try:
+            response = await client.aio.models.generate_content(
+                model=model,
+                contents=contents,
+                config=config
+            )
+            if response.text:
+                return response.text
+        except Exception as e:
+            # Handle rate limits
+            if '429' in str(e):
+                cooldown = float(os.getenv('GEMINI_RATE_LIMIT_COOLDOWN_SECONDS', '15'))
+                _RATE_LIMIT_UNTIL = time.time() + cooldown
+                print(f"[GenAI SDK] Rate limited by {model}. Cooldown for {cooldown}s")
                 return None
-            url = f'https://generativelanguage.googleapis.com/{version}/models/{model}:generateContent?key={api_key}'
-            try:
-                async with httpx.AsyncClient(timeout=timeout_s) as client:
-                    response = await client.post(url, json=body)
-                    response.raise_for_status()
-                    data = response.json()
-                
-                parts = data.get('candidates', [{}])[0].get('content', {}).get('parts', [])
-                text = ''.join(str(p.get('text', '')) for p in parts).strip()
-                if text: return text
-            except httpx.HTTPStatusError as exc:
-                if exc.response.status_code == 429:
-                    cooldown = float(os.getenv('GEMINI_RATE_LIMIT_COOLDOWN_SECONDS', '90'))
-                    _RATE_LIMIT_UNTIL = time.time() + cooldown
-                    return None
-                continue
-            except Exception:
-                continue
+            
+            print(f"[GenAI SDK Diagnostic] {model} failed: {e}")
+            continue
+            
     return None
 
 async def analyze_message_with_gemini(message: str, state: str, step: str) -> Optional[Dict[str, Any]]:
@@ -152,17 +181,18 @@ async def analyze_message_with_gemini(message: str, state: str, step: str) -> Op
 
     api_key, model_candidates, timeout_s = _get_api_params()
     classifier_max_tokens = int(os.getenv('GEMINI_MAX_TOKENS_CLASSIFIER', '90'))
-    instruction = (
+    system_instruction = (
         'You are a strict JSON classifier for an intelligent coffee chatbot. Output JSON only, no markdown. '
-        'Rules: 1) Extract health goals (low sugar, etc.) into prefs. 2) Extract coffee questions into knowledge_query.'
+        'Rules: 1) Extract health goals (low sugar, etc.) into prefs. 2) Extract coffee questions into knowledge_query. '
+        'NEVER include conversational filler or "Okay".'
     )
 
     body = {
-        'contents': [{'parts': [{'text': instruction}, {'text': json.dumps({'message': message, 'state': state, 'step': step})}]}],
+        'contents': [{'parts': [{'text': json.dumps({'message': message, 'state': state, 'step': step})}]}],
         'generationConfig': {'temperature': 0.1, 'maxOutputTokens': classifier_max_tokens},
     }
 
-    text = await _call_gemini_with_fallback(body, model_candidates, api_key, timeout_s)
+    text = await _call_gemini_with_fallback(body, model_candidates, api_key, timeout_s, system_instruction=system_instruction)
     parsed = _extract_json_block(text) if text else None
     if isinstance(parsed, dict):
         value = _normalize_payload(parsed)
@@ -175,15 +205,15 @@ async def answer_question_with_gemini(question: str, mood: str='Normal', weather
     if time.time() < _RATE_LIMIT_UNTIL: return None
 
     api_key, models, timeout = _get_api_params()
-    instruction = 'You are BrewBot at Ember Coffee. Stay in domain: coffee/mood/weather. Use context if provided.'
-    if kb_context: instruction += f'\n\nKnowledge: {kb_context}'
+    system_instruction = 'You are BrewBot, the expert barista at Ember Coffee. Stay strictly in your barista persona. Use the provided knowledge context to answer coffee questions. NEVER start with "Okay" or "Certainly". Speak naturally to the customer.'
+    if kb_context: system_instruction += f'\n\nKnowledge: {kb_context}'
 
     body = {
-        'contents': [{'parts': [{'text': instruction}, {'text': json.dumps({'question': question, 'mood': mood, 'weather': weather})}]}],
-        'generationConfig': {'temperature': 0.2, 'maxOutputTokens': 150},
+        'contents': [{'parts': [{'text': json.dumps({'question': question, 'mood': mood, 'weather': weather, 'time': time_of_day})}]}],
+        'generationConfig': {'temperature': 0.3, 'maxOutputTokens': 200},
     }
 
-    text = await _call_gemini_with_fallback(body, models, api_key, timeout)
+    text = await _call_gemini_with_fallback(body, models, api_key, timeout, system_instruction=system_instruction)
     return text.strip() if text else None
 
 async def choose_recommendation_with_gemini(user_profile: Dict[str, Any], candidates: list, recent_history: list=None) -> Optional[Dict[str, Any]]:
@@ -202,12 +232,19 @@ async def choose_recommendation_with_gemini(user_profile: Dict[str, Any], candid
 async def generate_initial_greeting(weather: str, temperature: float, time_of_day: str) -> str:
     if not is_llm_enabled(): return f"Hello! Welcome to Ember Coffee! It's a nice {time_of_day}."
     api_key, models, timeout = _get_api_params()
-    instruction = f'Generate a friendly barista-style greeting. Context: {weather}, {temperature}C, {time_of_day}.'
+    system_instruction = (
+        "You are BrewBot, the expert barista at Ember Coffee. Your goal is to greet customers warmly based on the weather and time. "
+        "Strict Rule 1: NEVER start with 'Okay', 'Sure', 'Certainly', 'I see', or 'Here is a greeting'. Speak directly as the barista. "
+        "Strict Rule 2: You MUST ALWAYS end your greeting by asking the customer how they are feeling today (mood check). "
+        "Do NOT offer coffee suggestions in this greeting unless explicitly asked. Focus on the welcome and the mood question."
+        "Example: 'Welcome back to Ember! It is a bit chilly this morning, how are you feeling today?'"
+    )
+    user_context = f'Weather: {weather}, Temp: {temperature}C, Time: {time_of_day}.'
     body = {
-        'contents': [{'parts': [{'text': instruction}]}],
-        'generationConfig': {'temperature': 0.7, 'maxOutputTokens': 80},
+        'contents': [{'parts': [{'text': user_context}]}],
+        'generationConfig': {'temperature': 0.8, 'maxOutputTokens': 100},
     }
-    text = await _call_gemini_with_fallback(body, models, api_key, timeout)
+    text = await _call_gemini_with_fallback(body, models, api_key, timeout, system_instruction=system_instruction)
     return text.strip() if text else "Hello! Welcome to Ember Coffee! How are you feeling today?"
 
 async def handle_general_chat_with_gemini(message: str, mood: str, weather: str, time_of_day: str) -> str:
@@ -221,18 +258,30 @@ async def handle_general_chat_with_gemini(message: str, mood: str, weather: str,
 async def agentic_reasoning_with_gemini(message: str, context: dict, session: dict) -> dict:
     if not is_llm_enabled(): return {"intent_override": "Unknown"}
     api_key, models, timeout = _get_api_params()
-    menu_hint = f"\n- Menu: {session.get('menu_data')[:400]}" if session.get('menu_data') else ""
+    menu_hint = f"\n- Menu Highlights: {session.get('menu_data')[:500]}" if session.get('menu_data') else ""
     
-    instruction = (
-        "You are BrewBot, the expert barista at Ember Coffee. Analyze inputs and return JSON ONLY.\n"
-        f"Inputs: Message='{message}', Weather/Time Context={json.dumps(context)}, Mood={session.get('mood')}\n"
-        f"{menu_hint}\n"
+    system_instruction = (
+        "You are BrewBot, the expert barista at Ember Coffee. Analyze customer input and fulfill your role. "
+        "Strict Persona: You are a warm, knowledgeable coffee expert. NEVER include conversational filler outside your persona in 'agent_reply'. "
+        "NEVER answer with 'Okay', 'Certainly', 'I see', or 'Here is the analysis'. Output JSON ONLY.\n\n"
         "Guidelines:\n"
-        "1. If user asks for menu or suggestions, set intent_override='Browse', use 'menu_data' to pick 3 items and write a warm, expert 'agent_reply' describing them.\n"
-        "2. If user asks coffee questions, set needs_rag=true, rag_query='...', and write a brief 'agent_reply' based on context.\n"
-        "3. Always try to link weather (e.g. cold) to drink types (hot) proactively in 'agent_reply'.\n"
-        "Schema: {\"intent_override\":\"...\", \"extracted_entities\":{}, \"agent_reply\":\"...\", \"needs_rag\":bool, \"rag_query\":\"...\"}"
+        "1. If user asks for menu or suggestions, pick 3 items and write a warm 'agent_reply' describing why they fit the weather/mood.\n"
+        "2. If the message is just a greeting (e.g. 'Hi'), do NOT return an 'agent_reply'. Set intent_override='Greeting' and leave agent_reply empty.\n"
+        "3. If user asks coffee questions, set needs_rag=true and summarize briefly why you're checking your notes in 'agent_reply'.\n"
+        "4. PROACTIVE: Link weather context to drink types (hot for cold weather) in 'agent_reply'.\n\n"
+        "Schema: {\"intent_override\":\"...\", \"mood\":\"...\", \"temp_pref\":\"...\", \"sugar_pref\":\"...\", \"caffeine_pref\":\"...\", \"agent_reply\":\"...\", \"confidence\":0.9, \"needs_rag\":bool, \"rag_query\":\"...\"}"
     )
-    body = {'contents': [{'parts': [{'text': instruction}]}], 'generationConfig': {'temperature': 0.1, 'maxOutputTokens': 600}}
-    text = await _call_gemini_with_fallback(body, models, api_key, 5.0)
-    return _extract_json_block(text) if text else {"intent_override": "Unknown"}
+    
+    user_input = {
+        'message': message, 
+        'context': context, 
+        'current_mood': session.get('mood'),
+        'menu_hint': menu_hint
+    }
+    
+    body = {'contents': [{'parts': [{'text': json.dumps(user_input)}]}], 'generationConfig': {'temperature': 0.1, 'maxOutputTokens': 800}}
+    text = await _call_gemini_with_fallback(body, models, api_key, 5.0, system_instruction=system_instruction)
+    parsed = _extract_json_block(text) if text else None
+    if parsed:
+        return _normalize_payload(parsed)
+    return {"intent_override": "Unknown", "confidence": 0.0}

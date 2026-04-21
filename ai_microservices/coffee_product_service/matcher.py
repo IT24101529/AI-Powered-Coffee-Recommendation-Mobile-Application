@@ -92,6 +92,7 @@ def find_best_matches(need_vector: dict, products: list, top_n: int = 3, profile
         similarity = cosine_similarity(user_vec, product_vec)[0][0]
 
         results.append({
+            'product_id':       product.id,
             'product_name':     product.name,
             'category':         product.category,
             'price':            product.price,

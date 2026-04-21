@@ -1,0 +1,16 @@
+apscheduler
+fastapi
+matplotlib
+mlxtend
+networkx
+numpy
+packaging
+pandas
+psycopg2-binary
+pydantic
+python-dotenv
+setuptools
+six
+sqlalchemy
+uvicorn
+wheel

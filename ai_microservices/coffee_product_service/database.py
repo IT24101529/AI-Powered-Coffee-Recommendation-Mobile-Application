@@ -10,6 +10,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from dotenv import load_dotenv
 from datetime import datetime
+import pymongo
+from bson import ObjectId
 
 load_dotenv()
 
@@ -19,6 +21,20 @@ DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://postgres:Admin@localhost:
 engine       = create_engine(DATABASE_URL, echo=False)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base         = declarative_base()
+
+# --- MongoDB Integration (Fallback) ---
+MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/CoffeeDB')
+mongo_client = None
+mongo_db = None
+
+try:
+    mongo_client = pymongo.MongoClient(MONGO_URI, serverSelectionTimeoutMS=2000)
+    # Extract DB name from URI or default to CoffeeDB
+    db_name = MONGO_URI.split('/')[-1] or 'CoffeeDB'
+    mongo_db = mongo_client[db_name]
+    print(f"Connected to MongoDB: {db_name}")
+except Exception as e:
+    print(f"MongoDB connection failed: {e}")
 
 
 # ── TABLE 1: Categories ─────────────────────────────────────────
@@ -150,3 +166,51 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+def get_product_from_mongo(product_id_or_name: str) -> dict:
+    """Helper to fetch product from MongoDB as a fallback source."""
+    if not mongo_db:
+        return None
+    
+    try:
+        col = mongo_db['products']
+        
+        # Try finding by ID first (both as string and ObjectId)
+        query = {}
+        if len(product_id_or_name) == 24: # Likely ObjectId
+            try:
+                query = {'_id': ObjectId(product_id_or_name)}
+            except:
+                query = {'_id': product_id_or_name}
+        else:
+            query = {'_id': product_id_or_name}
+            
+        product = col.find_one(query)
+        
+        # If not found by ID, try by exact name
+        if not product:
+            product = col.find_one({'productName': product_id_or_name})
+            
+        # If still not found, try fuzzy name
+        if not product:
+            product = col.find_one({'productName': {'$regex': product_id_or_name, '$options': 'i'}})
+
+        if product:
+            # Map Mongo schema to API schema
+            return {
+                'id': str(product.get('_id')),
+                'name': product.get('productName', 'Unknown'),
+                'category': product.get('category', 'Coffee'),
+                'price': float(product.get('price', 450.0)),
+                'description': product.get('description', 'Fetched from fallback source.'),
+                'image_url': product.get('productImageUrl', product.get('imageUrl', '')),
+                'temperature': product.get('temperature', 'Hot'),
+                # Add default features if missing (Mongo might not have taste vectors)
+                'sweetness': 5.0, 'bitterness': 5.0, 'acidity': 5.0, 'richness': 5.0,
+                'caffeine': 5.0, 'calories': 200.0
+            }
+    except Exception as e:
+        print(f"Mongo fallback lookup failed: {e}")
+        
+    return None

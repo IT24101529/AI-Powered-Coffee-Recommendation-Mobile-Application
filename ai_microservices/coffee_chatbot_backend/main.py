@@ -1,8 +1,17 @@
-from fastapi import FastAPI          # Import FastAPI library
+from fastapi import FastAPI, HTTPException, Request  # Added Request and HTTPException
+import logging                                       # Added logging
 from fastapi.middleware.cors import CORSMiddleware  # Allows React Native to connect
 from pydantic import BaseModel       # Used to define the shape of incoming data
 from dialogue_manager import handle_message, handle_greeting  # Your conversation logic (Step 4)
 from session_store import create_session, get_session, delete_session  # Step 5
+
+# Setup Logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger("ChatbotAPI")
 
 app = FastAPI()  # Create the app
 
@@ -31,24 +40,38 @@ def start_session():
     return {'session_id': session_id, 'message': 'Session started'}
 
 # Route 2: Send a message and get a reply
-# This is the MAIN route — called every time the user sends a message
 @app.post('/chat')
 async def chat(request: ChatRequest):
-    session = get_session(request.session_id)   # Load this user's history
-    if not session:
-        return {'error': 'Session not found. Please start a new session.'}
-    response = await handle_message(request.message, request.session_id)
-    return response
-
-# Route 2B: Auto-greeting — called once when the chat screen opens
-# Returns the weather-aware greeting without needing the user to type first
-@app.post('/session/greeting')
-async def session_greeting(request: GreetingRequest):
+    logger.info(f"Incoming chat request: Session={request.session_id}, Msg='{request.message}'")
     session = get_session(request.session_id)
     if not session:
+        logger.warning(f"Session not found: {request.session_id}")
         return {'error': 'Session not found. Please start a new session.'}
-    response = await handle_greeting(request.session_id, session)
-    return response
+    
+    try:
+        response = await handle_message(request.message, request.session_id)
+        logger.info(f"Chat response generated for session {request.session_id}")
+        return response
+    except Exception as e:
+        logger.error(f"Error in handle_message: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+# Route 2B: Auto-greeting
+@app.post('/session/greeting')
+async def session_greeting(request: GreetingRequest):
+    logger.info(f"Incoming greeting request: Session={request.session_id}")
+    session = get_session(request.session_id)
+    if not session:
+        logger.warning(f"Session not found for greeting: {request.session_id}")
+        return {'error': 'Session not found. Please start a new session.'}
+    
+    try:
+        response = await handle_greeting(request.session_id, session)
+        logger.info(f"Greeting response generated for session {request.session_id}")
+        return response
+    except Exception as e:
+        logger.error(f"Error in handle_greeting: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 # Route 3: End the session (user closes the chat)
 @app.post('/session/end')

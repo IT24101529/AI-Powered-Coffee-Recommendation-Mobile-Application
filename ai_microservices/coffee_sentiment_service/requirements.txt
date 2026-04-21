@@ -1,0 +1,17 @@
+fastapi
+matplotlib
+networkx
+nltk
+numpy
+packaging
+pandas
+psycopg2-binary
+pydantic
+python-dotenv
+scikit-learn
+setuptools
+six
+sqlalchemy
+uvicorn
+vaderSentiment
+wheel

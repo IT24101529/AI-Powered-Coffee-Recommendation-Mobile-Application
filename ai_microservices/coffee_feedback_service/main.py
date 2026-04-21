@@ -38,7 +38,7 @@ class StrategyRequest(BaseModel):
 # Wijerathna calls this after every recommendation the user responds to.
 @app.post('/feedback/submit')
 def submit_feedback(feedback: FeedbackInput, db: Session = Depends(get_db)):
-    print(f"[FEEDBACK] Received for product: {feedback.product_name}, strategy: {feedback.strategy_used}")
+    print(f"[FEEDBACK] Received: {feedback.product_name} | Accepted: {feedback.accepted} | Rating: {feedback.rating} | Session: {feedback.session_id}")
     try:
         result = save_feedback(db, feedback.dict())
         return {'success': True, 'message': 'Feedback recorded and strategy scores updated.', 'record_id': result}

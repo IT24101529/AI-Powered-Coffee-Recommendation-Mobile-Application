@@ -215,9 +215,9 @@ export default function CartScreen({ navigation }) {
         </View>
 
         {/* ── Cart Items ── */}
-        {items.map((item) => (
+        {items.map((item, index) => (
           <CartItemCard
-            key={item._id}
+            key={item._id || `cart-item-${index}`}
             item={item}
             onIncrement={() => addItem(item)}
             onDecrement={() => removeItem(item._id)}

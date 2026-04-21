@@ -60,6 +60,23 @@ export function useWeatherContext(sessionId, initialLocation = 'Kandy,LK') {
     }
   }, [sessionId]);
 
+  // ── DELETE an override to return to live weather ────────────
+  const clearOverride = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axios.delete(`${API_URLS.CONTEXT_API}/context/override/${sessionId}`);
+      setContextData(response.data);
+      setLastFetched(new Date());
+      // Re-fetch to ensure any location-based live data is fully loaded
+      fetchContext(location);
+    } catch (err) {
+      setError('Failed to reset weather. Context service might be down.');
+    } finally {
+      setLoading(false);
+    }
+  }, [sessionId]);
+
   // Auto-fetch whenever session or location changes
   useEffect(() => {
     if (sessionId) fetchContext(location);
@@ -74,5 +91,6 @@ export function useWeatherContext(sessionId, initialLocation = 'Kandy,LK') {
     setLocation,
     fetchContext,
     overrideContext,
+    clearOverride,
   };
 }

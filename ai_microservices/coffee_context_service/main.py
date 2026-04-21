@@ -89,10 +89,29 @@ def get_full_context(
     location:   str = Query(default=None, description='Location override e.g. Colombo,LK'),
     db: Session = Depends(get_db)
 ):
+    # ── Sub-step 0: Check for active override persistence ────────
+    # If the user manually simulated weather, we stick to it for the session.
+    latest = get_latest_context(db, session_id)
+    if latest and latest.get('is_override'):
+        print(f'[ContextAPI] Using existing override for session={session_id}')
+        return {
+            'weather':           latest['temp_tag'],
+            'condition':         latest['condition_tag'],
+            'condition_display': display_condition(latest['condition_tag'], latest['time_of_day']),
+            'time_of_day':       latest['time_of_day'],
+            'weight_vector':     json.loads(latest['weight_vector']) if isinstance(latest['weight_vector'], str) else latest['weight_vector'],
+            'temperature_celsius': latest['temperature_celsius'],
+            'is_override':       True,
+            'location':          'Override'
+        }
+
     loc = location or DEFAULT_LOCATION
 
     # ── Sub-step 1: Get weather (cached or live) ─────────────────
     weather = get_weather(db, loc)
+    if not weather:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail=f"Weather data for location '{loc}' is currently unavailable.")
 
     # ── Sub-step 2: Get time context ─────────────────────────────
     time_ctx = get_full_time_context()
@@ -176,6 +195,7 @@ def override_context(override: OverrideInput, db: Session = Depends(get_db)):
         time_of_day   = time_ctx['time_of_day'],
         weight_vector = weight_result['weight_vector'],
         is_override   = True,
+        temp_celsius  = override.temperature
     )
 
     return {
@@ -186,8 +206,51 @@ def override_context(override: OverrideInput, db: Session = Depends(get_db)):
         'weight_vector': weight_result['weights_dict'],
         'recommended_type': weight_result['recommended_type'],
         'is_override':   True,
+        'temperature_celsius': override.temperature,
         'log_id':        log_id,
     }
+
+
+@app.delete('/context/override/{session_id}')
+def reset_override(session_id: str, db: Session = Depends(get_db)):
+    '''
+    Clears the override for the session by saving a new 'Live' log entry.
+    '''
+    # We fetch the live context first
+    loc = DEFAULT_LOCATION
+    weather = get_weather(db, loc)
+    
+    if not weather:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=503, detail="Service unavailable: Cannot fetch live weather for reset.")
+        
+    time_ctx = get_full_time_context()
+    tags     = classify_all(weather['temperature_celsius'], weather['condition'])
+    
+    weight_result = compute_weight_vector(
+        db            = db,
+        temp_celsius  = weather['temperature_celsius'],
+        condition_tag = tags['condition_tag'],
+        temp_tag      = tags['temp_tag'],
+        time_of_day   = time_ctx['time_of_day'],
+        current_hour  = time_ctx['hour'],
+    )
+    
+    # Save a fresh snapshot with is_override=False to clear the session persistence
+    save_context_log(
+        db            = db,
+        session_id    = session_id,
+        cache_id      = weather.get('cache_id'),
+        temp_tag      = tags['temp_tag'],
+        condition_tag = tags['condition_tag'],
+        time_of_day   = time_ctx['time_of_day'],
+        weight_vector = weight_result['weight_vector'],
+        is_override   = False,
+        temp_celsius  = weather['temperature_celsius']
+    )
+    
+    # Return the full context snapshot so the UI restores completely
+    return get_full_context(session_id=session_id, db=db)
 
 
 # BONUS ENDPOINT: Retrieve past context for a session

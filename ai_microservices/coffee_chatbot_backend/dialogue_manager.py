@@ -5,7 +5,8 @@ from session_store import get_session, update_session
 from integrations import (
     get_sentiment, get_context, get_recommendation, 
     get_recommendation_candidates, get_product_details,
-    get_coffee_knowledge, get_weather_context, get_all_products
+    get_coffee_knowledge, get_weather_context, get_all_products,
+    submit_feedback
 )
 from llm_gemini import (
     analyze_message_with_gemini, answer_question_with_gemini, 
@@ -21,7 +22,7 @@ GREETING_WORDS = {
     'hi', 'hello', 'hey', 'good morning', 'good afternoon', 'good evening'
 }
 
-INTERRUPT_INTENTS = {'Browse', 'Question', 'Complaint', 'Goodbye'}
+INTERRUPT_INTENTS = {'Browse', 'Question', 'Complaint', 'Goodbye', 'Feedback'}
 
 COFFEE_DOMAIN_HINTS = {
     'coffee', 'drink', 'menu', 'espresso', 'latte', 'cappuccino', 'americano',
@@ -114,9 +115,9 @@ async def _answer_product_question(message: str, session_id: str, session: dict)
     bitterness_level = _describe_level(product.get('bitterness'))
 
     if any(k in msg for k in ['sugar', 'sweet']):
-        reply = f'{name} is {sugar_level} in sugar/sweetness. If you want lower sugar, I can suggest a better alternative.'
+        reply = f'Of course! {name} is {sugar_level} in sweetness. If you are watching your sugar, I can certainly find a better match for you!'
     elif any(k in msg for k in ['caffeine', 'strong']):
-        reply = f'{name} has {caffeine_level} caffeine. If you want less caffeine, I can switch you to a lower-caffeine option.'
+        reply = f'Good question! {name} has a {caffeine_level} caffeine profile. I can switch you to something lighter if you prefer.'
     elif any(k in msg for k in ['calorie', 'healthy']):
         reply = f'{name} is about {calories:.0f} calories per serving.'
     elif any(k in msg for k in ['price', 'cost']):
@@ -250,7 +251,62 @@ async def handle_message(message: str, session_id: str) -> dict:
     
     intent = agent_result.get('intent_override', 'Unknown')
     agent_reply = agent_result.get('agent_reply')
-    entities = agent_result.get('extracted_entities', {})
+    confidence = agent_result.get('confidence', 1.0)
+    entities = agent_result.get('extracted_entities') or agent_result # Support flattened or nested
+
+    # Fallback to local intent classifier if Gemini is uncertain or unavailable (429)
+    if intent == 'Unknown' or confidence < 0.60:
+        local_intent, local_conf = predict_intent(raw_msg)
+        if local_conf > confidence:
+            print(f"[DEBUG] Falling back to local classifier: {local_intent} ({local_conf})")
+            intent = local_intent
+            confidence = local_conf
+
+    # --- MOOD LOOPBACK INTERCEPTION ---
+    # Fulfills requirement: "everytime a customer says about what he/she is feeling right now mid conversation"
+    detected_mood = entities.get('mood')
+    current_step = session.get('step', 'ask_mood')
+    
+    # Trigger loopback if mood is detected AND we are already past the first mood step
+    if detected_mood and current_step != 'ask_mood':
+        print(f"[DEBUG] Mood loopback triggered: {detected_mood}")
+        update_session(session_id, {
+            'mood': detected_mood,
+            'state': 'GATHERING',
+            'step': 'ask_temp'
+        })
+        return {
+            'reply': "got it! adjusting recommendation parameters. Do you prefer hot or cold drinks today?",
+            'quick_replies': ['Hot', 'Cold', 'No preference'],
+            'intent': 'Suggest',
+            'state': 'GATHERING'
+        }
+
+    # --- AGENT_REPLY PRIORITY (ChatGPT-style Expert Barista) ---
+    # We use agent_reply only if Gemini is highly confident (>= 0.85).
+    # Simple greetings are bypassed by Gemini prompt rules to ensure deterministic flow.
+    if agent_reply and confidence >= 0.85:
+        print(f"[DEBUG] Using Gemini agent_reply for {intent}")
+        # Sync attributes from LLM to session for future steps
+        sync_data = {}
+        if entities.get('mood'): sync_data['mood'] = entities['mood']
+        if entities.get('temp_pref'): sync_data['temp_pref'] = entities['temp_pref']
+        if entities.get('sugar_pref'): sync_data['sugar_pref'] = entities['sugar_pref']
+        if entities.get('caffeine_pref'): sync_data['caffeine_pref'] = entities['caffeine_pref']
+        if sync_data: update_session(session_id, sync_data)
+        
+        # Determine appropriate quick replies based on intent
+        replies = []
+        if intent == 'Greeting': replies = ['Suggest for my mood', 'Show me the menu']
+        elif intent == 'Browse': replies = ['Suggest something else', 'How do I order?']
+        elif intent == 'Question': replies = ['Suggest for my mood', 'Great, thanks!']
+        
+        return {
+            'reply': agent_reply,
+            'quick_replies': replies,
+            'intent': intent,
+            'state': state
+        }
 
     # Update session with any extracted entities immediately (GATHERING logic)
     prefs_to_update = {}
@@ -362,7 +418,9 @@ async def handle_message(message: str, session_id: str) -> dict:
                 'state': 'GATHERING'
             }
 
-        if intent in INTERRUPT_INTENTS:
+        # In confirm flow, interrupts should only trigger if confidence is high.
+        # Otherwise, we stay in the confirm flow (deterministic buttons).
+        if intent in INTERRUPT_INTENTS and confidence >= 0.60:
             if intent == 'Browse':
                 return handle_browse()
             if intent == 'Question':
@@ -371,9 +429,12 @@ async def handle_message(message: str, session_id: str) -> dict:
                 return handle_complaint(session_id)
             if intent == 'Goodbye':
                 return handle_goodbye(session_id)
+            if intent == 'Feedback':
+                return await handle_feedback(raw_msg, session_id, session)
+        
         return {
             'reply': 'Would you like to order this recommendation?',
-            'quick_replies': ['Yes, order it!', 'Show me alternatives', 'Customise this'],
+            'quick_replies': ['Yes, order it!', 'Show me alternatives', 'Customise this', 'Rate this recommendation'],
             'intent': 'Suggest',
             'state': 'CONFIRM'
         }
@@ -502,18 +563,36 @@ def extract_refinements(message: str) -> dict:
 
 async def handle_alternatives(session_id, session, user_message=''):
     refinements = extract_refinements(user_message)
+    
+    # Track if this is the first time alternatives are being triggered
+    # This fulfills the requirement to show trending cards on first alternative request
+    is_first_alt = not session.get('alternatives_triggered', False)
+    
     updates = {'state': 'GATHERING', 'step': 'recommend'}
     updates.update(refinements)
+    
+    if is_first_alt:
+        updates['alternatives_triggered'] = True
+        
     update_session(session_id, updates)
 
     intro = 'Ah! Got you. Here is another option that better matches your preferences.'
-    return await build_recommendation(session_id, force_alternative=True, intro=intro)
+    response = await build_recommendation(session_id, force_alternative=True, intro=intro)
+    
+    if is_first_alt:
+        # Prepend a hint about trending items and set the trigger flag for the frontend (PopularNowBanner)
+        response['reply'] = "Certainly! I've found some other options for you. I'm also showing some of our trending drinks below that you might like!\n\n" + response['reply']
+        response['show_trending'] = True
+        
+    return response
 
 
 async def handle_suggest(message, session_id, session, llm_signal=None, intent='Suggest'):
     step = session.get('step', 'ask_mood')
 
-    if intent in INTERRUPT_INTENTS:
+    # Interrupts allowed ONLY if confidence is high (prevent low-conf breakage)
+    confidence = (llm_signal or {}).get('confidence', 1.0)
+    if intent in INTERRUPT_INTENTS and confidence >= 0.60:
         if intent == 'Browse':
             return handle_browse()
         if intent == 'Question':
@@ -522,14 +601,16 @@ async def handle_suggest(message, session_id, session, llm_signal=None, intent='
             return handle_complaint(session_id)
         if intent == 'Goodbye':
             return handle_goodbye(session_id)
+        if intent == 'Feedback':
+            return await handle_feedback(message, session_id, session)
 
     if step == 'ask_mood':
         msg = (message or '').strip().lower()
         if msg in GREETING_WORDS:
             return {
-                'reply': 'I can personalize better if you tell me your current mood. Are you energetic, tired, stressed, happy, or normal?',
+                'reply': "Welcome! I'm here to help you find the perfect brew. To get started, how are you feeling right now? (Tired, happy, stressed, etc.)",
                 'quick_replies': ['Energetic', 'Tired', 'Stressed', 'Happy', 'Normal'],
-                'intent': 'Suggest',
+                'intent': 'Greeting',
                 'state': 'GATHERING'
             }
 
@@ -605,12 +686,26 @@ async def handle_suggest(message, session_id, session, llm_signal=None, intent='
         # User answered the mood question — get sentiment from Bandara's API
         sentiment_data = await get_sentiment(message)
         mood_val = sentiment_data.get('mood', 'Normal')
+        
+        # --- MOOD INSISTENCE ---
+        # If sentiment is Normal but the user didn't use a mood word, they likely skipped the question.
+        # We allow "Normal" as a valid mood ONLY if they actually used the word "normal" or "okay".
+        has_mood_word = any(w in msg for w in MOOD_HINTS)
+        if mood_val == 'Normal' and not has_mood_word and intent == 'Suggest':
+             return {
+                'reply': "I'd love to pick a coffee for you! But first, a quick check: how are you feeling today? (e.g. Tired, Energetic, Sad, Stressed)",
+                'quick_replies': ['Tired', 'Energetic', 'Sad', 'Stressed', 'Normal'],
+                'intent': 'Suggest',
+                'state': 'GATHERING',
+                'step': 'ask_mood'
+            }
+
         update_session(session_id, {'mood': mood_val})
         
         if has_health_prefs:
             update_session(session_id, {'step': 'ask_temp'})
             return {
-                'reply': f"Got it! I've noted your health preferences. Do you prefer hot or cold drinks today?",
+                'reply': f"{tone_prefix}Got it! I've noted your health preferences. Do you prefer hot or cold drinks today?",
                 'quick_replies': ['Hot', 'Cold', 'No preference'],
                 'intent': 'Suggest',
                 'state': 'GATHERING'
@@ -618,7 +713,7 @@ async def handle_suggest(message, session_id, session, llm_signal=None, intent='
         else:
             update_session(session_id, {'step': 'ask_health'})
             return {
-                'reply': f"Got it! Before we continue, are you strict about health care (like sweetness, caffeine, or calories)?",
+                'reply': f"{tone_prefix}Got it! Before we continue, are you strict about health care (like sweetness, caffeine, or calories)?",
                 'quick_replies': ['Yes', 'No'],
                 'intent': 'Suggest',
                 'state': 'GATHERING'
@@ -771,7 +866,7 @@ async def build_recommendation(session_id, force_alternative=False, intro=None):
 
     return {
         'reply': f'{lead} {product} ({price})! {reason} Would you like to order it?',
-        'quick_replies': ['Yes, order it!', 'Show me alternatives', 'Customise this'],
+        'quick_replies': ['Yes, order it!', 'Show me alternatives', 'Customise this', 'Rate this recommendation'],
         'intent': 'Suggest',
         'state': 'CONFIRM',
         'recommendation': recommendation
@@ -779,14 +874,53 @@ async def build_recommendation(session_id, force_alternative=False, intro=None):
 
 
 # ── Order Handler ───────────────────────────────────────────────
-async def handle_order(session_id, session):
-    product = session.get('last_recommendation') or 'your selected coffee'
+async def handle_order(session_id: str, session: dict) -> dict:
+    product_name = session.get('last_recommendation') or 'your selected coffee'
+    
+    # Enrich with full product details for the Cart
+    product_details = await get_product_details(product_name)
+    if not product_details or product_details.get('error'):
+        # Fallback if DB lookup fails (Hardened to prevent empty Cart UI)
+        product_details = {
+            'id': f"pid-{product_name.lower().replace(' ', '-')}",
+            'name': product_name,
+            'price': 450.0,
+            'description': 'A delicious handcrafted brew.',
+            'category': 'Coffee',
+            'image_url': 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&q=80&w=200&h=200'
+        }
+
+    # Record acceptance in Feedback service immediately
+    await submit_feedback(
+        session_id=session_id,
+        product_name=product_name,
+        product_id=product_details.get('id'),
+        accepted=True,
+        mood=session.get('mood', 'Normal'),
+        weather=session.get('weather', 'Warm'),
+        strategy=session.get('last_strategy', 'hybrid')
+    )
+
     update_session(session_id, {'state': 'FEEDBACK'})
+    
+    # Map to Main API (Ember Coffee API) schema for Cart consistency
+    cart_product = {
+        '_id': product_details.get('id', ''),
+        'productName': product_details.get('name', product_name),
+        'productImageUrl': product_details.get('image_url', ''),
+        'price': product_details.get('price', 450.0),
+        'description': product_details.get('description', ''),
+        'category': product_details.get('category', 'Coffee')
+    }
+
     return {
-        'reply': f'Great choice! Your {product} is being prepared. It will be ready in about 5 minutes!',
-        'quick_replies': ['Rate this recommendation'],
+        'reply': f'Great choice! Your {product_name} is being prepared. Check your cart to finalize the order!',
         'intent': 'Order',
-        'state': 'FEEDBACK'
+        'state': 'FEEDBACK',
+        'isFeedback': True, # Triggers the inline FeedbackWidget in ChatBotScreen.js
+        'product': cart_product, # Product card for the Cart
+        'productName': product_name, # For the FeedbackWidget
+        'quick_replies': ['Rate this recommendation']
     }
 
 
@@ -838,12 +972,45 @@ async def handle_question(message, session=None):
 
 
 # ── Feedback Handler ────────────────────────────────────────────
-async def handle_feedback(message, session_id, session):
-    update_session(session_id, {'state': 'DONE'})
+async def handle_feedback(message: str, session_id: str, session: dict) -> dict:
+    msg = message.lower()
+    product_name = session.get('last_recommendation', 'Unknown Product')
+    
+    # Heuristic rating extraction (1-5)
+    rating = None
+    if '5' in msg or 'excellent' in msg or 'great' in msg: rating = 5.0
+    elif '4' in msg or 'good' in msg: rating = 4.0
+    elif '3' in msg or 'okay' in msg: rating = 3.0
+    elif '2' in msg or 'bad' in msg: rating = 2.0
+    elif '1' in msg or 'terrible' in msg: rating = 1.0
+
+    if rating:
+        # Submit detailed rating to Feedback service
+        await submit_feedback(
+            session_id=session_id,
+            product_name=product_name,
+            accepted=True,
+            rating=rating,
+            notes=message,
+            mood=session.get('mood', 'Normal'),
+            weather=session.get('weather', 'Warm'),
+            strategy=session.get('last_strategy', 'hybrid')
+        )
+        reply = 'Thank you for the rating! It helps me learn your preferences. Enjoy your coffee!'
+        state = 'DONE'
+        is_feedback = False
+    else:
+        reply = 'I would love to hear your thoughts! Please rate the recommendation below:'
+        state = 'FEEDBACK'
+        is_feedback = True
+
+    update_session(session_id, {'state': state})
     return {
-        'reply': 'Thank you for your feedback! It helps me improve my recommendations. Come back soon!',
+        'reply': reply,
         'intent': 'Feedback',
-        'state': 'DONE'
+        'state': state,
+        'isFeedback': is_feedback,
+        'productName': product_name
     }
 
 

@@ -13,9 +13,18 @@ from nltk.stem import WordNetLemmatizer
 from training_data import TRAINING_DATA
 from pathlib import Path
 
-nltk.download('punkt',     quiet=True)
-nltk.download('wordnet',   quiet=True)
-nltk.download('punkt_tab', quiet=True)
+def _ensure_nltk_resources():
+    """Download required NLTK resources if not already present."""
+    required = ['punkt', 'wordnet', 'punkt_tab']
+    for res in required:
+        try:
+            if res == 'punkt': nltk.data.find('tokenizers/punkt')
+            elif res == 'wordnet': nltk.data.find('corpora/wordnet')
+            elif res == 'punkt_tab': nltk.data.find('tokenizers/punkt_tab')
+        except LookupError:
+            nltk.download(res, quiet=True)
+
+_ensure_nltk_resources()
 
 MODEL_PATH = 'models/intent_model.pkl'
 

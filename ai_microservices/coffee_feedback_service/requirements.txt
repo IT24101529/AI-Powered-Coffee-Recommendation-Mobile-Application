@@ -1,0 +1,13 @@
+fastapi
+matplotlib
+networkx
+packaging
+psycopg2-binary
+pydantic
+python-dotenv
+scipy
+setuptools
+six
+sqlalchemy
+uvicorn
+wheel

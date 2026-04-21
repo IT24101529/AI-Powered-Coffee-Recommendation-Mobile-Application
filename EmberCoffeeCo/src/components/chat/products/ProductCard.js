@@ -54,11 +54,12 @@ export default function ProductCard({ product, onOrder, onAlternatives }) {
   const safePrice = Number.isFinite(product.price) ? product.price : 450;
   const safeSimilarity = Number.isFinite(product.similarity_score) ? product.similarity_score : 0.78;
 
+
   const matchPercent = Math.max(1, Math.round(safeSimilarity * 100));
   const tempInfo     = TEMP_ICONS[product.temperature] || TEMP_ICONS.Hot;
-  const categoryIcon = CATEGORY_ICONS[safeCategory] || '☕';
 
   // Match quality label from similarity_score
+
   const matchLabel =
     matchPercent >= 90 ? 'Perfect Match' :
     matchPercent >= 75 ? 'Great Match'   : 'Good Match';

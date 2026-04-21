@@ -16,8 +16,9 @@ import axios from 'axios';
 
 // Shared
 import { colors as COLORS, typography as FONTS, spacing as SPACING, borderRadius as RADIUS } from '../theme';
-import { default as API_URLS } from '../config/api';
 import { useSession } from '../hooks/useSession';
+import { useCart } from '../context/CartContext';
+import API_URLS from '../config/api';
 
 // Feature 2 — Bandara
 import MoodBadge from '../components/chat/sentiment/MoodBadge';
@@ -56,9 +57,11 @@ export default function ChatScreen({ navigation, startupLocation = 'Kandy,LK' })
   const [trendingMinimized, setTrendingMinimized] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [recommendationCardVersion, setRecommendationCardVersion] = useState(0);
+  const [thinkingDots, setThinkingDots] = useState(0);
 
   // Session management
   const { sessionId, sessionReady } = useSession();
+  const { addItem } = useCart();
 
   // Location Permissions — IT24101529
   useEffect(() => {
@@ -95,13 +98,8 @@ export default function ChatScreen({ navigation, startupLocation = 'Kandy,LK' })
 
   // Context hook — Ranasinghe
   const {
-    contextData,
-    loading: contextLoading,
-    error: contextError,
-    location,
-    setLocation,
-    overrideContext,
-    fetchContext,
+    contextData, loading: weatherLoading, error: weatherError, 
+    location, setLocation, fetchContext, overrideContext, clearOverride 
   } = useWeatherContext(sessionId, startupLocation || 'Kandy,LK');
 
   const normalizeRecommendation = useCallback((rec) => {
@@ -183,6 +181,19 @@ export default function ChatScreen({ navigation, startupLocation = 'Kandy,LK' })
     setRecommendationCardVersion(prev => prev + 1);
   }, []);
 
+  // ── Thinking dot animation ─────────────────────────────────
+  useEffect(() => {
+    let interval;
+    if (isSending) {
+      interval = setInterval(() => {
+        setThinkingDots(prev => (prev + 1) % 4);
+      }, 500);
+    } else {
+      setThinkingDots(0);
+    }
+    return () => interval && clearInterval(interval);
+  }, [isSending]);
+
   // ── Handle user sending a message ──────────────────────────
   const onSend = useCallback(async (newMessages = []) => {
     if (isSending) return;
@@ -206,13 +217,18 @@ export default function ChatScreen({ navigation, startupLocation = 'Kandy,LK' })
         message:    userText,
       });
 
-      const { reply, quick_replies, intent, recommendation, state } = res.data;
+      const { reply, quick_replies, intent, recommendation, state, product } = res.data;
       const normalizedRecommendation = normalizeRecommendation(recommendation);
 
+      // Filter redundant quick replies
+      const filteredReplies = (quick_replies || []).filter(r => 
+        !(intent === 'Order' && (r === 'Rate Recommendation' || r.title === 'Rate Recommendation'))
+      );
+
       // Show bot reply
-      addBotMessage(reply, quick_replies || [], {
+      addBotMessage(reply, filteredReplies, {
         product: normalizedRecommendation,
-        isFeedback: intent === 'Order',
+        isFeedback: intent === 'Feedback',
         productName: normalizedRecommendation?.product_name || feedbackProduct?.product_name || lastProduct?.product_name
       });
 
@@ -239,15 +255,27 @@ export default function ChatScreen({ navigation, startupLocation = 'Kandy,LK' })
       // After order — show feedback
       if (intent === 'Order') {
         const productForFeedback = normalizedRecommendation || lastProduct;
+        
+        // Add to cart — Feature Integration
+        const cartItem = product || productForFeedback;
+        if (cartItem) {
+          addItem(cartItem);
+          console.log('Product added to cart via Chatbot:', cartItem.productName || cartItem.product_name);
+        }
+
         setFeedbackProduct(productForFeedback);
         setRecommendationWithTransition(null);
         // Note: Inline feedback is now handled via addBotMessage metadata above
       }
 
     } catch (err) {
-      addBotMessage(
-        '⚠️  Could not reach the chatbot. Make sure the backend is running.',
-      );
+      if (err.response) {
+        addBotMessage(`⚠️  Backend Error (${err.response.status}): Something went wrong in the chatbot brain.`);
+      } else if (err.request) {
+        addBotMessage('⚠️  Could not reach the chatbot. Make sure the backend is running and you have an internet connection.');
+      } else {
+        addBotMessage(`⚠️  Error: ${err.message}`);
+      }
     } finally {
       setIsSending(false);
     }
@@ -309,6 +337,10 @@ export default function ChatScreen({ navigation, startupLocation = 'Kandy,LK' })
         }
       } catch (err) {
         console.log('Auto-greeting failed:', err.message);
+        // If it's a 500 error, notify the user. If it's just a network error, show the fallback greeting quietly.
+        if (err.response && err.response.status >= 500) {
+          addBotMessage('⚠️  Backend greeting failed. Falling back to local mode.');
+        }
         addBotMessage('Welcome to Ember Coffee! How are you feeling today?', ['Energetic', 'Tired', 'Stressed', 'Happy', 'Normal']);
       }
     })();
@@ -398,11 +430,12 @@ export default function ChatScreen({ navigation, startupLocation = 'Kandy,LK' })
         <WeatherContextBadge
           location={location}
           contextData={contextData}
-          loading={contextLoading}
-          error={contextError}
+          loading={weatherLoading}
+          error={weatherError}
           onRetry={() => fetchContext(location)}
           onLocationPress={() => setShowLocation(true)}
           onOverridePress={() => setShowOverride(true)}
+          onResetPress={() => clearOverride()}
         />
       )}
 
@@ -432,7 +465,7 @@ export default function ChatScreen({ navigation, startupLocation = 'Kandy,LK' })
           renderFooter={() => isSending ? (
             <View style={styles.thinkingContainer}>
               <ActivityIndicator size="small" color={COLORS.primary} />
-              <Text style={styles.thinkingText}>BrewBot is thinking...</Text>
+              <Text style={styles.thinkingText}>Thinking{'.'.repeat(thinkingDots)}</Text>
             </View>
           ) : null}
           renderCustomView={(props) => {

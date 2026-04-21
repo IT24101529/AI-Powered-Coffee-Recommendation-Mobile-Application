@@ -23,13 +23,23 @@ const getExpoHost = () => {
 
 const getDefaultHost = () => {
   const envHost = process.env.EXPO_PUBLIC_API_HOST;
-  if (envHost) return envHost;
+  if (envHost) {
+    console.log('[API] Using host from env:', envHost);
+    return envHost;
+  }
 
   const expoHost = getExpoHost();
-  if (expoHost && expoHost !== 'localhost') return expoHost;
+  if (expoHost && expoHost !== 'localhost') {
+    console.log('[API] Auto-detected Expo host:', expoHost);
+    return expoHost;
+  }
 
-  if (Platform.OS === 'android' && Constants?.isDevice === false) return '10.0.2.2';
+  if (Platform.OS === 'android' && Constants?.isDevice === false) {
+    console.log('[API] Android Emulator detected, using 10.0.2.2');
+    return '10.0.2.2';
+  }
 
+  console.log('[API] Fallback to localhost (127.0.0.1)');
   return '127.0.0.1';
 };
 
