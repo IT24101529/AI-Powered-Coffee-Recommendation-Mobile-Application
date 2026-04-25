@@ -78,6 +78,7 @@ EMBER-Coffee-Co/
 git clone https://github.com/IT24101529/AI-Powered-Coffee-Recommendation-Mobile-Application.git
 cd EMBER-Coffee-Co
 ```
+The Fully Tested Application is pushed to the branch "**EmberCoffeeCo**".
 
 ### Step 2: Setup Environment Variables
 Create `.env` files in:
