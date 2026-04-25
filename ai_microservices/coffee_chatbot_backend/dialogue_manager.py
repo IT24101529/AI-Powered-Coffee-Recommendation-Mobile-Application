@@ -5,8 +5,12 @@ from session_store import get_session, update_session
 from integrations import (
     get_sentiment, get_context, get_recommendation, 
     get_recommendation_candidates, get_product_details,
+<<<<<<< HEAD
     get_coffee_knowledge, get_weather_context, get_all_products,
     submit_feedback
+=======
+    get_coffee_knowledge, get_weather_context, get_all_products
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 )
 from llm_gemini import (
     analyze_message_with_gemini, answer_question_with_gemini, 
@@ -22,7 +26,11 @@ GREETING_WORDS = {
     'hi', 'hello', 'hey', 'good morning', 'good afternoon', 'good evening'
 }
 
+<<<<<<< HEAD
 INTERRUPT_INTENTS = {'Browse', 'Question', 'Complaint', 'Goodbye', 'Feedback'}
+=======
+INTERRUPT_INTENTS = {'Browse', 'Question', 'Complaint', 'Goodbye'}
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 
 COFFEE_DOMAIN_HINTS = {
     'coffee', 'drink', 'menu', 'espresso', 'latte', 'cappuccino', 'americano',
@@ -115,9 +123,15 @@ async def _answer_product_question(message: str, session_id: str, session: dict)
     bitterness_level = _describe_level(product.get('bitterness'))
 
     if any(k in msg for k in ['sugar', 'sweet']):
+<<<<<<< HEAD
         reply = f'Of course! {name} is {sugar_level} in sweetness. If you are watching your sugar, I can certainly find a better match for you!'
     elif any(k in msg for k in ['caffeine', 'strong']):
         reply = f'Good question! {name} has a {caffeine_level} caffeine profile. I can switch you to something lighter if you prefer.'
+=======
+        reply = f'{name} is {sugar_level} in sugar/sweetness. If you want lower sugar, I can suggest a better alternative.'
+    elif any(k in msg for k in ['caffeine', 'strong']):
+        reply = f'{name} has {caffeine_level} caffeine. If you want less caffeine, I can switch you to a lower-caffeine option.'
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
     elif any(k in msg for k in ['calorie', 'healthy']):
         reply = f'{name} is about {calories:.0f} calories per serving.'
     elif any(k in msg for k in ['price', 'cost']):
@@ -251,6 +265,7 @@ async def handle_message(message: str, session_id: str) -> dict:
     
     intent = agent_result.get('intent_override', 'Unknown')
     agent_reply = agent_result.get('agent_reply')
+<<<<<<< HEAD
     confidence = agent_result.get('confidence', 1.0)
     entities = agent_result.get('extracted_entities') or agent_result # Support flattened or nested
 
@@ -307,6 +322,9 @@ async def handle_message(message: str, session_id: str) -> dict:
             'intent': intent,
             'state': state
         }
+=======
+    entities = agent_result.get('extracted_entities', {})
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 
     # Update session with any extracted entities immediately (GATHERING logic)
     prefs_to_update = {}
@@ -418,9 +436,13 @@ async def handle_message(message: str, session_id: str) -> dict:
                 'state': 'GATHERING'
             }
 
+<<<<<<< HEAD
         # In confirm flow, interrupts should only trigger if confidence is high.
         # Otherwise, we stay in the confirm flow (deterministic buttons).
         if intent in INTERRUPT_INTENTS and confidence >= 0.60:
+=======
+        if intent in INTERRUPT_INTENTS:
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
             if intent == 'Browse':
                 return handle_browse()
             if intent == 'Question':
@@ -429,12 +451,18 @@ async def handle_message(message: str, session_id: str) -> dict:
                 return handle_complaint(session_id)
             if intent == 'Goodbye':
                 return handle_goodbye(session_id)
+<<<<<<< HEAD
             if intent == 'Feedback':
                 return await handle_feedback(raw_msg, session_id, session)
         
         return {
             'reply': 'Would you like to order this recommendation?',
             'quick_replies': ['Yes, order it!', 'Show me alternatives', 'Customise this', 'Rate this recommendation'],
+=======
+        return {
+            'reply': 'Would you like to order this recommendation?',
+            'quick_replies': ['Yes, order it!', 'Show me alternatives', 'Customise this'],
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
             'intent': 'Suggest',
             'state': 'CONFIRM'
         }
@@ -563,6 +591,7 @@ def extract_refinements(message: str) -> dict:
 
 async def handle_alternatives(session_id, session, user_message=''):
     refinements = extract_refinements(user_message)
+<<<<<<< HEAD
     
     # Track if this is the first time alternatives are being triggered
     # This fulfills the requirement to show trending cards on first alternative request
@@ -585,14 +614,26 @@ async def handle_alternatives(session_id, session, user_message=''):
         response['show_trending'] = True
         
     return response
+=======
+    updates = {'state': 'GATHERING', 'step': 'recommend'}
+    updates.update(refinements)
+    update_session(session_id, updates)
+
+    intro = 'Ah! Got you. Here is another option that better matches your preferences.'
+    return await build_recommendation(session_id, force_alternative=True, intro=intro)
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 
 
 async def handle_suggest(message, session_id, session, llm_signal=None, intent='Suggest'):
     step = session.get('step', 'ask_mood')
 
+<<<<<<< HEAD
     # Interrupts allowed ONLY if confidence is high (prevent low-conf breakage)
     confidence = (llm_signal or {}).get('confidence', 1.0)
     if intent in INTERRUPT_INTENTS and confidence >= 0.60:
+=======
+    if intent in INTERRUPT_INTENTS:
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
         if intent == 'Browse':
             return handle_browse()
         if intent == 'Question':
@@ -601,16 +642,25 @@ async def handle_suggest(message, session_id, session, llm_signal=None, intent='
             return handle_complaint(session_id)
         if intent == 'Goodbye':
             return handle_goodbye(session_id)
+<<<<<<< HEAD
         if intent == 'Feedback':
             return await handle_feedback(message, session_id, session)
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 
     if step == 'ask_mood':
         msg = (message or '').strip().lower()
         if msg in GREETING_WORDS:
             return {
+<<<<<<< HEAD
                 'reply': "Welcome! I'm here to help you find the perfect brew. To get started, how are you feeling right now? (Tired, happy, stressed, etc.)",
                 'quick_replies': ['Energetic', 'Tired', 'Stressed', 'Happy', 'Normal'],
                 'intent': 'Greeting',
+=======
+                'reply': 'I can personalize better if you tell me your current mood. Are you energetic, tired, stressed, happy, or normal?',
+                'quick_replies': ['Energetic', 'Tired', 'Stressed', 'Happy', 'Normal'],
+                'intent': 'Suggest',
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
                 'state': 'GATHERING'
             }
 
@@ -686,6 +736,7 @@ async def handle_suggest(message, session_id, session, llm_signal=None, intent='
         # User answered the mood question — get sentiment from Bandara's API
         sentiment_data = await get_sentiment(message)
         mood_val = sentiment_data.get('mood', 'Normal')
+<<<<<<< HEAD
         
         # --- MOOD INSISTENCE ---
         # If sentiment is Normal but the user didn't use a mood word, they likely skipped the question.
@@ -700,12 +751,18 @@ async def handle_suggest(message, session_id, session, llm_signal=None, intent='
                 'step': 'ask_mood'
             }
 
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
         update_session(session_id, {'mood': mood_val})
         
         if has_health_prefs:
             update_session(session_id, {'step': 'ask_temp'})
             return {
+<<<<<<< HEAD
                 'reply': f"{tone_prefix}Got it! I've noted your health preferences. Do you prefer hot or cold drinks today?",
+=======
+                'reply': f"Got it! I've noted your health preferences. Do you prefer hot or cold drinks today?",
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
                 'quick_replies': ['Hot', 'Cold', 'No preference'],
                 'intent': 'Suggest',
                 'state': 'GATHERING'
@@ -713,7 +770,11 @@ async def handle_suggest(message, session_id, session, llm_signal=None, intent='
         else:
             update_session(session_id, {'step': 'ask_health'})
             return {
+<<<<<<< HEAD
                 'reply': f"{tone_prefix}Got it! Before we continue, are you strict about health care (like sweetness, caffeine, or calories)?",
+=======
+                'reply': f"Got it! Before we continue, are you strict about health care (like sweetness, caffeine, or calories)?",
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
                 'quick_replies': ['Yes', 'No'],
                 'intent': 'Suggest',
                 'state': 'GATHERING'
@@ -866,7 +927,11 @@ async def build_recommendation(session_id, force_alternative=False, intro=None):
 
     return {
         'reply': f'{lead} {product} ({price})! {reason} Would you like to order it?',
+<<<<<<< HEAD
         'quick_replies': ['Yes, order it!', 'Show me alternatives', 'Customise this', 'Rate this recommendation'],
+=======
+        'quick_replies': ['Yes, order it!', 'Show me alternatives', 'Customise this'],
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
         'intent': 'Suggest',
         'state': 'CONFIRM',
         'recommendation': recommendation
@@ -874,6 +939,7 @@ async def build_recommendation(session_id, force_alternative=False, intro=None):
 
 
 # ── Order Handler ───────────────────────────────────────────────
+<<<<<<< HEAD
 async def handle_order(session_id: str, session: dict) -> dict:
     product_name = session.get('last_recommendation') or 'your selected coffee'
     
@@ -921,6 +987,16 @@ async def handle_order(session_id: str, session: dict) -> dict:
         'product': cart_product, # Product card for the Cart
         'productName': product_name, # For the FeedbackWidget
         'quick_replies': ['Rate this recommendation']
+=======
+async def handle_order(session_id, session):
+    product = session.get('last_recommendation') or 'your selected coffee'
+    update_session(session_id, {'state': 'FEEDBACK'})
+    return {
+        'reply': f'Great choice! Your {product} is being prepared. It will be ready in about 5 minutes!',
+        'quick_replies': ['Rate this recommendation'],
+        'intent': 'Order',
+        'state': 'FEEDBACK'
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
     }
 
 
@@ -972,6 +1048,7 @@ async def handle_question(message, session=None):
 
 
 # ── Feedback Handler ────────────────────────────────────────────
+<<<<<<< HEAD
 async def handle_feedback(message: str, session_id: str, session: dict) -> dict:
     msg = message.lower()
     product_name = session.get('last_recommendation', 'Unknown Product')
@@ -1011,6 +1088,14 @@ async def handle_feedback(message: str, session_id: str, session: dict) -> dict:
         'state': state,
         'isFeedback': is_feedback,
         'productName': product_name
+=======
+async def handle_feedback(message, session_id, session):
+    update_session(session_id, {'state': 'DONE'})
+    return {
+        'reply': 'Thank you for your feedback! It helps me improve my recommendations. Come back soon!',
+        'intent': 'Feedback',
+        'state': 'DONE'
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
     }
 
 

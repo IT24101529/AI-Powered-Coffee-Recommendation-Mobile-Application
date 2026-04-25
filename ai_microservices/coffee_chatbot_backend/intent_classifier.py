@@ -13,6 +13,7 @@ from nltk.stem import WordNetLemmatizer
 from training_data import TRAINING_DATA
 from pathlib import Path
 
+<<<<<<< HEAD
 def _ensure_nltk_resources():
     """Download required NLTK resources if not already present."""
     required = ['punkt', 'wordnet', 'punkt_tab']
@@ -25,6 +26,11 @@ def _ensure_nltk_resources():
             nltk.download(res, quiet=True)
 
 _ensure_nltk_resources()
+=======
+nltk.download('punkt',     quiet=True)
+nltk.download('wordnet',   quiet=True)
+nltk.download('punkt_tab', quiet=True)
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 
 MODEL_PATH = 'models/intent_model.pkl'
 

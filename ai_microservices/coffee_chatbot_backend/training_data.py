@@ -22,8 +22,12 @@ TRAINING_DATA = [
     ('start', 'Greeting'),
 
     # --- Order (Order) ---
+<<<<<<< HEAD
     # ('i want a coffee', 'Order'),  <-- Moved to Suggest
     ('can i order please', 'Order'),
+=======
+    ('i want a coffee', 'Order'),
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
     ('can i order please', 'Order'),
     ('i would like to buy a drink', 'Order'),
     ('place an order for me', 'Order'),
@@ -43,12 +47,15 @@ TRAINING_DATA = [
     ('yes please order', 'Order'),
     ('get it', 'Order'),
     ('purchase', 'Order'),
+<<<<<<< HEAD
     ('yes', 'Order'),
     ('no', 'Order'),
     ('yeah', 'Order'),
     ('yep', 'Order'),
     ('nope', 'Order'),
     ('nah', 'Order'),
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 
     # --- Suggest (Suggest) ---
     ('what do you recommend', 'Suggest'),
@@ -71,10 +78,13 @@ TRAINING_DATA = [
     ('help me decide', 'Suggest'),
     ('what fits the weather', 'Suggest'),
     ('give me your best pick', 'Suggest'),
+<<<<<<< HEAD
     ('i want a coffee', 'Suggest'),
     ('get me a coffee', 'Suggest'),
     ('i need caffeine', 'Suggest'),
     ('brew me something', 'Suggest'),
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 
     # --- Question (Question) ---
     ('what is a latte', 'Question'),
@@ -141,7 +151,10 @@ TRAINING_DATA = [
     ('really good', 'Feedback'),
     ('tasted great', 'Feedback'),
     ('happy with this', 'Feedback'),
+<<<<<<< HEAD
     ('rate this recommendation', 'Feedback'),
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 
     # --- Browse (Browse) ---
     ('show me the menu', 'Browse'),

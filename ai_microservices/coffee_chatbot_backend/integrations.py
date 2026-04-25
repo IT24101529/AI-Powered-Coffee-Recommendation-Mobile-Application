@@ -8,7 +8,10 @@ load_dotenv()   # Load URLs from .env file
 SENTIMENT_API = os.getenv('SENTIMENT_API', 'http://localhost:8001')
 CONTEXT_API   = os.getenv('CONTEXT_API',   'http://localhost:8002')
 PRODUCT_API   = os.getenv('PRODUCT_API',   'http://localhost:8003')
+<<<<<<< HEAD
 FEEDBACK_API  = os.getenv('FEEDBACK_API',  'http://localhost:8005')
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 
 
 def _normalize_temp_pref(temp_pref: str) -> str:
@@ -66,8 +69,11 @@ def _normalize_recommendation(payload: dict, preferred_temp: str = None, exclude
     name = rec.get('product_name') or rec.get('name') or 'Caramel Latte'
     category = rec.get('category') or 'Specialty'
     temperature = rec.get('temperature') or 'Hot'
+<<<<<<< HEAD
     image_url = rec.get('image_url') or rec.get('productImageUrl') or ''
     p_id = rec.get('id') or rec.get('_id') or str(hash(name))
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 
     pref = (preferred_temp or '').strip().lower()
     if pref in {'cold', 'iced', 'cool'}:
@@ -78,12 +84,18 @@ def _normalize_recommendation(payload: dict, preferred_temp: str = None, exclude
     reason = rec.get('reason') or 'It matches your current mood and the weather.'
 
     return {
+<<<<<<< HEAD
         'id': p_id,
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
         'product_name': name,
         'category': category,
         'price': _to_float(rec.get('price'), 450.0),
         'temperature': temperature,
+<<<<<<< HEAD
         'image_url': image_url,
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
         'description': description,
         'similarity_score': _to_float(rec.get('similarity_score'), 0.78),
         'reason': reason,
@@ -175,21 +187,30 @@ async def get_recommendation(user_profile: dict) -> dict:
     payload.setdefault('top_n', 5)
 
     try:
+<<<<<<< HEAD
         print(f"[DEBUG] Calling Product API for recommendation: {payload.get('mood')}, {payload.get('weather')}")
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
         async with httpx.AsyncClient(timeout=5) as client:
             response = await client.post(
                 f'{PRODUCT_API}/products/recommend',
                 json=payload
             )
             response.raise_for_status()
+<<<<<<< HEAD
             data = response.json()
             candidates = _normalize_recommendation_candidates(
                 data,
+=======
+            candidates = _normalize_recommendation_candidates(
+                response.json(),
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
                 preferred_temp=preferred_temp,
                 exclude_names=profile.get('exclude_names') if isinstance(profile.get('exclude_names'), list) else [],
                 exclude_categories=profile.get('exclude_categories') if isinstance(profile.get('exclude_categories'), list) else [],
             )
             if candidates:
+<<<<<<< HEAD
                 print(f"[DEBUG] Received {len(candidates)} candidates from Product API.")
                 return candidates[0]
             
@@ -197,6 +218,12 @@ async def get_recommendation(user_profile: dict) -> dict:
             return _normalize_recommendation({}, preferred_temp=preferred_temp)
     except Exception as e:
         print(f'[ERROR] Product API unavailable or failed: {e}. Using hardcoded mocks.')
+=======
+                return candidates[0]
+            return _normalize_recommendation({}, preferred_temp=preferred_temp)
+    except Exception as e:
+        print(f'Product API unavailable: {e}. Using mock.')
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
         return _mock_recommendation(payload)
 
 
@@ -208,24 +235,38 @@ async def get_recommendation_candidates(user_profile: dict) -> list:
     payload.setdefault('top_n', 5)
 
     try:
+<<<<<<< HEAD
         print(f"[DEBUG] Calling Product API for candidates: {payload.get('mood')}")
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
         async with httpx.AsyncClient(timeout=5) as client:
             response = await client.post(
                 f'{PRODUCT_API}/products/recommend',
                 json=payload
             )
             response.raise_for_status()
+<<<<<<< HEAD
             data = response.json()
             candidates = _normalize_recommendation_candidates(
                 data,
+=======
+            candidates = _normalize_recommendation_candidates(
+                response.json(),
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
                 preferred_temp=preferred_temp,
                 exclude_names=profile.get('exclude_names') if isinstance(profile.get('exclude_names'), list) else [],
                 exclude_categories=profile.get('exclude_categories') if isinstance(profile.get('exclude_categories'), list) else [],
             )
+<<<<<<< HEAD
             print(f"[DEBUG] Received {len(candidates)} candidates from Product API.")
             return candidates[:5]
     except Exception as e:
         print(f'[ERROR] Product API candidate lookup failed: {e}. Falling back to mock list.')
+=======
+            return candidates[:5]
+    except Exception as e:
+        print(f'Product API candidate list unavailable: {e}. Using mock list.')
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 
     return [_mock_recommendation(payload)]
 
@@ -376,17 +417,24 @@ def _mock_recommendation(profile: dict) -> dict:
 
     meta = catalog[chosen]
     return {
+<<<<<<< HEAD
         'id': f"mock-id-{chosen.lower().replace(' ', '-')}",
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
         'product_name': chosen,
         'category': meta['category'],
         'price': meta['price'],
         'temperature': meta['temperature'],
+<<<<<<< HEAD
         'image_url': 'https://images.unsplash.com/photo-1541167760496-1628856ab772?auto=format&fit=crop&q=80&w=200&h=200',
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
         'description': 'A handcrafted recommendation from BrewBot.',
         'reason': meta['reason'],
         'similarity_score': 0.84,
     }
 
+<<<<<<< HEAD
 # ── Call Wijerathna's Feedback API (Feature 6) ──────────────────
 async def submit_feedback(session_id: str, product_name: str, accepted: bool, rating: float = None, notes: str = None, mood: str = 'Calm', weather: str = 'Warm', strategy: str = 'hybrid', product_id: str = None) -> dict:
     try:
@@ -411,6 +459,8 @@ async def submit_feedback(session_id: str, product_name: str, accepted: bool, ra
         print(f'Feedback API unavailable: {e}.')
         return {'success': False, 'error': str(e)}
 
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 # ── RAG: Semantic Coffee Knowledge Base (Dense Retrieval) ──────
 async def get_coffee_knowledge(query: str) -> str:
     """Performs semantic vector search for coffee facts and brewing methods."""

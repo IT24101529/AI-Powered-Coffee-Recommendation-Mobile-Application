@@ -13,7 +13,10 @@ def save_context_log(
     time_of_day:    str,
     weight_vector:  str,
     is_override:    bool = False,
+<<<<<<< HEAD
     temp_celsius:   float = None,
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 ) -> int:
     '''
     Saves one context snapshot to the context_logs table.
@@ -27,13 +30,20 @@ def save_context_log(
         time_of_day      = time_of_day,
         weight_vector    = weight_vector,
         is_override      = is_override,
+<<<<<<< HEAD
         temperature_celsius = temp_celsius,
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
         created_at       = datetime.utcnow(),
     )
     db.add(log)
     db.commit()
     db.refresh(log)
+<<<<<<< HEAD
     print(f'[ContextLogger] Saved log ID={log.id} for session={session_id} (Override={is_override})')
+=======
+    print(f'[ContextLogger] Saved log ID={log.id} for session={session_id}')
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
     return log.id
 
 
@@ -50,6 +60,7 @@ def get_latest_context(db, session_id: str) -> dict:
         return None
 
     return {
+<<<<<<< HEAD
         'session_id':           log.session_id,
         'temp_tag':             log.temp_tag,
         'condition_tag':        log.condition_tag,
@@ -58,6 +69,15 @@ def get_latest_context(db, session_id: str) -> dict:
         'is_override':          log.is_override,
         'temperature_celsius':  log.temperature_celsius,
         'created_at':           log.created_at.isoformat(),
+=======
+        'session_id':    log.session_id,
+        'temp_tag':      log.temp_tag,
+        'condition_tag': log.condition_tag,
+        'time_of_day':   log.time_of_day,
+        'weight_vector': log.weight_vector,
+        'is_override':   log.is_override,
+        'created_at':    log.created_at.isoformat(),
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
     }
 
 

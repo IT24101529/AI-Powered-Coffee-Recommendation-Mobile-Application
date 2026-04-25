@@ -89,6 +89,7 @@ def get_full_context(
     location:   str = Query(default=None, description='Location override e.g. Colombo,LK'),
     db: Session = Depends(get_db)
 ):
+<<<<<<< HEAD
     # ── Sub-step 0: Check for active override persistence ────────
     # If the user manually simulated weather, we stick to it for the session.
     latest = get_latest_context(db, session_id)
@@ -105,13 +106,18 @@ def get_full_context(
             'location':          'Override'
         }
 
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
     loc = location or DEFAULT_LOCATION
 
     # ── Sub-step 1: Get weather (cached or live) ─────────────────
     weather = get_weather(db, loc)
+<<<<<<< HEAD
     if not weather:
         from fastapi import HTTPException
         raise HTTPException(status_code=404, detail=f"Weather data for location '{loc}' is currently unavailable.")
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 
     # ── Sub-step 2: Get time context ─────────────────────────────
     time_ctx = get_full_time_context()
@@ -195,7 +201,10 @@ def override_context(override: OverrideInput, db: Session = Depends(get_db)):
         time_of_day   = time_ctx['time_of_day'],
         weight_vector = weight_result['weight_vector'],
         is_override   = True,
+<<<<<<< HEAD
         temp_celsius  = override.temperature
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
     )
 
     return {
@@ -206,11 +215,15 @@ def override_context(override: OverrideInput, db: Session = Depends(get_db)):
         'weight_vector': weight_result['weights_dict'],
         'recommended_type': weight_result['recommended_type'],
         'is_override':   True,
+<<<<<<< HEAD
         'temperature_celsius': override.temperature,
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
         'log_id':        log_id,
     }
 
 
+<<<<<<< HEAD
 @app.delete('/context/override/{session_id}')
 def reset_override(session_id: str, db: Session = Depends(get_db)):
     '''
@@ -253,6 +266,8 @@ def reset_override(session_id: str, db: Session = Depends(get_db)):
     return get_full_context(session_id=session_id, db=db)
 
 
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 # BONUS ENDPOINT: Retrieve past context for a session
 @app.get('/context/session/{session_id}')
 def get_session_context(session_id: str, db: Session = Depends(get_db)):

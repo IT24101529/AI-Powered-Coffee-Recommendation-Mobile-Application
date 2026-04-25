@@ -2,6 +2,7 @@
   {
     "model": "Agentic Intent Dispatcher",
     "service": "coffee_chatbot_backend",
+<<<<<<< HEAD
     "accuracy": 0.9949,
     "accuracy_std": 0.0003,
     "macro_f1": 0.9949,
@@ -14,6 +15,20 @@
       "Question": 19903,
       "Complaint": 1020,
       "Feedback": 1018,
+=======
+    "accuracy": 0.9953,
+    "accuracy_std": 0.0009,
+    "macro_f1": 0.9953,
+    "cv_folds": 5,
+    "samples": 27032,
+    "class_distribution": {
+      "Greeting": 20,
+      "Order": 3013,
+      "Suggest": 20,
+      "Question": 19903,
+      "Complaint": 1020,
+      "Feedback": 1017,
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
       "Browse": 2019,
       "Goodbye": 20
     },
@@ -42,9 +57,15 @@
       "Goodbye": [
         "that",
         "see you",
+<<<<<<< HEAD
         "more",
         "thanks",
         "today"
+=======
+        "today",
+        "off",
+        "is it"
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
       ],
       "Greeting": [
         "hi",
@@ -56,9 +77,15 @@
       "Order": [
         "order",
         "purchase",
+<<<<<<< HEAD
         "buy",
         "article",
         "something"
+=======
+        "something",
+        "article",
+        "buy"
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
       ],
       "Question": [
         "account",
@@ -72,7 +99,11 @@
         "what",
         "fit",
         "suggest",
+<<<<<<< HEAD
         "caffeine"
+=======
+        "recommendation"
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
       ]
     },
     "algorithm": "Agentic Hybrid Dispatcher (LinearSVC Fallback + Gemini 1.5 Flash Reasoning)",
@@ -173,8 +204,13 @@
   {
     "model": "Context Decision Tree",
     "service": "coffee_context_service",
+<<<<<<< HEAD
     "accuracy": 0.9111,
     "accuracy_std": 0.0336,
+=======
+    "accuracy": 0.9444,
+    "accuracy_std": 0.0248,
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
     "cv_folds": 5,
     "samples": 360,
     "class_distribution": {

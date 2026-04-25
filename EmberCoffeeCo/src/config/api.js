@@ -23,6 +23,7 @@ const getExpoHost = () => {
 
 const getDefaultHost = () => {
   const envHost = process.env.EXPO_PUBLIC_API_HOST;
+<<<<<<< HEAD
   if (envHost) {
     console.log('[API] Using host from env:', envHost);
     return envHost;
@@ -40,6 +41,15 @@ const getDefaultHost = () => {
   }
 
   console.log('[API] Fallback to localhost (127.0.0.1)');
+=======
+  if (envHost) return envHost;
+
+  const expoHost = getExpoHost();
+  if (expoHost && expoHost !== 'localhost') return expoHost;
+
+  if (Platform.OS === 'android' && Constants?.isDevice === false) return '10.0.2.2';
+
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
   return '127.0.0.1';
 };
 

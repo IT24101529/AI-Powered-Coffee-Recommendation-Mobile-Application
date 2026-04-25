@@ -10,8 +10,11 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from dotenv import load_dotenv
 from datetime import datetime
+<<<<<<< HEAD
 import pymongo
 from bson import ObjectId
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 
 load_dotenv()
 
@@ -22,6 +25,7 @@ engine       = create_engine(DATABASE_URL, echo=False)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base         = declarative_base()
 
+<<<<<<< HEAD
 # --- MongoDB Integration (Fallback) ---
 MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/CoffeeDB')
 mongo_client = None
@@ -36,6 +40,8 @@ try:
 except Exception as e:
     print(f"MongoDB connection failed: {e}")
 
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 
 # ── TABLE 1: Categories ─────────────────────────────────────────
 class Category(Base):
@@ -166,6 +172,7 @@ def get_db():
         yield db
     finally:
         db.close()
+<<<<<<< HEAD
 
 
 def get_product_from_mongo(product_id_or_name: str) -> dict:
@@ -214,3 +221,5 @@ def get_product_from_mongo(product_id_or_name: str) -> dict:
         print(f"Mongo fallback lookup failed: {e}")
         
     return None
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b

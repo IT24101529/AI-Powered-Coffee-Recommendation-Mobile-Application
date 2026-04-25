@@ -67,7 +67,10 @@ class ContextLog(Base):
     time_of_day      = Column(String(15), nullable=False)   # Morning/Afternoon/Evening/Night/Late Night
     weight_vector    = Column(Text, nullable=False)         # JSON string of weights
     is_override      = Column(Boolean, default=False)       # True if user manually set context
+<<<<<<< HEAD
     temperature_celsius = Column(Float, nullable=True)      # Raw temp for overrides
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
     created_at       = Column(TIMESTAMP, default=datetime.utcnow)
 
 

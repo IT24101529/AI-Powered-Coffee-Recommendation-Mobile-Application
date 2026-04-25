@@ -142,9 +142,24 @@ def _fallback_weather(db, location: str) -> dict:
             'is_fallback':         True,
         }
 
+<<<<<<< HEAD
     # Absolute last resort — return None to indicate failure
     print('[WeatherFetcher] No cache available and API failed. Returning None.')
     return None
+=======
+    # Absolute last resort — hard-coded neutral values
+    print('[WeatherFetcher] No cache available. Using neutral fallback values.')
+    return {
+        'temperature_celsius': 25.0,   # Warm
+        'condition':           'Clear',
+        'humidity_percent':    60,
+        'wind_speed_ms':       2.0,
+        'raw_description':     'fallback - no data',
+        'from_cache':          False,
+        'cache_id':            None,
+        'is_fallback':         True,
+    }
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 
 
 # ── Test this file directly ─────────────────────────────────────

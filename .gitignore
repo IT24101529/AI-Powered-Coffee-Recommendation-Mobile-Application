@@ -6,3 +6,6 @@ Project Documentation
 venv
 __pycache__
 .vscode
+CoffeeDB.products.json
+Design
+.node_modules

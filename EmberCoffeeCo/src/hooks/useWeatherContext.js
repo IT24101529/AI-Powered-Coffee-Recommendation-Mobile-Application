@@ -60,6 +60,7 @@ export function useWeatherContext(sessionId, initialLocation = 'Kandy,LK') {
     }
   }, [sessionId]);
 
+<<<<<<< HEAD
   // ── DELETE an override to return to live weather ────────────
   const clearOverride = useCallback(async () => {
     setLoading(true);
@@ -77,6 +78,8 @@ export function useWeatherContext(sessionId, initialLocation = 'Kandy,LK') {
     }
   }, [sessionId]);
 
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
   // Auto-fetch whenever session or location changes
   useEffect(() => {
     if (sessionId) fetchContext(location);
@@ -91,6 +94,9 @@ export function useWeatherContext(sessionId, initialLocation = 'Kandy,LK') {
     setLocation,
     fetchContext,
     overrideContext,
+<<<<<<< HEAD
     clearOverride,
+=======
+>>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
   };
 }
