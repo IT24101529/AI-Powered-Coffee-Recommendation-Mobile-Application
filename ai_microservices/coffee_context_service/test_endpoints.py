@@ -6,7 +6,7 @@ import time
 import sys
 import os
 
-BASE_URL = "http://127.0.0.1:8000"
+BASE_URL = "http://127.0.0.1:8002"
 
 def print_separator(title: str):
     print(f"\n{'-'*60}")

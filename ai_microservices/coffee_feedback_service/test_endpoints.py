@@ -6,7 +6,7 @@ import time
 import sys
 import os
 
-BASE_URL = "http://127.0.0.1:8000"
+BASE_URL = "http://127.0.0.1:8005"
 
 def print_separator(title: str):
     print(f"\n{'-'*60}")
@@ -57,7 +57,7 @@ def run_tests():
 
     # TEST 2: Submit Feedback
     print_separator("Test 2: Submit Feedback (POST /feedback/submit)")
-    payload = {"session_id": "test_session_123", "message": "Good coffee", "rating": 5, "product_id": "prod_001"}
+    payload = {"session_id": "test_session_123", "product_name": "Ember Dark Roast", "strategy_used": "hybrid", "accepted": True, "rating": 5.0}
     status, response = make_request("POST", "/feedback/submit", data=payload)
     print(f"Status  : {status}")
     print(f"Response: {response}")

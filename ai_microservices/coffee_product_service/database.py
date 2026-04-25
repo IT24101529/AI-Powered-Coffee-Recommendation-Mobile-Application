@@ -170,7 +170,7 @@ def get_db():
 
 def get_product_from_mongo(product_id_or_name: str) -> dict:
     """Helper to fetch product from MongoDB as a fallback source."""
-    if not mongo_db:
+    if mongo_db is None:
         return None
     
     try:
