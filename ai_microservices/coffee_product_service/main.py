@@ -4,7 +4,6 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import Optional
-<<<<<<< HEAD
 from database import get_db, create_tables, CoffeeProduct, get_product_from_mongo, RecommendationHistory
 from matcher import find_best_matches
 from vector_builder import build_need_vector
@@ -24,11 +23,6 @@ def record_recommendation(db: Session, product_id: str, session_id: str, score: 
     except Exception as e:
         print(f"Error recording recommendation history: {e}")
         db.rollback()
-=======
-from database import get_db, create_tables, CoffeeProduct
-from matcher import find_best_matches
-from vector_builder import build_need_vector
->>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 
 from product_seeder import perform_seeding
 import os
@@ -53,10 +47,7 @@ class UserProfile(BaseModel):
     time:      str = 'Afternoon'   # From Ranasinghe's context module
     budget:    Optional[float] = None  # Optional max price filter
     top_n:     int = 3             # How many recommendations to return
-<<<<<<< HEAD
     session_id: Optional[str] = None # Added to prevent AttributeError
-=======
->>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 
 
 # ── MAIN RECOMMENDATION ENDPOINT ────────────────────────────────
@@ -80,7 +71,6 @@ def recommend(profile: UserProfile, db: Session = Depends(get_db)):
     # Run cosine similarity matching
     matches = find_best_matches(need_vector, products, top_n=profile.top_n, profile=profile.dict())
 
-<<<<<<< HEAD
     # Part 3: RECORD HISTORY (Feature 5)
     # We record the top match as the primary recommendation for this session
     if matches:
@@ -91,9 +81,6 @@ def recommend(profile: UserProfile, db: Session = Depends(get_db)):
             session_id=profile.session_id or "anonymous", 
             score=top_match.get('similarity_score')
         )
-
-=======
->>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
     return {
         'user_profile':  profile.dict(),
         'need_vector':   need_vector,
@@ -106,11 +93,7 @@ def recommend(profile: UserProfile, db: Session = Depends(get_db)):
 def list_products(db: Session = Depends(get_db)):
     products = db.query(CoffeeProduct).all()
     return {'count': len(products), 'products': [
-<<<<<<< HEAD
         {'id': p.id, 'name': p.name, 'category': p.category, 'price': p.price, 'image_url': p.image_url}
-=======
-        {'id': p.id, 'name': p.name, 'category': p.category, 'price': p.price}
->>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
         for p in products
     ]}
 
@@ -120,7 +103,6 @@ def list_products(db: Session = Depends(get_db)):
 def get_product(product_id: str, db: Session = Depends(get_db)):
     product = db.query(CoffeeProduct).filter(CoffeeProduct.id == product_id).first()
     if not product:
-<<<<<<< HEAD
         # PostgreSQL failed/empty, try Mongo fallback
         mongo_p = get_product_from_mongo(product_id)
         if mongo_p:
@@ -135,10 +117,6 @@ def get_product(product_id: str, db: Session = Depends(get_db)):
         'image_url': product.image_url,
         'temperature': product.temperature,
     }
-=======
-        return {'error': 'Product not found'}
-    return product
->>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
 
 
 @app.get('/products/name/{product_name}')
@@ -157,13 +135,10 @@ def get_product_by_name(product_name: str, db: Session = Depends(get_db)):
         ).first()
 
     if not product:
-<<<<<<< HEAD
         # PostgreSQL failed/empty, try Mongo fallback
         mongo_p = get_product_from_mongo(product_name)
         if mongo_p:
             return mongo_p
-=======
->>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
         return {'error': 'Product not found'}
 
     return {
@@ -172,10 +147,7 @@ def get_product_by_name(product_name: str, db: Session = Depends(get_db)):
         'category': product.category,
         'price': product.price,
         'description': product.description,
-<<<<<<< HEAD
         'image_url': product.image_url,
-=======
->>>>>>> b3b40c1cbab73a4be9054ae12b0b384e3224533b
         'temperature': product.temperature,
         'sweetness': product.sweetness,
         'bitterness': product.bitterness,
