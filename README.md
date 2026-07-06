@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="EmberCoffeeCo/assets/icon.png" width="120" alt="EMBER Coffee Co. Icon" style="border-radius:24px; margin-bottom:16px;" />
+<img src="EmberCoffeeCo/assets/icon.png" width="360" alt="EMBER Coffee Co. Icon" style="border-radius:24px; margin-bottom:16px;" />
 
 # ☕ EMBER Coffee Co.
 ### AI-Powered Personalized Coffee Experience
@@ -96,14 +96,15 @@
 
 ### SE2020 — Web & Mobile Technologies
 
-| Member | Student ID | Module | Responsibilities |
-|--------|-----------|--------|-----------------|
-| **E.M.T.D.B. Ekanayake** | IT24100917 | User Auth & Profile | JWT authentication, bcrypt hashing, registration/login, profile management, admin user CRUD, auth middleware |
-| **M.R.C.D. Bandara** | IT24102854 | Menu & Products | Full product CRUD, category grouping, availability management, admin product screens, Cloudinary image upload |
-| **M.F. Aaquif** | IT24101109 | Order Processing | Cart & checkout logic, order lifecycle, payment screenshot upload, order history, admin order dashboard, cancellation |
-| **B.G.G.S. Wijerathna** | IT24101058 | Loyalty & Rewards | Reward CRUD, loyalty point tracking, atomic redemption, redemption history, rewards dashboard |
-| **M.I.M. Ishaak** | IT24100497 | Reviews & Ratings | Product and store-wide review CRUD, star ratings, photo uploads, public feeds, owner-only permissions |
-| **R.M.N.K. Ranasinghe** | IT24101529 | Promotions & Deployment | Promo code CRUD, discount logic, checkout validation, Railway deployment, MongoDB Atlas, global error handling |
+| Member | Module | Responsibilities |
+|--------|--------|-----------------|
+| **Nalina Ranasinghe** | Promotions & Deployment | Promo code CRUD, discount logic, checkout validation, Railway deployment, MongoDB Atlas, global error handling |
+| **Theekshana Ekanayake** | User Auth & Profile | JWT authentication, bcrypt hashing, registration/login, profile management, admin user CRUD, auth middleware |
+| **Chithmini Bandara** | Menu & Products | Full product CRUD, category grouping, availability management, admin product screens, Cloudinary image upload |
+| **Aaquif Faiz** | Order Processing | Cart & checkout logic, order lifecycle, payment screenshot upload, order history, admin order dashboard, cancellation |
+| **Shehara Wijerathna** | Loyalty & Rewards | Reward CRUD, loyalty point tracking, atomic redemption, redemption history, rewards dashboard |
+| **Ishaak Irfaan** | Reviews & Ratings | Product and store-wide review CRUD, star ratings, photo uploads, public feeds, owner-only permissions |
+
 
 **Shared Responsibilities**: UI/UX consistency · Cloudinary integration · Unit and property-based testing (Jest + fast-check) · Documentation
 
@@ -111,14 +112,14 @@
 
 ### IT2021 — AI & Machine Learning
 
-| Member | Student ID | AI Feature | Techniques Used |
-|--------|-----------|------------|----------------|
-| **B.G.G.S. Wijerathna** | IT24101058 | Chatbot Core & Orchestration | Gemini 2.5 Flash agentic reasoning, local intent classifier, conversation state machine, RAG knowledge base |
-| **M.R.C.D. Bandara** | IT24102854 | Sentiment & Emotion Analysis | 2-layer: keyword matching + RandomForest TF-IDF (21K training samples, 5-fold CV) |
-| **R.M.N.K. Ranasinghe** | IT24101529 | Context-Aware Integration | OpenWeatherMap API, Decision Tree, Fuzzy Logic, time-of-day classification |
-| **M.I.M. Ishaak** | IT24100497 | Trend Analytics & Popularity | Sales velocity scoring, growth rate analysis, tier classification (Bestseller / Trending Up / Hidden Gem) |
-| **E.M.T.D.B. Ekanayake** | IT24100917 | Product Recommendation Engine | Content-based filtering, Cosine Similarity on 6D feature vectors |
-| **M.F. Aaquif** | IT24101109 | Feedback & Continuous Learning | Contextual Multi-Armed Bandit with Bayesian Thompson Sampling |
+| Member | AI Feature | Techniques Used |
+|--------|------------|----------------|
+| **Nalina Ranasinghe** | Context-Aware Integration | OpenWeatherMap API, Decision Tree, Fuzzy Logic, time-of-day classification |
+| **Sheahara Wijerathna** | Chatbot Core & Orchestration | Gemini 2.5 Flash agentic reasoning, local intent classifier, conversation state machine, RAG knowledge base |
+| **Chithmini Bandara** | Sentiment & Emotion Analysis | 2-layer: keyword matching + RandomForest TF-IDF (21K training samples, 5-fold CV) |
+| **Ishaak Irfaan** | Trend Analytics & Popularity | Sales velocity scoring, growth rate analysis, tier classification (Bestseller / Trending Up / Hidden Gem) |
+| **Theekshana Ekanayake** | Product Recommendation Engine | Content-based filtering, Cosine Similarity on 6D feature vectors |
+| **Aaquif Faiz** | Feedback & Continuous Learning | Contextual Multi-Armed Bandit with Bayesian Thompson Sampling |
 
 ---
 
