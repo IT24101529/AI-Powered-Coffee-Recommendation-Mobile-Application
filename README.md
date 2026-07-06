@@ -417,7 +417,7 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 <div align="center">
 
-*Built with ❤️ by the EMBER Coffee Co. Team — Faculty of Computing, SLIIT*
-*Year 2 · Semester 2 · 2025/2026*
+*Built with ❤️ by the 2026-Y2-S2-KU-DS-09 EMBER Coffee Co. Team — Faculty of Computing, SLIIT*
+*Year 2 · Semester 2 · 2026*
 
 </div>
