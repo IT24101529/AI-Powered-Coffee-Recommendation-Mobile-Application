@@ -1,4 +1,6 @@
-﻿<div align="center">
+<div align="center">
+
+<img src="EmberCoffeeCo/assets/icon.png" width="120" alt="EMBER Coffee Co. Icon" style="border-radius:24px; margin-bottom:16px;" />
 
 # ☕ EMBER Coffee Co.
 ### AI-Powered Personalized Coffee Experience
@@ -120,9 +122,89 @@
 
 ---
 
-## 📱 Screenshots
+## 🧠 AI Intelligence Layer Deep Dive (IT2021)
 
-> 📸 *Run the app locally and use Expo Go to explore all features*
+EMBER's recommendation ecosystem relies on 6 specialized FastAPI microservices. We employed a rigorous evaluation framework (5-Fold Stratified Cross-Validation) to ensure production-grade accuracy across all models.
+
+<div align="center">
+  <img src="ai_microservices/visualizations/overall_accuracy_comparison.png" width="800" alt="Overall Accuracy Comparison" />
+</div>
+
+### 1. Intent & Conversational Orchestrator (99.5% Acc)
+The central **Agentic Intent Dispatcher** handles natural language requests using a hybrid architecture:
+- **Primary**: Google Gemini 1.5 Flash for agentic reasoning and complex preference extraction.
+- **Fallback Classifier**: `LinearSVC` (99.49% CV Accuracy) trained on the 27K Bitext Customer Support dataset.
+- **RAG Knowledge Base**: Uses Dense Vector Retrieval (`all-MiniLM-L6-v2`) to answer domain-specific questions about coffee brewing, origins, and chemistry.
+
+<div align="center">
+  <img src="ai_microservices/visualizations/intent_distribution.png" width="45%" /> 
+  <img src="ai_microservices/visualizations/intent_confusion_matrix.png" width="45%" />
+</div>
+
+### 2. Emotion & Sentiment Analysis (58% Acc)
+A multi-layered approach to extract user mood from unstructured chat:
+- **Keyword heuristics** to catch direct emotional cues and negations (e.g., "not happy" -> Sad).
+- **ML Classifier**: A `RandomForestClassifier` (TF-IDF, 5K features) trained on a balanced 21K sample subset of the Kaggle `Emotion_final.csv` dataset, achieving 58.15% macro accuracy across 7 nuanced classes (Tired, Stressed, Happy, Sad, Excited, Calm, Anxious).
+
+<div align="center">
+  <img src="ai_microservices/visualizations/emotion_distribution.png" width="45%" />
+  <img src="ai_microservices/visualizations/emotion_confusion_matrix.png" width="45%" />
+</div>
+
+### 3. Context-Aware Decision Tree (92.5% Acc)
+Leverages live contextual data via the **OpenWeatherMap API**:
+- Synthesizes temperature, weather conditions, and time of day.
+- A `RandomForestClassifier` trained on heuristic rules maps raw environmental data (e.g., 32°C Sunny Afternoon) to coffee requirement biases (e.g., Cold, Refreshing).
+
+<div align="center">
+  <img src="ai_microservices/visualizations/context_distribution.png" width="45%" />
+  <img src="ai_microservices/visualizations/context_confusion_matrix.png" width="45%" />
+</div>
+
+### 4. Advanced Recommendation Engine
+Three systems work together to rank and suggest products:
+- **Product Content Matcher**: Uses **Cosine Similarity with L2 Normalization** on 6D feature vectors (caffeine, warmth, sweetness, bitterness, richness, acidity). It scores the entire product catalog based on the combined output of the Sentiment and Context models.
+- **Trending Analytics**: Ranks products using a custom Sales Velocity formula (`24h_sales / 7d_average`). Categorizes items into dynamic tiers like *Bestseller* and *Hidden Gem*.
+- **Continuous Learning Loop**: Employs a **Contextual Multi-Armed Bandit (Bayesian Thompson Sampling)**. The system tracks per-mood Alpha/Beta parameters to determine which recommendation strategy (Content-based vs. Trending) performs best for a specific user state, actively updating via the live feedback UI.
+
+---
+
+## 📱 Application Gallery
+
+Experience the premium UI/UX designed for both customers and store administrators.
+
+### ☕ Customer Experience
+
+<div align="center">
+
+| Welcome & Onboarding | Home & Navigation | Menu & Details |
+|:---:|:---:|:---:|
+| <img src="Screenshots/Splash_Screen.jpg" width="250"/> <br/> **Splash Screen** | <img src="Screenshots/Home_Screen.jpg" width="250"/> <br/> **Home Screen** | <img src="Screenshots/Product_Menu_Screen.jpg" width="250"/> <br/> **Product Menu** |
+| <img src="Screenshots/Sign_Up_Screen.jpg" width="250"/> <br/> **Sign Up** | <img src="Screenshots/My_Orders_and_Community_Notes_Screen.jpg" width="250"/> <br/> **Orders & Community** | <img src="Screenshots/Product_Detail_Screen.jpg" width="250"/> <br/> **Product Details** |
+| <img src="Screenshots/Sign_In_Screen.jpg" width="250"/> <br/> **Sign In** | <img src="Screenshots/My_Rewards_Screen.jpg" width="250"/> <br/> **Loyalty & Rewards** | |
+
+</div>
+
+### 🤖 AI-Powered Chatbot
+
+<div align="center">
+
+| Smart Recommendations | Conversational Fallback |
+|:---:|:---:|
+| <img src="Screenshots/Chatbot_Product_Recommendation_Screen.jpg" width="250"/> <br/> **Multi-modal Recommendation**<br/>*(Shows Mood & Context badges)* | <img src="Screenshots/Chatbot_Fallback_Response_From_Gemini_Screen.jpg" width="250"/> <br/> **Agentic Fallback via Gemini** |
+
+</div>
+
+### ⚙️ Store Administration Panel
+
+<div align="center">
+
+| Overview & Products | Orders & Promotions | Loyalty Management |
+|:---:|:---:|:---:|
+| <img src="Screenshots/Admin_Dashboard_Screen.jpg" width="250"/> <br/> **Admin Dashboard** | <img src="Screenshots/Admin_Order_Processing_Screen.jpg" width="250"/> <br/> **Order Processing** | <img src="Screenshots/Admin_Rewards_Catelog_Screen.jpg" width="250"/> <br/> **Rewards Catalog** |
+| <img src="Screenshots/Admin_Product_Management_Screen.jpg" width="250"/> <br/> **Product Management** | <img src="Screenshots/Admin_Active_Promotions_Screen.jpg" width="250"/> <br/> **Active Promotions** | |
+
+</div>
 
 ---
 
