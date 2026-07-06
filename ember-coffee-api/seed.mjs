@@ -101,6 +101,14 @@ function load(filename) {
   return JSON.parse(readFileSync(resolve(root, filename), 'utf-8'));
 }
 
+/** Handles both plain-string IDs and MongoDB Extended JSON {$oid: "..."} */
+function parseId(val) {
+  if (!val) return new mongoose.Types.ObjectId();
+  if (typeof val === 'object' && val.$oid) return new mongoose.Types.ObjectId(val.$oid);
+  if (typeof val === 'string') return new mongoose.Types.ObjectId(val);
+  return new mongoose.Types.ObjectId();
+}
+
 async function upsertAll(Model, docs, label) {
   let count = 0;
   for (const doc of docs) {
@@ -121,44 +129,45 @@ const rawUsers = load('users.json');
 const users = await Promise.all(
   rawUsers.map(async (u) => ({
     ...u,
-    _id: new mongoose.Types.ObjectId(u._id),
-    passwordHash: await bcrypt.hash(u.passwordHash, 10),
+    _id: parseId(u._id),
+    // Only re-hash if it looks like a plain-text password (not already bcrypt)
+    passwordHash: u.passwordHash.startsWith('$2') ? u.passwordHash : await bcrypt.hash(u.passwordHash, 10),
   }))
 );
 await upsertAll(User, users, 'Users');
 
 // Products
 const products = load('products.json').map(p => ({
-  ...p, _id: new mongoose.Types.ObjectId(p._id),
+  ...p, _id: parseId(p._id),
 }));
 await upsertAll(Product, products, 'Products');
 
 // Promotions
 const promotions = load('promotions.json').map(p => ({
-  ...p, _id: new mongoose.Types.ObjectId(p._id),
+  ...p, _id: parseId(p._id),
 }));
 await upsertAll(Promotion, promotions, 'Promotions');
 
 // Rewards
 const rewards = load('rewards.json').map(r => ({
-  ...r, _id: new mongoose.Types.ObjectId(r._id),
+  ...r, _id: parseId(r._id),
 }));
 await upsertAll(Reward, rewards, 'Rewards');
 
 // Orders — cast nested ObjectIds too
 const orders = load('orders.json').map(o => ({
   ...o,
-  _id:    new mongoose.Types.ObjectId(o._id),
-  userId: new mongoose.Types.ObjectId(o.userId),
-  items:  o.items.map(i => ({ ...i, productId: new mongoose.Types.ObjectId(i.productId) })),
+  _id:    parseId(o._id),
+  userId: parseId(o.userId),
+  items:  o.items.map(i => ({ ...i, productId: parseId(i.productId) })),
 }));
 await upsertAll(Order, orders, 'Orders');
 
 // Store Reviews
 const storeReviews = load('reviews.json').map(r => ({
   ...r,
-  _id:    new mongoose.Types.ObjectId(r._id),
-  userId: new mongoose.Types.ObjectId(r.userId),
+  _id:    parseId(r._id),
+  userId: parseId(r.userId),
 }));
 await upsertAll(StoreReview, storeReviews, 'Store Reviews');
 

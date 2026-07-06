@@ -45,7 +45,6 @@ export function AuthProvider({ children }) {
         if (status === 401) {
           // Unauthorized — log out and redirect to login
           await logout();
-          reset({ index: 0, routes: [{ name: 'Login' }] });
         } else if (status === 403) {
           Alert.alert('Access denied');
         } else if (status === 400 || status === 409) {

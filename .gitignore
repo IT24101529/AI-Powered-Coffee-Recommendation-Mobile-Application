@@ -1,11 +1,61 @@
-/.kiro
-node_modules
-Project Documentation
+# ─── IDE / Editor ────────────────────────────────────────────────
+.kiro/
+.vscode/
+.idea/
+
+# ─── Environment Variables ────────────────────────────────────────
 .env
-.pytest_cache
-venv
-__pycache__
-.vscode
-CoffeeDB.products.json
+.env.local
+.env.production
+
+# ─── Node.js / JavaScript ────────────────────────────────────────
+node_modules/
+.node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ─── Expo / React Native ─────────────────────────────────────────
+EmberCoffeeCo/.expo/
+EmberCoffeeCo/dist/
+EmberCoffeeCo/android/
+EmberCoffeeCo/ios/
+*.apk
+*.ipa
+*.aab
+
+# ─── Python ──────────────────────────────────────────────────────
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.python-version
+
+# ─── ML Model Artifacts (large binary files) ─────────────────────
+*.pkl
+*.h5
+*.pt
+*.pth
+*.onnx
+ai_microservices/**/models/*.pkl
+
+# ─── Large ML Training Datasets (keep locally) ───────────────────
+ai_microservices/*.csv
+*.csv
+
+# ─── SQLite Databases (generated at runtime) ─────────────────────
+*.db
+*.sqlite
+*.sqlite3
+
+# ─── Project Documentation (PDFs, large files) ───────────────────
+Project Documentation/
+
+# ─── Miscellaneous ───────────────────────────────────────────────
 Design
-.node_modules
+CoffeeDB.products.json
+*.log
+.DS_Store
+Thumbs.db
